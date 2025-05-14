@@ -1,0 +1,6 @@
+@HOMMS_BackEnd_SEP490_HostAddress = http://localhost:5114
+
+GET {{HOMMS_BackEnd_SEP490_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
