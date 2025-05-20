@@ -1,0 +1,49 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# ASP.NET Core API Project Structure & Best Practices
+
+This project follows modern .NET Core API best practices, including:
+
+- **Repository Pattern** and **Unit of Work Pattern** for data access ([Repositories/](mdc:Repositories/), [DataAccess/](mdc:DataAccess/))
+- **SOLID**, **DRY**, and **OOP** principles throughout the codebase
+- **Code-First** approach with **Fluent API** and **Data Annotations** for entity configuration and validation ([BusinessObjects/](mdc:BusinessObjects/))
+- **JWT Authentication** and **Authorization** for secure API access ([Program.cs](mdc:HOMMS_BackEnd_SEP490/Program.cs))
+- **Role-Based Access Control (RBAC)** for managing multiple user roles
+- **Separation of Concerns**: API logic, data access, and business models are organized in dedicated projects/folders
+
+## Project Structure
+
+- **[HOMMS_BackEnd_SEP490/](mdc:HOMMS_BackEnd_SEP490/)**: Main ASP.NET Core API project
+  - `Program.cs`: Configures services, authentication, authorization, and middleware
+  - `appsettings.json`: Application configuration (logging, allowed hosts, etc.)
+  - `Controllers/`: (Expected) API controllers for endpoints
+- **[Repositories/](mdc:Repositories/)**: Repository interfaces and implementations for data access abstraction
+- **[DataAccess/](mdc:DataAccess/)**: Entity Framework Core DbContext, migrations, and Fluent API configurations
+- **[BusinessObjects/](mdc:BusinessObjects/)**: Entity classes with data annotations for validation
+
+## Key Architectural Practices
+
+- **Repository Pattern**: Encapsulates data access logic, promoting testability and separation of concerns.
+- **Unit of Work Pattern**: Coordinates repository operations within a single transaction.
+- **Code-First & Fluent API**: Define entities in code and configure relationships/constraints using Fluent API in DbContext.
+- **Data Annotations**: Use attributes on entity properties for validation (e.g., `[Required]`, `[StringLength]`).
+- **JWT Authentication**: Secure endpoints using JWT tokens; configure authentication in `Program.cs`.
+- **RBAC**: Use ASP.NET Core's policy-based authorization to manage multiple roles and restrict access to endpoints.
+- **SOLID & DRY**: Design classes and interfaces to be single-responsibility, open/closed, and reusable.
+
+## Example References
+
+- **DbContext & Fluent API**: See [DataAccess/](mdc:DataAccess/) for DbContext and model configuration.
+- **Entities & Validation**: See [BusinessObjects/](mdc:BusinessObjects/) for entity classes with data annotations.
+- **Repositories & Unit of Work**: See [Repositories/](mdc:Repositories/) for repository interfaces and implementations.
+- **Authentication & Authorization**: See [Program.cs](mdc:HOMMS_BackEnd_SEP490/Program.cs) for service configuration.
+- **Controllers**: (Expected in `Controllers/` folder) for API endpoints, decorated with `[Authorize]` and role policies.
+
+## Notes
+
+- The folder structure is designed for scalability and maintainability.
+- All new features should adhere to these patterns and principles.
+- For RBAC, define roles and policies in the authentication configuration and decorate controllers/actions with `[Authorize(Roles = "RoleName")]`.
