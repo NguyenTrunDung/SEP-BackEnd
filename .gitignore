@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 # Cursor IDE files
 .cursor/
+HOMMS.Infrastructure/Data/HOMMS.sql
