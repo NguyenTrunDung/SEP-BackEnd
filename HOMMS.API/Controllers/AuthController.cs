@@ -151,19 +151,22 @@ namespace HOMMS.API.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
+            if (User.Identity?.Name == null)
+                return Unauthorized("User is not authenticated.");
+
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            
+
             if (user == null)
                 return NotFound();
 
             return Ok(new UserProfileModel
             {
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Address = user.Address,
-                PhoneNumber = user.PhoneNumber,
-                ProfilePictureUrl = user.ProfilePictureUrl
+                Email = user.Email ?? string.Empty, // Fix for CS8601: Ensure non-null value
+                FirstName = user.FirstName ?? string.Empty, // Fix for CS8601: Ensure non-null value
+                LastName = user.LastName ?? string.Empty, // Fix for CS8601: Ensure non-null value
+                Address = user.Address, // Nullable, no fix needed
+                PhoneNumber = user.PhoneNumber, // Nullable, no fix needed
+                ProfilePictureUrl = user.ProfilePictureUrl // Nullable, no fix needed
             });
         }
 
@@ -244,9 +247,9 @@ namespace HOMMS.API.Controllers
 
     public class UserProfileModel
     {
-        public string Email { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public required string Email { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public string? ProfilePictureUrl { get; set; }

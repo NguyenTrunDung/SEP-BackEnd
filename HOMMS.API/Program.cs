@@ -1,5 +1,11 @@
+using HOMMS.API.Middleware;
+using HOMMS.Application.Interfaces;
+using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Data;
 using HOMMS.Infrastructure.Extensions;
+using HOMMS.Infrastructure.Repositories.Implementations;
+using HOMMS.Infrastructure.Repositories.Interfaces;
+using HOMMS.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -40,6 +46,16 @@ builder.Services.AddVersionedApiExplorer(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
+// Register branch context for multi-tenancy
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IBranchContext, BranchContext>();
+
+// Register repositories
+builder.Services.AddScoped<IBranchRepository, BranchRepository>();
+builder.Services.AddScoped<IMenuRepository, MenuRepository>();
+builder.Services.AddScoped<IFoodRepository, FoodRepository>();
+builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -54,6 +70,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Add branch context middleware (before authentication/authorization)
+app.UseMiddleware<BranchContextMiddleware>();
 
 // Add Serilog request logging
 app.UseSerilogRequestLogging();

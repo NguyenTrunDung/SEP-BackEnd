@@ -3,6 +3,25 @@ using System;
 namespace HOMMS.Domain.Entities.Base
 {
     /// <summary>
+    /// Base interface for all entities, providing a strongly typed identifier
+    /// </summary>
+    /// <typeparam name="TKey">The type of the entity's primary key</typeparam>
+    public interface IEntity<TKey>
+    {
+        /// <summary>
+        /// Gets or sets the primary key for this entity
+        /// </summary>
+        TKey Id { get; set; }
+    }
+
+    /// <summary>
+    /// Default implementation of IEntity using int as the key type
+    /// </summary>
+    public interface IEntity : IEntity<int>
+    {
+    }
+    
+    /// <summary>
     /// Interface for entities that support soft deletion
     /// </summary>
     public interface ISoftDeletable

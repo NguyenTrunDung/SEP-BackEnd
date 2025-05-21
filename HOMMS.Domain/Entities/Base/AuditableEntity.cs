@@ -5,34 +5,38 @@ using HOMMS.Domain.Entities.Base;
 
 namespace HOMMS.Domain.Entities
 {
-    public class Branch : BaseAuditableEntity
+    /// <summary>
+    /// Base class for entities that require audit information
+    /// </summary>
+    /// <typeparam name="TKey">The type of the entity's primary key</typeparam>
+    public abstract class AuditableEntity<TKey> : BaseEntity<TKey>, IAuditableEntity
     {
-        [Required]
-        [StringLength(100)]
-        public string Name { get; set; } = string.Empty;
+        /// <summary>
+        /// Gets or sets the date and time when this entity was created
+        /// </summary>
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [Required]
-        [StringLength(200)]
-        public string Address { get; set; } = string.Empty;
+        /// <summary>
+        /// Gets or sets the identifier of the user who created this entity
+        /// </summary>
+        public string? CreatedBy { get; set; }
 
-        [StringLength(20)]
-        public string? PhoneNumber { get; set; }
+        /// <summary>
+        /// Gets or sets the date and time when this entity was last modified
+        /// </summary>
+        public DateTime? LastModifiedAt { get; set; }
 
-        [StringLength(100)]
-        public string? Email { get; set; }
-
-        [StringLength(500)]
-        public string? Description { get; set; }
-
-        public bool IsActive { get; set; } = true;
-
-        // Foreign key to a user who manages this branch (optional)
-        public string? ManagerId { get; set; }
-        public ApplicationUser? Manager { get; set; }
-
-        // Navigation properties
-        public virtual ICollection<Menu> Menus { get; set; } = new HashSet<Menu>();
-        public virtual ICollection<Order> Orders { get; set; } = new HashSet<Order>();
-        public virtual ICollection<BranchUser> BranchUsers { get; set; } = new HashSet<BranchUser>();
+        /// <summary>
+        /// Gets or sets the identifier of the user who last modified this entity
+        /// </summary>
+        public string? LastModifiedBy { get; set; }
     }
-} 
+
+    /// <summary>
+    /// Base class for auditable entities with an integer primary key
+    /// </summary>
+    public abstract class AuditableEntity : AuditableEntity<int>
+    {
+    }
+    // Removed duplicate/partial Branch class definition. Use HOMMS.Domain.Entities.Branch instead.
+}

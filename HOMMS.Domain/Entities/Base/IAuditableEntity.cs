@@ -1,21 +1,30 @@
+using System;
+
 namespace HOMMS.Domain.Entities.Base
 {
     /// <summary>
-    /// Base class for all entities with a typed identifier
+    /// Interface for entities that track creation and modification information
     /// </summary>
-    /// <typeparam name="TKey">The type of the entity's primary key</typeparam>
-    public abstract class BaseEntity<TKey> : IEntity<TKey>
+    public interface IAuditableEntity
     {
         /// <summary>
-        /// Gets or sets the primary key for this entity
+        /// Gets or sets the date and time when this entity was created
         /// </summary>
-        public TKey Id { get; set; } = default!;
-    }
-
-    /// <summary>
-    /// Base class for entities with an integer primary key
-    /// </summary>
-    public abstract class BaseEntity : BaseEntity<int>, IEntity
-    {
+        DateTime CreatedAt { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the identifier of the user who created this entity
+        /// </summary>
+        string? CreatedBy { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the date and time when this entity was last modified
+        /// </summary>
+        DateTime? LastModifiedAt { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the identifier of the user who last modified this entity
+        /// </summary>
+        string? LastModifiedBy { get; set; }
     }
 } 

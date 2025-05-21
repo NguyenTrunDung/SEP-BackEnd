@@ -15,7 +15,7 @@ namespace HOMMS.Infrastructure.Extensions
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
         {
             // Add Identity
-            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options => // Use AddIdentity instead of AddIdentityCore
             {
                 // Password settings
                 options.Password.RequireDigit = true;
