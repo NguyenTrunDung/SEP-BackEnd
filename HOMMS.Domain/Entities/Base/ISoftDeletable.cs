@@ -1,0 +1,1 @@
+// This file is a duplicate and should be removed. The ISoftDeletable interface is already defined elsewhere.

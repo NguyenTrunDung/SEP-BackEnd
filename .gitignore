@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Cursor IDE files
+.cursor/
+HOMMS.Infrastructure/Data/HOMMS.sql
