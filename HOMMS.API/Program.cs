@@ -21,6 +21,7 @@ builder.Host.UseSerilog();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddControllers();
+builder.Services.AddCustomServices();
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -58,7 +59,33 @@ builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "HOMMS API", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+    });
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -71,11 +98,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Add branch context middleware (before authentication/authorization)
-app.UseMiddleware<BranchContextMiddleware>();
-
 // Add Serilog request logging
 app.UseSerilogRequestLogging();
+
+// Add global exception middleware (should be early in the pipeline)
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+// Add branch context middleware (before authentication/authorization)
+app.UseMiddleware<BranchContextMiddleware>();
 
 // Enable authentication and authorization
 app.UseAuthentication();
@@ -89,6 +119,14 @@ try
     
     // Seed the database
     await app.SeedDatabaseAsync();
+    
+    // Print listening URLs to the terminal and log with Serilog
+    var addresses = app.Urls;
+    foreach (var address in addresses)
+    {
+        Console.WriteLine($"Now listening on: {address}");
+        Log.Information("Now listening on serilog: {Address}", address);
+    }
     
     app.Run();
 }

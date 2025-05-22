@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using HOMMS.Common.Helpers;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -19,17 +21,20 @@ namespace HOMMS.API.Controllers.V1
         private readonly IFoodRepository _foodRepository;
         private readonly IFoodCategoryRepository _foodCategoryRepository;
         private readonly IBranchContext _branchContext;
+        private readonly IMapper _mapper;
         
         public PublicMenuController(
             IMenuRepository menuRepository,
             IFoodRepository foodRepository,
             IFoodCategoryRepository foodCategoryRepository,
-            IBranchContext branchContext)
+            IBranchContext branchContext,
+            IMapper mapper)
         {
             _menuRepository = menuRepository;
             _foodRepository = foodRepository;
             _foodCategoryRepository = foodCategoryRepository;
             _branchContext = branchContext;
+            _mapper = mapper;
         }
         
         /// <summary>
@@ -38,41 +43,13 @@ namespace HOMMS.API.Controllers.V1
         /// <param name="date">Optional date to filter menus (defaults to today)</param>
         /// <returns>List of menus</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MenuDto>>> GetMenus([FromQuery] DateTime? date = null)
+        public async Task<ActionResult<ApiResponseBase<List<MenuDto>>>> GetMenus([FromQuery] DateTime? date = null)
         {
-            try
-            {
-                var dateToFilter = date ?? DateTime.Today;
-                int branchId = _branchContext.GetCurrentBranchId();
-                
-                var menus = await _menuRepository.GetMenusByBranchAndDateAsync(branchId, dateToFilter);
-                var menuDtos = menus.Select(m => new MenuDto
-                {
-                    Id = m.Id,
-                    Name = m.Name,
-                    Date = m.Date,
-                    TimeOfDay = m.TimeOfDay,
-                    IsTime = m.IsTime,
-                    TimeFrom = m.TimeFrom,
-                    TimeTo = m.TimeTo,
-                    BranchId = m.BranchId,
-                    Branch = m.Branch != null ? new BranchDto
-                    {
-                        Id = m.Branch.Id,
-                        Name = m.Branch.Name,
-                        Code = m.Branch.Code,
-                        Address = m.Branch.Address,
-                        Phone = m.Branch.Phone,
-                        Email = m.Branch.Email
-                    } : null
-                }).ToList();
-                
-                return Ok(menuDtos);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var dateToFilter = date ?? DateTime.Today;
+            int branchId = _branchContext.GetCurrentBranchId();
+            var menus = await _menuRepository.GetMenusByBranchAndDateAsync(branchId, dateToFilter);
+            var menuDtos = _mapper.Map<List<MenuDto>>(menus);
+            return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully"));
         }
         
         /// <summary>
@@ -81,87 +58,14 @@ namespace HOMMS.API.Controllers.V1
         /// <param name="id">Menu ID</param>
         /// <returns>Menu details with foods</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<MenuDto>> GetMenu(int id)
+        public async Task<ActionResult<ApiResponseBase<MenuDto>>> GetMenu(int id)
         {
-            try
-            {
-                var menu = await _menuRepository.GetMenuWithDetailsAsync(id);
-                
-                if (menu == null)
-                {
-                    return NotFound("Menu not found");
-                }
-                
-                var menuDto = new MenuDto
-                {
-                    Id = menu.Id,
-                    Name = menu.Name,
-                    Date = menu.Date,
-                    TimeOfDay = menu.TimeOfDay,
-                    IsTime = menu.IsTime,
-                    TimeFrom = menu.TimeFrom,
-                    TimeTo = menu.TimeTo,
-                    BranchId = menu.BranchId,
-                    Branch = menu.Branch != null ? new BranchDto
-                    {
-                        Id = menu.Branch.Id,
-                        Name = menu.Branch.Name,
-                        Code = menu.Branch.Code,
-                        Address = menu.Branch.Address,
-                        Phone = menu.Branch.Phone,
-                        Email = menu.Branch.Email
-                    } : null
-                };
-                
-                // Organize menu details by food category
-                var detailsByCategory = await _menuRepository.GetMenuDetailsByCategoryAsync(id);
-                
-                menuDto.FoodsByCategory = detailsByCategory.ToDictionary(
-                    kvp => new FoodCategoryDto
-                    {
-                        Id = kvp.Key.Id,
-                        Name = kvp.Key.Name,
-                        ImageUrl = kvp.Key.Image,
-                        Sort = kvp.Key.Sort ?? 0
-                    },
-                    kvp => kvp.Value.Select(md => new MenuDetailDto
-                    {
-                        Id = md.Id,
-                        MenuId = md.MenuId,
-                        FoodId = md.FoodId,
-                        Quantity = md.Qty,
-                        Sold = md.Sold,
-                        PriceForGuest = md.PriceForGuest ?? md.Food?.PriceForGuest,
-                        PriceForPatient = md.PriceForPatient ?? md.Food?.PriceForPatient,
-                        PriceForStaff = md.PriceForStaff ?? md.Food?.PriceForStaff,
-                        DiscountPrice = md.DiscountPrice,
-                        Status = md.Status,
-                        Food = new FoodDto
-                        {
-                            Id = md.Food.Id,
-                            Name = md.Food.Name,
-                            Description = md.Food.Description,
-                            CategoryId = md.Food.CategoryId,
-                            ImageUrl = md.Food.Image,
-                            IsSetDish = md.Food.IsSetDish,
-                            IsAddOn = md.Food.IsAddOn,
-                            PriceForGuest = md.Food.PriceForGuest,
-                            PriceForPatient = md.Food.PriceForPatient,
-                            PriceForStaff = md.Food.PriceForStaff,
-                            Sort = md.Food.Sort
-                        }
-                    }).ToList()
-                );
-                
-                // Add all details to the MenuDetails list for backward compatibility
-                menuDto.MenuDetails = menuDto.FoodsByCategory.Values.SelectMany(details => details).ToList();
-                
-                return Ok(menuDto);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var menu = await _menuRepository.GetMenuWithDetailsAsync(id);
+            if (menu == null)
+                return NotFound(new ApiResponseBase<MenuDto>(null, "Menu not found", "error"));
+            var menuDto = _mapper.Map<MenuDto>(menu);
+            // Optionally map details by category if needed
+            return Ok(new ApiResponseBase<MenuDto>(menuDto, "Menu retrieved successfully"));
         }
         
         /// <summary>
@@ -318,27 +222,12 @@ namespace HOMMS.API.Controllers.V1
         /// </summary>
         /// <returns>List of food categories</returns>
         [HttpGet("categories")]
-        public async Task<ActionResult<IEnumerable<FoodCategoryDto>>> GetFoodCategories()
+        public async Task<ActionResult<ApiResponseBase<List<FoodCategoryDto>>>> GetFoodCategories()
         {
-            try
-            {
-                int branchId = _branchContext.GetCurrentBranchId();
-                
-                var categories = await _foodCategoryRepository.GetActiveCategoriesByBranchAsync(branchId);
-                var categoryDtos = categories.Select(c => new FoodCategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    ImageUrl = c.Image,
-                    Sort = c.Sort ?? 0
-                }).OrderBy(c => c.Sort).ToList();
-                
-                return Ok(categoryDtos);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            int branchId = _branchContext.GetCurrentBranchId();
+            var categories = await _foodCategoryRepository.GetActiveCategoriesByBranchAsync(branchId);
+            var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
+            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories retrieved successfully"));
         }
         
         /// <summary>
@@ -347,34 +236,12 @@ namespace HOMMS.API.Controllers.V1
         /// <param name="categoryId">Category ID</param>
         /// <returns>List of foods in the category</returns>
         [HttpGet("categories/{categoryId}/foods")]
-        public async Task<ActionResult<IEnumerable<FoodDto>>> GetFoodsByCategory(int categoryId)
+        public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoodsByCategory(int categoryId)
         {
-            try
-            {
-                int branchId = _branchContext.GetCurrentBranchId();
-                
-                var foods = await _foodRepository.GetFoodsByBranchAndCategoryAsync(branchId, categoryId);
-                var foodDtos = foods.Select(f => new FoodDto
-                {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Description = f.Description,
-                    CategoryId = f.CategoryId,
-                    ImageUrl = f.Image,
-                    IsSetDish = f.IsSetDish,
-                    IsAddOn = f.IsAddOn,
-                    PriceForGuest = f.PriceForGuest,
-                    PriceForPatient = f.PriceForPatient,
-                    PriceForStaff = f.PriceForStaff,
-                    Sort = f.Sort
-                }).OrderBy(f => f.Sort).ToList();
-                
-                return Ok(foodDtos);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            int branchId = _branchContext.GetCurrentBranchId();
+            var foods = await _foodRepository.GetFoodsByBranchAndCategoryAsync(branchId, categoryId);
+            var foodDtos = _mapper.Map<List<FoodDto>>(foods);
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods retrieved successfully"));
         }
     }
 } 
