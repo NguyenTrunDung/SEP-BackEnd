@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HOMMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class TestMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -94,7 +94,7 @@ namespace HOMMS.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
@@ -205,6 +205,35 @@ namespace HOMMS.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BranchRoles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    IsDefault = table.Column<bool>(type: "bit", nullable: false),
+                    Permissions = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BranchRoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BranchRoles_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BranchUser",
                 columns: table => new
                 {
@@ -241,7 +270,6 @@ namespace HOMMS.Infrastructure.Migrations
                     Image = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Sort = table.Column<int>(type: "int", nullable: true),
                     Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    BranchId1 = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -259,11 +287,6 @@ namespace HOMMS.Infrastructure.Migrations
                         principalTable: "Branches",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Food_Categories_Branches_BranchId1",
-                        column: x => x.BranchId1,
-                        principalTable: "Branches",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -279,7 +302,6 @@ namespace HOMMS.Infrastructure.Migrations
                     TimeFrom = table.Column<TimeSpan>(type: "time", nullable: true),
                     TimeTo = table.Column<TimeSpan>(type: "time", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true, computedColumnSql: "CONCAT([TimeOfDay], ' - ', CONVERT(VARCHAR(10), [Date], 120))"),
-                    BranchId1 = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -297,11 +319,46 @@ namespace HOMMS.Infrastructure.Migrations
                         principalTable: "Branches",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BranchUserRoles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    BranchRoleId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BranchUserRoles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Menus_Branches_BranchId1",
-                        column: x => x.BranchId1,
+                        name: "FK_BranchUserRoles_BranchRoles_BranchRoleId",
+                        column: x => x.BranchRoleId,
+                        principalTable: "BranchRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BranchUserRoles_Branches_BranchId",
+                        column: x => x.BranchId,
                         principalTable: "Branches",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BranchUserRoles_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -323,7 +380,6 @@ namespace HOMMS.Infrastructure.Migrations
                     DiseaseCategoryId = table.Column<int>(type: "int", nullable: true),
                     Image = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Sort = table.Column<int>(type: "int", nullable: true),
-                    BranchId1 = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -341,11 +397,6 @@ namespace HOMMS.Infrastructure.Migrations
                         principalTable: "Branches",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Foods_Branches_BranchId1",
-                        column: x => x.BranchId1,
-                        principalTable: "Branches",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Foods_Food_Categories_CategoryId",
                         column: x => x.CategoryId,
@@ -398,9 +449,20 @@ namespace HOMMS.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Branches_Code",
+                table: "Branches",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Branches_ManagerId",
                 table: "Branches",
                 column: "ManagerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BranchRoles_BranchId",
+                table: "BranchRoles",
+                column: "BranchId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BranchUser_BranchId",
@@ -410,6 +472,21 @@ namespace HOMMS.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_BranchUser_UserId",
                 table: "BranchUser",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BranchUserRoles_BranchId",
+                table: "BranchUserRoles",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BranchUserRoles_BranchRoleId",
+                table: "BranchUserRoles",
+                column: "BranchRoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BranchUserRoles_UserId",
+                table: "BranchUserRoles",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -423,11 +500,6 @@ namespace HOMMS.Infrastructure.Migrations
                 columns: new[] { "BranchId", "Name" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Food_Categories_BranchId1",
-                table: "Food_Categories",
-                column: "BranchId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Foods_BranchId",
                 table: "Foods",
                 column: "BranchId");
@@ -436,11 +508,6 @@ namespace HOMMS.Infrastructure.Migrations
                 name: "IX_Foods_BranchId_Name",
                 table: "Foods",
                 columns: new[] { "BranchId", "Name" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Foods_BranchId1",
-                table: "Foods",
-                column: "BranchId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Foods_CategoryId",
@@ -472,11 +539,6 @@ namespace HOMMS.Infrastructure.Migrations
                 name: "IX_Menus_BranchId_Date",
                 table: "Menus",
                 columns: new[] { "BranchId", "Date" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Menus_BranchId1",
-                table: "Menus",
-                column: "BranchId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Menus_Date",
@@ -530,6 +592,9 @@ namespace HOMMS.Infrastructure.Migrations
                 name: "BranchUser");
 
             migrationBuilder.DropTable(
+                name: "BranchUserRoles");
+
+            migrationBuilder.DropTable(
                 name: "Menu_Details");
 
             migrationBuilder.DropTable(
@@ -546,6 +611,9 @@ namespace HOMMS.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserTokens");
+
+            migrationBuilder.DropTable(
+                name: "BranchRoles");
 
             migrationBuilder.DropTable(
                 name: "Foods");

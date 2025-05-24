@@ -84,5 +84,10 @@ namespace HOMMS.Domain.Entities
         /// Gets or sets the navigation property for food categories belonging to this branch
         /// </summary>
         public virtual ICollection<FoodCategory> FoodCategories { get; set; } = new HashSet<FoodCategory>();
+        
+        /// <summary>
+        /// Gets or sets the navigation property for branch roles
+        /// </summary>
+        public virtual ICollection<BranchRole> BranchRoles { get; set; } = new HashSet<BranchRole>();
     }
 } 

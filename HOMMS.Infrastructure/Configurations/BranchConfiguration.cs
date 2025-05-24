@@ -46,52 +46,52 @@ namespace HOMMS.Infrastructure.Configurations
                    .OnDelete(DeleteBehavior.Cascade);
 
             // Seed data
-            builder.HasData(
-                new Branch
-                {
-                    Id = 5,
-                    Name = "Coteccons",
-                    Code = "coteccons",
-                    Address = "Coteccons",
-                    Phone = "0919000000",
-                    IsActive = true,
-                    BranchId = 5,
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                },
-                new Branch
-                {
-                    Id = 12,
-                    Name = "Bệnh viện Hoàn Mỹ Cửu Long Canteen",
-                    Code = "cthoanmy",
-                    Address = "Cần Thơ",
-                    Phone = "0123456789",
-                    IsActive = true,
-                    BranchId = 12,
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                },
-                new Branch
-                {
-                    Id = 13,
-                    Name = "BV Nhi Đồng Canteen",
-                    Code = "bvnhi",
-                    Address = "TP Hồ Chí Minh",
-                    Phone = "0123456789",
-                    IsActive = true,
-                    BranchId = 13,
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                },
-                new Branch
-                {
-                    Id = 14,
-                    Name = "Becamex",
-                    Code = "becamex",
-                    Address = "Đại lộ Bình Dương, khu Gò Cát, Lái Thiêu, Thuận An, Bình Dương",
-                    Phone = "0919111111",
-                    IsActive = true,
-                    BranchId = 14,
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                }
-            );
+            //builder.HasData(
+            //    new Branch
+            //    {
+            //        Id = 5,
+            //        Name = "Coteccons",
+            //        Code = "coteccons",
+            //        Address = "Coteccons",
+            //        Phone = "0919000000",
+            //        IsActive = true,
+            //        BranchId = 5,
+            //        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            //    },
+            //    new Branch
+            //    {
+            //        Id = 12,
+            //        Name = "Bệnh viện Hoàn Mỹ Cửu Long Canteen",
+            //        Code = "cthoanmy",
+            //        Address = "Cần Thơ",
+            //        Phone = "0123456789",
+            //        IsActive = true,
+            //        BranchId = 12,
+            //        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            //    },
+            //    new Branch
+            //    {
+            //        Id = 13,
+            //        Name = "BV Nhi Đồng Canteen",
+            //        Code = "bvnhi",
+            //        Address = "TP Hồ Chí Minh",
+            //        Phone = "0123456789",
+            //        IsActive = true,
+            //        BranchId = 13,
+            //        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            //    },
+            //    new Branch
+            //    {
+            //        Id = 14,
+            //        Name = "Becamex",
+            //        Code = "becamex",
+            //        Address = "Đại lộ Bình Dương, khu Gò Cát, Lái Thiêu, Thuận An, Bình Dương",
+            //        Phone = "0919111111",
+            //        IsActive = true,
+            //        BranchId = 14,
+            //        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            //    }
+            //);
         }
     }
 } 

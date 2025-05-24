@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using HOMMS.Common.Helpers;
+using HOMMS.Domain.Dtos;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -14,15 +17,19 @@ namespace HOMMS.API.Controllers.V1
     [ApiController]
     public class BranchesController : ControllerBase
     {
-        private readonly IBranchRepository _branchRepository;
+        private readonly IBranchRepository _branchRepository; //sai
+        private readonly IBranchService _branchService;
         private readonly IBranchContext _branchContext;
+        private readonly IMapper _mapper;
         
         public BranchesController(
             IBranchRepository branchRepository,
-            IBranchContext branchContext)
+            IBranchContext branchContext,
+            IMapper mapper)
         {
             _branchRepository = branchRepository;
             _branchContext = branchContext;
+            _mapper = mapper;
         }
         
         /// <summary>
@@ -30,22 +37,21 @@ namespace HOMMS.API.Controllers.V1
         /// </summary>
         /// <returns>List of branches</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Branch>>> GetBranches()
+        public async Task<ActionResult<ApiResponseBase<List<BranchDto>>>> GetBranches()
         {
-            // For authenticated users, get their associated branches
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 if (!string.IsNullOrEmpty(userId))
                 {
                     var userBranches = await _branchRepository.GetUserBranchesAsync(userId);
-                    return Ok(userBranches);
+                    var userBranchDtos = _mapper.Map<List<BranchDto>>(userBranches);
+                    return Ok(new ApiResponseBase<List<BranchDto>>(userBranchDtos, "User branches retrieved successfully"));
                 }
             }
-            
-            // For guests or if user has no branches, return all active branches
             var activeBranches = await _branchRepository.GetActiveBranchesAsync();
-            return Ok(activeBranches);
+            var activeBranchDtos = _mapper.Map<List<BranchDto>>(activeBranches);
+            return Ok(new ApiResponseBase<List<BranchDto>>(activeBranchDtos, "Active branches retrieved successfully"));
         }
         
         /// <summary>
@@ -53,11 +59,10 @@ namespace HOMMS.API.Controllers.V1
         /// </summary>
         /// <returns>Default/current branch</returns>
         [HttpGet("default")]
-        public async Task<ActionResult<Branch>> GetDefaultBranch()
+        public async Task<ActionResult<ApiResponseBase<BranchDto>>> GetDefaultBranch()
         {
             Branch branch = null;
             
-            // For authenticated users, get their default branch
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -67,14 +72,12 @@ namespace HOMMS.API.Controllers.V1
                 }
             }
             
-            // If no default branch found, try to get current branch from context
             if (branch == null)
             {
                 int branchId = _branchContext.GetCurrentBranchId();
                 branch = await _branchRepository.GetByIdAsync(branchId);
             }
             
-            // If still no branch found, return the first active branch
             if (branch == null)
             {
                 var activeBranches = await _branchRepository.GetActiveBranchesAsync();
@@ -83,10 +86,11 @@ namespace HOMMS.API.Controllers.V1
             
             if (branch == null)
             {
-                return NotFound("No available branches found");
+                return NotFound(new ApiResponseBase<BranchDto>(null, "No available branches found", "error"));
             }
             
-            return Ok(branch);
+            var branchDto = _mapper.Map<BranchDto>(branch);
+            return Ok(new ApiResponseBase<BranchDto>(branchDto, "Default branch retrieved successfully"));
         }
         
         /// <summary>
@@ -98,14 +102,12 @@ namespace HOMMS.API.Controllers.V1
         [HttpPost("set-current/{branchId}")]
         public async Task<IActionResult> SetCurrentBranch(int branchId)
         {
-            // Verify the branch exists and is active
             var branch = await _branchRepository.GetByIdAsync(branchId);
             if (branch == null || !branch.IsActive)
             {
-                return NotFound("Branch not found or inactive");
+                return NotFound(new ApiResponseBase<BranchDto>(null, "Branch not found or inactive", "error"));
             }
             
-            // For authenticated users, check if they have access to this branch
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -113,21 +115,19 @@ namespace HOMMS.API.Controllers.V1
                 {
                     var userBranches = await _branchRepository.GetUserBranchesAsync(userId);
                     
-                    // If user has specific branches and this one isn't in the list, forbid access
                     if (userBranches.Any() && !userBranches.Any(b => b.Id == branchId))
                     {
                         return Forbid();
                     }
                     
-                    // Set as default for the user
                     await _branchRepository.SetUserDefaultBranchAsync(userId, branchId);
                 }
             }
             
-            // For both authenticated and guest users, set the branch in context
             _branchContext.SetCurrentBranchId(branchId);
             
-            return Ok(new { message = "Current branch set successfully", branch = branch });
+            var branchDto = _mapper.Map<BranchDto>(branch);
+            return Ok(new ApiResponseBase<BranchDto>(branchDto, "Current branch set successfully"));
         }
         
         /// <summary>
@@ -136,37 +136,111 @@ namespace HOMMS.API.Controllers.V1
         /// </summary>
         /// <returns>Current branch</returns>
         [HttpGet("current")]
-        public async Task<IActionResult> GetCurrentBranch()
+        public async Task<ActionResult<ApiResponseBase<BranchDto>>> GetCurrentBranch()
         {
-            try
+            var branchId = _branchContext.GetCurrentBranchId();
+            var branch = await _branchRepository.GetByIdAsync(branchId);
+            
+            if (branch == null || !branch.IsActive)
             {
-                var branchId = _branchContext.GetCurrentBranchId();
-                var branch = await _branchRepository.GetByIdAsync(branchId);
+                var activeBranches = await _branchRepository.GetActiveBranchesAsync();
+                branch = activeBranches.FirstOrDefault();
                 
-                if (branch == null || !branch.IsActive)
+                if (branch != null)
                 {
-                    // If branch doesn't exist or is inactive, return first active branch
-                    var activeBranches = await _branchRepository.GetActiveBranchesAsync();
-                    branch = activeBranches.FirstOrDefault();
-                    
-                    if (branch != null)
-                    {
-                        // Update context with valid branch
-                        _branchContext.SetCurrentBranchId(branch.Id);
-                    }
+                    _branchContext.SetCurrentBranchId(branch.Id);
                 }
-                
-                if (branch == null)
-                {
-                    return NotFound("No available branches found");
-                }
-                
-                return Ok(branch);
             }
-            catch (System.Exception ex)
+            
+            if (branch == null)
             {
-                return BadRequest(new { message = ex.Message });
+                return NotFound(new ApiResponseBase<BranchDto>(null, "No available branches found", "error"));
             }
+            
+            var branchDto = _mapper.Map<BranchDto>(branch);
+            return Ok(new ApiResponseBase<BranchDto>(branchDto, "Current branch retrieved successfully"));
+        }
+
+        /// <summary>
+        /// Example: Only users with 'orders:add' permission can access this endpoint
+        /// </summary>
+        [Authorize(Policy = "Permission:orders:add")]
+        [HttpGet("secure-action")]
+        public IActionResult SecureAction()
+        {
+            return Ok(new ApiResponseBase<string>("You have 'orders:add' permission!", "Permission check successful"));
+        }
+
+        /// <summary>
+        /// Get the current Admin System user for the default branch
+        /// </summary>
+        [Authorize(Policy = "Permission:users:views")]
+        [HttpGet("admin-system-user")]
+        public async Task<ActionResult<ApiResponseBase<string>>> GetAdminSystemUser([FromServices] IRepository<BranchUserRole, int> branchUserRoleRepo, [FromServices] IRepository<BranchRole, int> branchRoleRepo, [FromServices] IRepository<ApplicationUser, string> userRepo)
+        {
+            var defaultBranchId = 1;
+            var adminSystemRole = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminSystemRole == null)
+                return NotFound(new ApiResponseBase<string>(null, "Không tìm thấy role Admin System", "error"));
+            var adminAssignment = (await branchUserRoleRepo.GetByAsync(bur => bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminAssignment == null)
+                return NotFound(new ApiResponseBase<string>(null, "Không có user nào được gán Admin System", "error"));
+            var user = await userRepo.GetByIdAsync(adminAssignment.UserId);
+            return Ok(new ApiResponseBase<string>(user?.Email, "Admin System user hiện tại"));
+        }
+
+        /// <summary>
+        /// Attempt to assign Admin System to another user (should be forbidden)
+        /// </summary>
+        [Authorize(Policy = "Permission:users:edit")]
+        [HttpPost("assign-admin-system/{userId}")]
+        public async Task<ActionResult<ApiResponseBase<string>>> AssignAdminSystem(string userId, [FromServices] IRepository<BranchUserRole, int> branchUserRoleRepo, [FromServices] IRepository<BranchRole, int> branchRoleRepo)
+        {
+            var defaultBranchId = 1;
+            var adminSystemRole = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminSystemRole == null)
+                return NotFound(new ApiResponseBase<string>(null, "Không tìm thấy role Admin System", "error"));
+            // Check if this user is already the admin system
+            var adminAssignment = (await branchUserRoleRepo.GetByAsync(bur => bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminAssignment != null && adminAssignment.UserId != userId)
+            {
+                return Forbid();
+            }
+            if (adminAssignment != null && adminAssignment.UserId == userId)
+            {
+                return Ok(new ApiResponseBase<string>(userId, "User này đã là Admin System"));
+            }
+            // If no assignment exists, allow (for initial setup only)
+            await branchUserRoleRepo.AddAsync(new BranchUserRole
+            {
+                UserId = userId,
+                BranchId = defaultBranchId,
+                BranchRoleId = adminSystemRole.Id,
+                CreatedAt = System.DateTime.UtcNow
+            });
+            return Ok(new ApiResponseBase<string>(userId, "Đã gán Admin System cho user (chỉ khi chưa có ai)", "success"));
+        }
+
+        /// <summary>
+        /// List all users with Admin System role (should always be one)
+        /// </summary>
+        [Authorize(Policy = "Permission:users:views")]
+        [HttpGet("admin-system-users")]
+        public async Task<ActionResult<ApiResponseBase<List<string>>>> ListAdminSystemUsers([FromServices] IRepository<BranchUserRole, int> branchUserRoleRepo, [FromServices] IRepository<BranchRole, int> branchRoleRepo, [FromServices] IRepository<ApplicationUser, string> userRepo)
+        {
+            var defaultBranchId = 1;
+            var adminSystemRole = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminSystemRole == null)
+                return NotFound(new ApiResponseBase<List<string>>(null, "Không tìm thấy role Admin System", "error"));
+            var adminAssignments = await branchUserRoleRepo.GetByAsync(bur => bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == defaultBranchId);
+            var emails = new List<string>();
+            foreach (var assignment in adminAssignments)
+            {
+                var user = await userRepo.GetByIdAsync(assignment.UserId);
+                if (user != null)
+                    emails.Add(user.Email);
+            }
+            return Ok(new ApiResponseBase<List<string>>(emails, "Danh sách user có quyền Admin System"));
         }
     }
 } 

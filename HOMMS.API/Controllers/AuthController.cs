@@ -7,9 +7,11 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using HOMMS.Infrastructure.Data;
 
 namespace HOMMS.API.Controllers
 {
@@ -21,17 +23,20 @@ namespace HOMMS.API.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _context;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<ApplicationRole> roleManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _context = context;
         }
 
         [HttpPost("register")]
@@ -170,7 +175,34 @@ namespace HOMMS.API.Controllers
             });
         }
 
-        private async Task<string> GenerateJwtToken(ApplicationUser user)
+        [Authorize]
+        [HttpPost("select-branch")]
+        public async Task<IActionResult> SelectBranch([FromBody] SelectBranchModel model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            // Check if user has a BranchUserRole for the selected branch
+            var branchUserRole = _context.BranchUserRoles
+                .Where(bur => bur.UserId == user.Id && bur.BranchId == model.BranchId)
+                .Select(bur => new
+                {
+                    bur.BranchId,
+                    bur.BranchRoleId,
+                    bur.BranchRole.Name,
+                    bur.BranchRole.Permissions
+                })
+                .FirstOrDefault();
+
+            if (branchUserRole == null)
+                return Forbid();
+
+            var token = await GenerateJwtToken(user, branchUserRole.BranchId, branchUserRole.BranchRoleId, branchUserRole.Name, branchUserRole.Permissions);
+            return Ok(new { Token = token });
+        }
+
+        private async Task<string> GenerateJwtToken(ApplicationUser user, int? branchId = null, int? branchRoleId = null, string branchRoleName = null, string permissions = null)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"];
@@ -194,6 +226,22 @@ namespace HOMMS.API.Controllers
             foreach (var role in userRoles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            // Add branch and permission claims if provided
+            if (branchId.HasValue)
+                claims.Add(new Claim("branch_id", branchId.Value.ToString()));
+            if (branchRoleId.HasValue)
+                claims.Add(new Claim("branch_role_id", branchRoleId.Value.ToString()));
+            if (!string.IsNullOrEmpty(branchRoleName))
+                claims.Add(new Claim("branch_role_name", branchRoleName));
+            if (!string.IsNullOrEmpty(permissions))
+            {
+                var perms = permissions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var perm in perms)
+                {
+                    claims.Add(new Claim("permission", perm.Trim()));
+                }
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -253,5 +301,10 @@ namespace HOMMS.API.Controllers
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public string? ProfilePictureUrl { get; set; }
+    }
+
+    public class SelectBranchModel
+    {
+        public int BranchId { get; set; }
     }
 } 

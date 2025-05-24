@@ -8,6 +8,8 @@ using HOMMS.Infrastructure.Repositories.Interfaces;
 using HOMMS.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Microsoft.AspNetCore.Authorization;
+using HOMMS.Application.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,7 @@ builder.Host.UseSerilog();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddControllers();
+builder.Services.AddCustomServices();
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -56,9 +59,58 @@ builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
 
+// Register generic repository for all entities
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+
+// Register custom permission authorization handler
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+
+// Register permission policies (add more as needed)
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Permission:orders:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("orders:add")));
+    options.AddPolicy("Permission:orders:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("orders:edit")));
+    // Add more policies for other permissions as needed
+});
+
+// Register PrintUrlsHostedService
+builder.Services.AddHostedService<HOMMS.API.PrintUrlsHostedService>();
+
+// Register IUnitOfWork, UnitOfWork, IBranchService, and BranchService
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "HOMMS API", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+    });
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -71,11 +123,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Add branch context middleware (before authentication/authorization)
-app.UseMiddleware<BranchContextMiddleware>();
-
 // Add Serilog request logging
 app.UseSerilogRequestLogging();
+
+// Add global exception middleware (should be early in the pipeline)
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+// Add branch context middleware (before authentication/authorization)
+app.UseMiddleware<BranchContextMiddleware>();
 
 // Enable authentication and authorization
 app.UseAuthentication();
@@ -90,6 +145,14 @@ try
     // Seed the database
     await app.SeedDatabaseAsync();
     
+    // Print listening URLs to the terminal and log with Serilog
+    var addresses = app.Urls;
+    foreach (var address in addresses)
+    {
+        Console.WriteLine($"Now listening on: {address}");
+        Log.Information("Now listening on serilog: {Address}", address);
+    }
+    
     app.Run();
 }
 catch (Exception ex)
@@ -99,4 +162,21 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+// PermissionRequirement and PermissionHandler definitions
+public class PermissionRequirement : IAuthorizationRequirement
+{
+    public string Permission { get; }
+    public PermissionRequirement(string permission) => Permission = permission;
+}
+
+public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    {
+        if (context.User.HasClaim("permission", requirement.Permission))
+            context.Succeed(requirement);
+        return Task.CompletedTask;
+    }
 }
