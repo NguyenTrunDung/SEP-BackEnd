@@ -17,7 +17,8 @@ namespace HOMMS.API.Controllers.V1
     [ApiController]
     public class BranchesController : ControllerBase
     {
-        private readonly IBranchRepository _branchRepository;
+        private readonly IBranchRepository _branchRepository; //sai
+        private readonly IBranchService _branchService;
         private readonly IBranchContext _branchContext;
         private readonly IMapper _mapper;
         
@@ -158,6 +159,88 @@ namespace HOMMS.API.Controllers.V1
             
             var branchDto = _mapper.Map<BranchDto>(branch);
             return Ok(new ApiResponseBase<BranchDto>(branchDto, "Current branch retrieved successfully"));
+        }
+
+        /// <summary>
+        /// Example: Only users with 'orders:add' permission can access this endpoint
+        /// </summary>
+        [Authorize(Policy = "Permission:orders:add")]
+        [HttpGet("secure-action")]
+        public IActionResult SecureAction()
+        {
+            return Ok(new ApiResponseBase<string>("You have 'orders:add' permission!", "Permission check successful"));
+        }
+
+        /// <summary>
+        /// Get the current Admin System user for the default branch
+        /// </summary>
+        [Authorize(Policy = "Permission:users:views")]
+        [HttpGet("admin-system-user")]
+        public async Task<ActionResult<ApiResponseBase<string>>> GetAdminSystemUser([FromServices] IRepository<BranchUserRole, int> branchUserRoleRepo, [FromServices] IRepository<BranchRole, int> branchRoleRepo, [FromServices] IRepository<ApplicationUser, string> userRepo)
+        {
+            var defaultBranchId = 1;
+            var adminSystemRole = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminSystemRole == null)
+                return NotFound(new ApiResponseBase<string>(null, "Không tìm thấy role Admin System", "error"));
+            var adminAssignment = (await branchUserRoleRepo.GetByAsync(bur => bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminAssignment == null)
+                return NotFound(new ApiResponseBase<string>(null, "Không có user nào được gán Admin System", "error"));
+            var user = await userRepo.GetByIdAsync(adminAssignment.UserId);
+            return Ok(new ApiResponseBase<string>(user?.Email, "Admin System user hiện tại"));
+        }
+
+        /// <summary>
+        /// Attempt to assign Admin System to another user (should be forbidden)
+        /// </summary>
+        [Authorize(Policy = "Permission:users:edit")]
+        [HttpPost("assign-admin-system/{userId}")]
+        public async Task<ActionResult<ApiResponseBase<string>>> AssignAdminSystem(string userId, [FromServices] IRepository<BranchUserRole, int> branchUserRoleRepo, [FromServices] IRepository<BranchRole, int> branchRoleRepo)
+        {
+            var defaultBranchId = 1;
+            var adminSystemRole = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminSystemRole == null)
+                return NotFound(new ApiResponseBase<string>(null, "Không tìm thấy role Admin System", "error"));
+            // Check if this user is already the admin system
+            var adminAssignment = (await branchUserRoleRepo.GetByAsync(bur => bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminAssignment != null && adminAssignment.UserId != userId)
+            {
+                return Forbid();
+            }
+            if (adminAssignment != null && adminAssignment.UserId == userId)
+            {
+                return Ok(new ApiResponseBase<string>(userId, "User này đã là Admin System"));
+            }
+            // If no assignment exists, allow (for initial setup only)
+            await branchUserRoleRepo.AddAsync(new BranchUserRole
+            {
+                UserId = userId,
+                BranchId = defaultBranchId,
+                BranchRoleId = adminSystemRole.Id,
+                CreatedAt = System.DateTime.UtcNow
+            });
+            return Ok(new ApiResponseBase<string>(userId, "Đã gán Admin System cho user (chỉ khi chưa có ai)", "success"));
+        }
+
+        /// <summary>
+        /// List all users with Admin System role (should always be one)
+        /// </summary>
+        [Authorize(Policy = "Permission:users:views")]
+        [HttpGet("admin-system-users")]
+        public async Task<ActionResult<ApiResponseBase<List<string>>>> ListAdminSystemUsers([FromServices] IRepository<BranchUserRole, int> branchUserRoleRepo, [FromServices] IRepository<BranchRole, int> branchRoleRepo, [FromServices] IRepository<ApplicationUser, string> userRepo)
+        {
+            var defaultBranchId = 1;
+            var adminSystemRole = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == defaultBranchId)).FirstOrDefault();
+            if (adminSystemRole == null)
+                return NotFound(new ApiResponseBase<List<string>>(null, "Không tìm thấy role Admin System", "error"));
+            var adminAssignments = await branchUserRoleRepo.GetByAsync(bur => bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == defaultBranchId);
+            var emails = new List<string>();
+            foreach (var assignment in adminAssignments)
+            {
+                var user = await userRepo.GetByIdAsync(assignment.UserId);
+                if (user != null)
+                    emails.Add(user.Email);
+            }
+            return Ok(new ApiResponseBase<List<string>>(emails, "Danh sách user có quyền Admin System"));
         }
     }
 } 

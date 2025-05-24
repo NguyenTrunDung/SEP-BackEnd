@@ -23,9 +23,17 @@ namespace HOMMS.Infrastructure.Extensions
                 await context.Database.MigrateAsync();
                 logger.LogInformation("Database migrations applied successfully.");
 
+                // Seed branch first and get its Id
+                var branchId = await HOMMS.Infrastructure.Seeds.BranchSeedData.SeedDefaultBranchAsync(services);
+
                 logger.LogInformation("Seeding identity data (roles and admin user)...");
-                await IdentitySeedData.SeedRolesAndAdminAsync(services);
+                await IdentitySeedData.SeedRolesAndAdminAsync(services, branchId);
                 logger.LogInformation("Identity data seeded successfully.");
+
+                // Seed branch roles and permissions using the actual branchId
+                logger.LogInformation("Seeding branch roles and permissions...");
+                await HOMMS.Infrastructure.Seeds.BranchRoleSeedData.SeedBranchRolesAsync(services, branchId);
+                logger.LogInformation("Branch roles and permissions seeded successfully.");
 
                 // Add other seed methods here if needed
                 // logger.LogInformation("Seeding additional data...");

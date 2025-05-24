@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HOMMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250521203302_FixBranchAndFoodRelationships")]
-    partial class FixBranchAndFoodRelationships
+    [Migration("20250524184434_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -179,8 +179,8 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
@@ -236,9 +236,63 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Code")
+                        .IsUnique();
+
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Branches");
+                    b.ToTable("Branches", (string)null);
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.BranchRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.ToTable("BranchRoles");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.BranchUser", b =>
@@ -265,6 +319,56 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("BranchUser");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.BranchUserRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BranchRoleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("BranchRoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BranchUserRoles");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Food", b =>
@@ -694,6 +798,17 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Manager");
                 });
 
+            modelBuilder.Entity("HOMMS.Domain.Entities.BranchRole", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany("BranchRoles")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("HOMMS.Domain.Entities.BranchUser", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -707,6 +822,33 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("Branch");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.BranchUserRole", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.BranchRole", "BranchRole")
+                        .WithMany("BranchUserRoles")
+                        .HasForeignKey("BranchRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("BranchRole");
 
                     b.Navigation("User");
                 });
@@ -761,8 +903,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasOne("HOMMS.Domain.Entities.Menu", "Menu")
                         .WithMany("MenuDetails")
                         .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Food");
 
@@ -827,6 +968,8 @@ namespace HOMMS.Infrastructure.Migrations
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Branch", b =>
                 {
+                    b.Navigation("BranchRoles");
+
                     b.Navigation("BranchUsers");
 
                     b.Navigation("FoodCategories");
@@ -834,6 +977,11 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Foods");
 
                     b.Navigation("Menus");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.BranchRole", b =>
+                {
+                    b.Navigation("BranchUserRoles");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Food", b =>

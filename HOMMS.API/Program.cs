@@ -8,6 +8,8 @@ using HOMMS.Infrastructure.Repositories.Interfaces;
 using HOMMS.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Microsoft.AspNetCore.Authorization;
+using HOMMS.Application.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +58,29 @@ builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
+
+// Register generic repository for all entities
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+
+// Register custom permission authorization handler
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+
+// Register permission policies (add more as needed)
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Permission:orders:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("orders:add")));
+    options.AddPolicy("Permission:orders:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("orders:edit")));
+    // Add more policies for other permissions as needed
+});
+
+// Register PrintUrlsHostedService
+builder.Services.AddHostedService<HOMMS.API.PrintUrlsHostedService>();
+
+// Register IUnitOfWork, UnitOfWork, IBranchService, and BranchService
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IBranchService, BranchService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -137,4 +162,21 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+// PermissionRequirement and PermissionHandler definitions
+public class PermissionRequirement : IAuthorizationRequirement
+{
+    public string Permission { get; }
+    public PermissionRequirement(string permission) => Permission = permission;
+}
+
+public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    {
+        if (context.User.HasClaim("permission", requirement.Permission))
+            context.Succeed(requirement);
+        return Task.CompletedTask;
+    }
 }

@@ -4,22 +4,57 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using HOMMS.Infrastructure.Data;
+using HOMMS.Infrastructure.Repositories.Interfaces;
 
 namespace HOMMS.Infrastructure.Seeds
 {
     public static class IdentitySeedData
     {
-        public static async Task SeedRolesAndAdminAsync(IServiceProvider serviceProvider)
+        public static async Task SeedRolesAndAdminAsync(IServiceProvider serviceProvider, int branchId)
         {
             using var scope = serviceProvider.CreateScope();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var branchRoleRepo = scope.ServiceProvider.GetRequiredService<IRepository<BranchRole, int>>();
+            var branchUserRoleRepo = scope.ServiceProvider.GetRequiredService<IRepository<BranchUserRole, int>>();
 
             // Seed Roles
             await SeedRolesAsync(roleManager);
 
             // Seed Admin User
-            await SeedAdminUserAsync(userManager);
+            var adminUser = await SeedAdminUserAsync(userManager);
+
+            // Assign Admin System branch role ONLY to the seeded admin user, and ensure only one exists
+            if (adminUser != null)
+            {
+                var adminSystemRole = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == branchId)).FirstOrDefault();
+                if (adminSystemRole != null)
+                {
+                    // Remove any other BranchUserRole assignments for Admin System (if exist)
+                    var allAdminSystemAssignments = await branchUserRoleRepo.GetByAsync(bur => bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == branchId);
+                    foreach (var assignment in allAdminSystemAssignments)
+                    {
+                        if (assignment.UserId != adminUser.Id)
+                        {
+                            await branchUserRoleRepo.DeleteAsync(assignment);
+                        }
+                    }
+                    // Ensure only the seeded admin user has Admin System
+                    var alreadyAssigned = (await branchUserRoleRepo.GetByAsync(bur => bur.UserId == adminUser.Id && bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == branchId)).Any();
+                    if (!alreadyAssigned)
+                    {
+                        await branchUserRoleRepo.AddAsync(new BranchUserRole
+                        {
+                            UserId = adminUser.Id,
+                            BranchId = branchId,
+                            BranchRoleId = adminSystemRole.Id,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+            }
         }
 
         private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
@@ -46,7 +81,7 @@ namespace HOMMS.Infrastructure.Seeds
             }
         }
 
-        private static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager)
+        private static async Task<ApplicationUser> SeedAdminUserAsync(UserManager<ApplicationUser> userManager)
         {
             // Check if admin user exists
             var adminUser = await userManager.FindByEmailAsync("admin@homms.com");
@@ -71,6 +106,7 @@ namespace HOMMS.Infrastructure.Seeds
                     await userManager.AddToRoleAsync(adminUser, "Admin");
                 }
             }
+            return adminUser;
         }
     }
 } 

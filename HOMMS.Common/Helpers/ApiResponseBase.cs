@@ -6,7 +6,8 @@ namespace HOMMS.Common.Helpers
     /// Standard API response wrapper for consistent JSON output
     /// </summary>
     /// <typeparam name="T">Type of the data payload</typeparam>
-    public class ApiResponseBase<T>
+    public class ApiResponseBase<T> // gerneric type to allow any data type
+        where T : class // constraint to ensure T is a reference type
     {
         /// <summary>
         /// Gets or sets the status of the response (success or error)

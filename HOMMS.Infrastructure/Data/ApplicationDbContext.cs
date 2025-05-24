@@ -37,6 +37,8 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<Food> Foods { get; set; }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<MenuDetail> MenuDetails { get; set; }
+        public DbSet<BranchRole> BranchRoles { get; set; }
+        public DbSet<BranchUserRole> BranchUserRoles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -63,6 +65,8 @@ namespace HOMMS.Infrastructure.Data
 
             // Custom model configurations
             CustomizeIdentityModel(builder);
+
+            // Remove direct configuration for BranchRole and BranchUserRole relationships here
 
             // Apply global query filter for multi-tenancy
             if (_multiTenancyEnabled)
@@ -104,7 +108,8 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new MenuConfiguration());
             builder.ApplyConfiguration(new MenuDetailConfiguration());
             builder.ApplyConfiguration(new BranchConfiguration());
-
+            builder.ApplyConfiguration(new BranchRoleConfiguration());
+            builder.ApplyConfiguration(new BranchUserRoleConfiguration());
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
