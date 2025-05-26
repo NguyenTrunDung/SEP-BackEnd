@@ -90,6 +90,24 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("orders:add")));
     options.AddPolicy("Permission:orders:edit", policy =>
         policy.Requirements.Add(new PermissionRequirement("orders:edit")));
+    // Foods
+    options.AddPolicy("Permission:foods:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foods:view")));
+    options.AddPolicy("Permission:foods:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foods:add")));
+    options.AddPolicy("Permission:foods:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foods:edit")));
+    options.AddPolicy("Permission:foods:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foods:delete")));
+    // FoodCategories
+    options.AddPolicy("Permission:foodcategories:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foodcategories:view")));
+    options.AddPolicy("Permission:foodcategories:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foodcategories:add")));
+    options.AddPolicy("Permission:foodcategories:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foodcategories:edit")));
+    options.AddPolicy("Permission:foodcategories:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foodcategories:delete")));
     // Add more policies for other permissions as needed
 });
 
@@ -99,6 +117,8 @@ builder.Services.AddHostedService<HOMMS.API.PrintUrlsHostedService>();
 // Register IUnitOfWork, UnitOfWork, IBranchService, and BranchService
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IFoodService, FoodService>();
+builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

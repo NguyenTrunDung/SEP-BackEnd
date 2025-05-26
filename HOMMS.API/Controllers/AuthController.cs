@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using HOMMS.Infrastructure.Data;
+using HOMMS.Common.Constants;
 
 namespace HOMMS.API.Controllers
 {
@@ -77,7 +78,6 @@ namespace HOMMS.API.Controllers
                 return BadRequest(ModelState);
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-            
             if (user == null)
                 return BadRequest("Invalid login attempt.");
 
@@ -86,24 +86,33 @@ namespace HOMMS.API.Controllers
                 return BadRequest("Email not confirmed. Please confirm your email before logging in.");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-
             if (!result.Succeeded)
                 return BadRequest("Invalid login attempt.");
 
             // --- Gather all permissions for the user ---
-            var userBranchRoles = _context.BranchUserRoles
-                .Where(bur => bur.UserId == user.Id)
-                .Select(bur => bur.BranchRole)
-                .ToList();
-
+            var userRoles = await _userManager.GetRolesAsync(user);
             var allPermissions = new HashSet<string>();
-            foreach (var role in userBranchRoles)
+
+            if (userRoles.Contains("Admin"))
             {
-                if (!string.IsNullOrEmpty(role.Permissions))
+                // Admin System: add ALL permissions in the system
+                allPermissions = new HashSet<string>(PermissionConstants.All);
+            }
+            else
+            {
+                var userBranchRoles = _context.BranchUserRoles
+                    .Where(bur => bur.UserId == user.Id)
+                    .Select(bur => bur.BranchRole)
+                    .ToList();
+
+                foreach (var role in userBranchRoles)
                 {
-                    foreach (var perm in role.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    if (!string.IsNullOrEmpty(role.Permissions))
                     {
-                        allPermissions.Add(perm.Trim());
+                        foreach (var perm in role.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            allPermissions.Add(perm.Trim());
+                        }
                     }
                 }
             }
