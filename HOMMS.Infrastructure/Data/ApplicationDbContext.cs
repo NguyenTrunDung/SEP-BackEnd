@@ -2,6 +2,7 @@ using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Entities;
 using HOMMS.Domain.Entities.Base;
 using HOMMS.Infrastructure.Configurations;
+using HOMMS.Infrastructure.Persistence.Configurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -39,6 +40,9 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<MenuDetail> MenuDetails { get; set; }
         public DbSet<BranchRole> BranchRoles { get; set; }
         public DbSet<BranchUserRole> BranchUserRoles { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -110,6 +114,8 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new BranchConfiguration());
             builder.ApplyConfiguration(new BranchRoleConfiguration());
             builder.ApplyConfiguration(new BranchUserRoleConfiguration());
+            builder.ApplyConfiguration(new OrdersConfiguration());
+            builder.ApplyConfiguration(new OrderDetailsConfiguration());
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
