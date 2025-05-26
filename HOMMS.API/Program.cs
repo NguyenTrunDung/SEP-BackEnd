@@ -25,6 +25,24 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddCustomServices();
 
+// Add CORS policy for development
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("DevCorsPolicy", policy =>
+        {
+            policy.WithOrigins(
+                "http://localhost:3000", // React default
+                "http://localhost:4200", // Angular default
+                "http://localhost:5173"  // Vite default
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+    });
+}
+
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -119,6 +137,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    // Use CORS policy in development
+    app.UseCors("DevCorsPolicy");
 }
 
 app.UseHttpsRedirection();

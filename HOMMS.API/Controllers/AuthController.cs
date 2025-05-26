@@ -90,8 +90,26 @@ namespace HOMMS.API.Controllers
             if (!result.Succeeded)
                 return BadRequest("Invalid login attempt.");
 
-            // Generate JWT token
-            var token = await GenerateJwtToken(user);
+            // --- Gather all permissions for the user ---
+            var userBranchRoles = _context.BranchUserRoles
+                .Where(bur => bur.UserId == user.Id)
+                .Select(bur => bur.BranchRole)
+                .ToList();
+
+            var allPermissions = new HashSet<string>();
+            foreach (var role in userBranchRoles)
+            {
+                if (!string.IsNullOrEmpty(role.Permissions))
+                {
+                    foreach (var perm in role.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        allPermissions.Add(perm.Trim());
+                    }
+                }
+            }
+
+            // Generate JWT token with all permissions
+            var token = await GenerateJwtToken(user, null, null, null, string.Join(",", allPermissions));
 
             return Ok(new { Token = token });
         }
@@ -183,22 +201,52 @@ namespace HOMMS.API.Controllers
             if (user == null)
                 return Unauthorized();
 
-            // Check if user has a BranchUserRole for the selected branch
-            var branchUserRole = _context.BranchUserRoles
-                .Where(bur => bur.UserId == user.Id && bur.BranchId == model.BranchId)
-                .Select(bur => new
+            // Check if user is Admin System (global or for any branch)
+            var isAdminSystem = await _userManager.IsInRoleAsync(user, "Admin");
+
+            string permissions = null;
+            string branchRoleName = null;
+            int? branchRoleId = null;
+
+            if (isAdminSystem)
+            {
+                // Allow Admin System to select any branch and get all permissions for that branch
+                var adminSystemRole = _context.BranchRoles
+                    .FirstOrDefault(r => r.Name == "Admin System" && r.BranchId == model.BranchId);
+                if (adminSystemRole != null)
                 {
-                    bur.BranchId,
-                    bur.BranchRoleId,
-                    bur.BranchRole.Name,
-                    bur.BranchRole.Permissions
-                })
-                .FirstOrDefault();
+                    permissions = adminSystemRole.Permissions;
+                    branchRoleName = adminSystemRole.Name;
+                    branchRoleId = adminSystemRole.Id;
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            else
+            {
+                // Check if user has a BranchUserRole for the selected branch
+                var branchUserRole = _context.BranchUserRoles
+                    .Where(bur => bur.UserId == user.Id && bur.BranchId == model.BranchId)
+                    .Select(bur => new
+                    {
+                        bur.BranchId,
+                        bur.BranchRoleId,
+                        bur.BranchRole.Name,
+                        bur.BranchRole.Permissions
+                    })
+                    .FirstOrDefault();
 
-            if (branchUserRole == null)
-                return Forbid();
+                if (branchUserRole == null)
+                    return Forbid();
 
-            var token = await GenerateJwtToken(user, branchUserRole.BranchId, branchUserRole.BranchRoleId, branchUserRole.Name, branchUserRole.Permissions);
+                branchRoleId = branchUserRole.BranchRoleId;
+                branchRoleName = branchUserRole.Name;
+                permissions = branchUserRole.Permissions;
+            }
+
+            var token = await GenerateJwtToken(user, model.BranchId, branchRoleId, branchRoleName, permissions);
             return Ok(new { Token = token });
         }
 

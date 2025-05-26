@@ -24,37 +24,8 @@ namespace HOMMS.Infrastructure.Seeds
             await SeedRolesAsync(roleManager);
 
             // Seed Admin User
-            var adminUser = await SeedAdminUserAsync(userManager);
-
-            // Assign Admin System branch role ONLY to the seeded admin user, and ensure only one exists
-            if (adminUser != null)
-            {
-                var adminSystemRole = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == branchId)).FirstOrDefault();
-                if (adminSystemRole != null)
-                {
-                    // Remove any other BranchUserRole assignments for Admin System (if exist)
-                    var allAdminSystemAssignments = await branchUserRoleRepo.GetByAsync(bur => bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == branchId);
-                    foreach (var assignment in allAdminSystemAssignments)
-                    {
-                        if (assignment.UserId != adminUser.Id)
-                        {
-                            await branchUserRoleRepo.DeleteAsync(assignment);
-                        }
-                    }
-                    // Ensure only the seeded admin user has Admin System
-                    var alreadyAssigned = (await branchUserRoleRepo.GetByAsync(bur => bur.UserId == adminUser.Id && bur.BranchRoleId == adminSystemRole.Id && bur.BranchId == branchId)).Any();
-                    if (!alreadyAssigned)
-                    {
-                        await branchUserRoleRepo.AddAsync(new BranchUserRole
-                        {
-                            UserId = adminUser.Id,
-                            BranchId = branchId,
-                            BranchRoleId = adminSystemRole.Id,
-                            CreatedAt = DateTime.UtcNow
-                        });
-                    }
-                }
-            }
+            await SeedAdminUserAsync(userManager);
+            // No default branch role assignment for admin user
         }
 
         private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
