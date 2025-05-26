@@ -107,27 +107,31 @@ namespace HOMMS.API.Controllers.V1
             {
                 return NotFound(new ApiResponseBase<BranchDto>(null, "Branch not found or inactive", "error"));
             }
-            
+
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 if (!string.IsNullOrEmpty(userId))
                 {
+                    // Check if user is Admin System
+                    if (User.IsInRole("Admin"))
+                    {
+                        // Optionally, return a message for Admin System
+                        _branchContext.SetCurrentBranchId(branchId);
+                        var branchDto = _mapper.Map<BranchDto>(branch);
+                        return Ok(new ApiResponseBase<BranchDto>(branchDto, "Admin System should use the dashboard dropdown to switch branches. Branch context set for this request."));
+                    }
                     var userBranches = await _branchRepository.GetUserBranchesAsync(userId);
-                    
                     if (userBranches.Any() && !userBranches.Any(b => b.Id == branchId))
                     {
                         return Forbid();
                     }
-                    
                     await _branchRepository.SetUserDefaultBranchAsync(userId, branchId);
                 }
             }
-            
             _branchContext.SetCurrentBranchId(branchId);
-            
-            var branchDto = _mapper.Map<BranchDto>(branch);
-            return Ok(new ApiResponseBase<BranchDto>(branchDto, "Current branch set successfully"));
+            var branchDto2 = _mapper.Map<BranchDto>(branch);
+            return Ok(new ApiResponseBase<BranchDto>(branchDto2, "Current branch set successfully"));
         }
         
         /// <summary>

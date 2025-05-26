@@ -61,6 +61,30 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation($"Branch roles already exist for branchId {branchId}. Skipping branch role seeding.");
                 }
 
+                // Seed Food Categories if none exist
+                if (!await context.FoodCategories.AnyAsync())
+                {
+                    logger.LogInformation("Seeding food categories...");
+                    await FoodCategorySeedData.SeedCateAsync(services).ConfigureAwait(false);
+                    logger.LogInformation("Food categories seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Food categories already exist. Skipping food category seeding.");
+                }
+
+                ///Seed Foods if none exist
+                if (!await context.Foods.AnyAsync())
+                {
+                    logger.LogInformation("Seeding foods...");
+                    await FoodSeedData.SeedFoodsAsync(services);
+                    logger.LogInformation("Foods seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Foods already exist. Skipping food seeding.");
+                }
+
                 // Add other seed methods here if needed
                 // logger.LogInformation("Seeding additional data...");
                 // await ProductSeedData.SeedAsync(context);
