@@ -9,9 +9,9 @@ namespace HOMMS.API.Controllers.V1
     [ApiController]
     public class OrderDetailsController : ControllerBase
     {
-        private readonly IOrderService _orderService;
+        private readonly IOrderDetailService _orderService;
 
-        public OrderDetailsController(IOrderService orderService)
+        public OrderDetailsController(IOrderDetailService orderService)
         {
             _orderService = orderService;
         }

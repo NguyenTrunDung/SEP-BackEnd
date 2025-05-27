@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace HOMMS.Application.Interfaces
 {
-    public interface IOrderService
+    public interface IOrderDetailService
     {
-        Task<List<OrderDto>> GetOrdersByBranchIdAsync(int branchId);
+        Task<List<OrderDetailsDto>> GetOrderDetailsByOrderIdAsync(int orderId);
     }
 }
