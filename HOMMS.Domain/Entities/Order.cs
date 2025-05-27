@@ -1,5 +1,4 @@
 using HOMMS.Domain.Entities.Base;
-using HOMMS.Domain.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 
