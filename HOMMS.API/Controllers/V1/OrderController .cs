@@ -30,18 +30,34 @@ namespace HOMMS.API.Controllers.V1
             return Ok(orders);
         }
 
-        // GET: api/order/filter?...params...
         [HttpGet("filter")]
         public async Task<IActionResult> FilterOrders(
-            [FromQuery] int? branchId,
-            [FromQuery] DateTime? startDate,
-            [FromQuery] DateTime? endDate,
+            [FromQuery] DateTime? startOrderDate,
+            [FromQuery] DateTime? endOrderDate,
+            [FromQuery] DateTime? startReceiveDate,
+            [FromQuery] DateTime? endReceiveDate,
+            [FromQuery] string? receiveTime,
             [FromQuery] string? status,
-            [FromQuery] string? type,
-            [FromQuery] bool? hasVat,
-            [FromQuery] bool? printed)
+            [FromQuery] string? customerName,
+            [FromQuery] string? customerPhone,
+            [FromQuery] int? minTotal,
+            [FromQuery] int? maxTotal,
+            [FromQuery] string? code)
         {
-            var orders = await _orderService.FilterOrdersAsync(branchId, startDate, endDate, status, type, hasVat, printed);
+            var orders = await _orderService.FilterOrdersAsync(
+                startOrderDate,
+                endOrderDate,
+                startReceiveDate,
+                endReceiveDate,
+                receiveTime,
+                status,
+                customerName,
+                customerPhone,
+                minTotal,
+                maxTotal,
+                code
+            );
+
             return Ok(orders);
         }
 

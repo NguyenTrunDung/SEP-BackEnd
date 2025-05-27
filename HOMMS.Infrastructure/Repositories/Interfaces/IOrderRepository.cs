@@ -10,17 +10,26 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
     public interface IOrderRepository : IRepository<Order, int>
     {
         Task<List<Order>> GetOrdersByBranchIdAsync(int branchId);
+        /// <summary>
+        /// Tìm kiếm đơn hàng theo từ khóa, áp dụng trên các trường: Code, CustomerName, CustomerPhone, Status, ReceiveTime.
+        /// </summary>
         Task<List<Order>> SearchOrdersAsync(string keyword);
 
-        // Lọc theo các tiêu chí: chi nhánh, ngày, trạng thái, loại đơn, VAT, in ấn
+        /// <summary>
+        /// Lọc đơn hàng theo các tiêu chí cụ thể: ngày đơn hàng, ngày nhận, thời gian nhận, trạng thái, tên KH, số điện thoại KH, tổng tiền, mã đơn.
+        /// </summary>
         Task<List<Order>> FilterOrdersAsync(
-            int? branchId,
-            DateTime? startDate,
-            DateTime? endDate,
+            DateTime? startOrderDate,
+            DateTime? endOrderDate,
+            DateTime? startReceiveDate,
+            DateTime? endReceiveDate,
+            string? receiveTime,
             string? status,
-            string? type,
-            bool? hasVat,
-            bool? printed
+            string? customerName,
+            string? customerPhone,
+            int? minTotal,
+            int? maxTotal,
+            string? code
         );
     }
 }

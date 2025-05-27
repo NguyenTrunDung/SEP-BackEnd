@@ -35,6 +35,7 @@ namespace HOMMS.Application.Implementations
                 Code = o.Code
             }).ToList();
         }
+
         public async Task<List<OrderDto>> SearchOrdersAsync(string keyword)
         {
             var orders = await _unitOfWork.OrderRepository.SearchOrdersAsync(keyword);
@@ -54,16 +55,31 @@ namespace HOMMS.Application.Implementations
         }
 
         public async Task<List<OrderDto>> FilterOrdersAsync(
-            int? branchId,
-            DateTime? startDate,
-            DateTime? endDate,
+            DateTime? startOrderDate,
+            DateTime? endOrderDate,
+            DateTime? startReceiveDate,
+            DateTime? endReceiveDate,
+            string? receiveTime,
             string? status,
-            string? type,
-            bool? hasVat,
-            bool? printed)
+            string? customerName,
+            string? customerPhone,
+            int? minTotal,
+            int? maxTotal,
+            string? code)
         {
             var orders = await _unitOfWork.OrderRepository.FilterOrdersAsync(
-                branchId, startDate, endDate, status, type, hasVat, printed);
+                startOrderDate,
+                endOrderDate,
+                startReceiveDate,
+                endReceiveDate,
+                receiveTime,
+                status,
+                customerName,
+                customerPhone,
+                minTotal,
+                maxTotal,
+                code
+            );
 
             return orders.Select(o => new OrderDto
             {

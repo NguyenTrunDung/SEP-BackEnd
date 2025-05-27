@@ -25,58 +25,81 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                                  .Where(o => o.BranchId == branchId)
                                  .ToListAsync();
         }
+
+        public async Task<List<Order>> FilterOrdersAsync(
+    DateTime? startOrderDate,
+    DateTime? endOrderDate,
+    DateTime? startReceiveDate,
+    DateTime? endReceiveDate,
+    string? receiveTime,
+    string? status,
+    string? customerName,
+    string? customerPhone,
+    int? minTotal,
+    int? maxTotal,
+    string? code)
+        {
+            var query = _context.Orders.AsQueryable();
+
+            // Lọc theo OrderDate
+            if (startOrderDate.HasValue)
+                query = query.Where(o => o.OrderDate >= startOrderDate.Value);
+            if (endOrderDate.HasValue)
+                query = query.Where(o => o.OrderDate <= endOrderDate.Value);
+
+            // Lọc theo ReceiveDate
+            if (startReceiveDate.HasValue)
+                query = query.Where(o => o.ReceiveDate.HasValue && o.ReceiveDate.Value >= startReceiveDate.Value);
+            if (endReceiveDate.HasValue)
+                query = query.Where(o => o.ReceiveDate.HasValue && o.ReceiveDate.Value <= endReceiveDate.Value);
+
+            // Lọc theo ReceiveTime (exact match hoặc chứa)
+            if (!string.IsNullOrWhiteSpace(receiveTime))
+                query = query.Where(o => o.ReceiveTime != null && o.ReceiveTime.Contains(receiveTime));
+
+            // Lọc theo Status (exact match)
+            if (!string.IsNullOrWhiteSpace(status))
+                query = query.Where(o => o.Status == status);
+
+            // Lọc theo CustomerName (tìm kiếm chứa)
+            if (!string.IsNullOrWhiteSpace(customerName))
+                query = query.Where(o => o.CustomerName != null && o.CustomerName.Contains(customerName));
+
+            // Lọc theo CustomerPhone (tìm kiếm chứa)
+            if (!string.IsNullOrWhiteSpace(customerPhone))
+                query = query.Where(o => o.CustomerPhone != null && o.CustomerPhone.Contains(customerPhone));
+
+            // Lọc theo Total (khoảng min-max)
+            if (minTotal.HasValue)
+                query = query.Where(o => o.Total.HasValue && o.Total.Value >= minTotal.Value);
+            if (maxTotal.HasValue)
+                query = query.Where(o => o.Total.HasValue && o.Total.Value <= maxTotal.Value);
+
+            // Lọc theo Code (tìm kiếm chứa)
+            if (!string.IsNullOrWhiteSpace(code))
+                query = query.Where(o => o.Code != null && o.Code.Contains(code));
+
+            return await query.ToListAsync();
+        }
+
         public async Task<List<Order>> SearchOrdersAsync(string keyword)
         {
             if (string.IsNullOrWhiteSpace(keyword))
                 return await _context.Orders.ToListAsync();
 
+            keyword = keyword.Trim();
+
             return await _context.Orders
                                  .Where(o =>
-                                     o.Code!.Contains(keyword) ||
-                                     o.CustomerName!.Contains(keyword) ||
-                                     o.CustomerPhone!.Contains(keyword) ||
-                                     o.CustomerAddress!.Contains(keyword) ||
-                                     o.VatName!.Contains(keyword) ||
-                                     o.VatTaxCode!.Contains(keyword) ||
-                                     o.Note!.Contains(keyword)
+                                     (o.Code != null && o.Code.Contains(keyword)) ||
+                                     (o.CustomerName != null && o.CustomerName.Contains(keyword)) ||
+                                     (o.CustomerPhone != null && o.CustomerPhone.Contains(keyword)) ||
+                                     (o.Status != null && o.Status.Contains(keyword)) ||
+                                     (o.ReceiveTime != null && o.ReceiveTime.Contains(keyword))
                                  )
                                  .ToListAsync();
         }
 
-        public async Task<List<Order>> FilterOrdersAsync(
-            int? branchId,
-            DateTime? startDate,
-            DateTime? endDate,
-            string? status,
-            string? type,
-            bool? hasVat,
-            bool? printed)
-        {
-            var query = _context.Orders.AsQueryable();
-
-            if (branchId.HasValue)
-                query = query.Where(o => o.BranchId == branchId.Value);
-
-            if (startDate.HasValue)
-                query = query.Where(o => o.OrderDate >= startDate.Value);
-
-            if (endDate.HasValue)
-                query = query.Where(o => o.OrderDate <= endDate.Value);
-
-            if (!string.IsNullOrWhiteSpace(status))
-                query = query.Where(o => o.Status == status);
-
-            if (!string.IsNullOrWhiteSpace(type))
-                query = query.Where(o => o.Type == type);
-
-            if (hasVat.HasValue)
-                query = query.Where(o => o.HasVat == hasVat.Value);
-
-            if (printed.HasValue)
-                query = query.Where(o => o.Printed == printed.Value);
-
-            return await query.ToListAsync();
-        }
 
     }
 }
