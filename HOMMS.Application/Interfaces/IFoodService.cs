@@ -1,4 +1,5 @@
 using HOMMS.Domain.Dtos;
+using HOMMS.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,5 +12,6 @@ namespace HOMMS.Application.Interfaces
         Task<FoodDto> CreateAsync(FoodDto dto);
         Task<FoodDto> UpdateAsync(int id, FoodDto dto);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<FoodDto>> GetFoodsByBranchAndCategoryAsync(int branchId, int categoryId);
     }
 } 

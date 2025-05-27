@@ -54,5 +54,11 @@ namespace HOMMS.Application.Implementations
             await _foodRepository.DeleteAsync(food);
             return true;
         }
+
+        public async Task<IEnumerable<FoodDto>> GetFoodsByBranchAndCategoryAsync(int branchId, int categoryId)
+        {
+            var foods = await _foodRepository.GetFoodsByBranchAndCategoryAsync(branchId, categoryId);
+            return _mapper.Map<IEnumerable<FoodDto>>(foods);
+        }
     }
 } 

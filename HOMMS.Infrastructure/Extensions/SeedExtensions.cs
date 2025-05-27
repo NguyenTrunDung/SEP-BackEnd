@@ -85,6 +85,30 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation("Foods already exist. Skipping food seeding.");
                 }
 
+                ///Seed Menus if none exist
+                if (!await context.Menus.AnyAsync())
+                {
+                    logger.LogInformation("Seeding menus...");
+                    await MenuSeedData.MenuSeedDataAsync(services);
+                    logger.LogInformation("Menus seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Menus already exist. Skipping menu seeding.");
+                }
+
+                ///Seed Menus Detail if none exist
+                if (!await context.Menus.AnyAsync())
+                {
+                    logger.LogInformation("Seeding menus detail...");
+                    await MenuDetailSeedData.MenuDetailDataAsync(services);
+                    logger.LogInformation("Menus detail seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Menus detail already exist. Skipping menu seeding.");
+                }
+
                 // Add other seed methods here if needed
                 // logger.LogInformation("Seeding additional data...");
                 // await ProductSeedData.SeedAsync(context);
