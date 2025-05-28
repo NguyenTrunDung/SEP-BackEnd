@@ -61,5 +61,30 @@ namespace HOMMS.Application.Implementations
             var menus = await _menuRepository.GetMenuWithDetailsAsync(menuId);
             return _mapper.Map<MenuDto>(menus);
         }
+
+        public async Task<(IEnumerable<FoodDto> foods, IEnumerable<FoodCategoryDto> categories)> GetFoodsAndCategoriesByBranchAndDateAsync(int branchId, DateTime date)
+        {
+            var menus = await _menuRepository.GetMenusWithDetailsByBranchAndDateAsync(branchId, date);
+            var allMenuDetails = menus.SelectMany(m => m.MenuDetails).Where(md => md.Status == true && md.Food != null && md.Food.Category != null);
+            var foods = allMenuDetails.Select(md => md.Food).Distinct().ToList();
+            var categories = foods.Select(f => f.Category).Distinct().ToList();
+            return (_mapper.Map<IEnumerable<FoodDto>>(foods), _mapper.Map<IEnumerable<FoodCategoryDto>>(categories));
+        }
+
+        public async Task<IEnumerable<FoodCategoryDto>> GetCategoriesByBranchAndDateAsync(int branchId, DateTime date)
+        {
+            var menus = await _menuRepository.GetMenusWithDetailsByBranchAndDateAsync(branchId, date);
+            var allMenuDetails = menus.SelectMany(m => m.MenuDetails).Where(md => md.Status == true && md.Food != null && md.Food.Category != null);
+            var categories = allMenuDetails.Select(md => md.Food.Category).Distinct().ToList();
+            return _mapper.Map<IEnumerable<FoodCategoryDto>>(categories);
+        }
+
+        public async Task<IEnumerable<FoodDto>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date)
+        {
+            var menus = await _menuRepository.GetMenusWithDetailsByBranchAndDateAsync(branchId, date);
+            var allMenuDetails = menus.SelectMany(m => m.MenuDetails).Where(md => md.Status == true && md.Food != null && md.Food.CategoryId == categoryId);
+            var foods = allMenuDetails.Select(md => md.Food).Distinct().ToList();
+            return _mapper.Map<IEnumerable<FoodDto>>(foods);
+        }
     }
 }

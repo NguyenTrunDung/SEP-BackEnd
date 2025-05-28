@@ -13,5 +13,8 @@ namespace HOMMS.Application.Interfaces
         Task<FoodDto> UpdateAsync(int id, FoodDto dto);
         Task<bool> DeleteAsync(int id);
         Task<IEnumerable<FoodDto>> GetFoodsByBranchAndCategoryAsync(int branchId, int categoryId);
+        Task<IEnumerable<FoodDto>> GetFoodsByBranchAndDateAsync(int branchId, DateTime date);
+        Task<IEnumerable<FoodCategoryDto>> GetCategoriesByBranchAndDateAsync(int branchId, DateTime date);
+        Task<IEnumerable<FoodDto>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date);
     }
 } 

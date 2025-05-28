@@ -18,130 +18,88 @@ namespace HOMMS.Infrastructure.Seeds
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             var menu = new List<Menu> {
-
                new Menu
                {
-
-
-                        Date = new DateTime(2025-01-21),
+                        Date = DateTime.Today,
                         TimeOfDay = "Breakfast",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
                         BranchId = 1,
-
-
                },
-
                  new Menu
                {
-
-
-                        Date = new DateTime(2025-02-21),
+                        Date = DateTime.Today,
                         TimeOfDay = "Dinner",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
                         BranchId = 1,
-
-
                },
                    new Menu
                {
-
-
-                        Date = new DateTime(2025-01-22),
+                        Date = DateTime.Today,
                         TimeOfDay = "Lunch",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
                         BranchId = 1,
-
-
                },
                      new Menu
                {
-
-
-                        Date = new DateTime(2025-4-14),
+                        Date = DateTime.Today,
                         TimeOfDay = "Breakfast",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
-                        BranchId = 2,
-
-
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
+                        BranchId = 1,
                },
                        new Menu
                {
-
-
-                        Date = new DateTime(2025-01-21),
+                        Date = DateTime.Today,
                         TimeOfDay = "Dinner",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
-                        BranchId = 2,
-
-
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
+                        BranchId = 1,
                },
                         new Menu
                {
-
-
-                        Date = new DateTime(2025-4-14),
+                        Date = DateTime.Today,
                         TimeOfDay = "Breakfast",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
-                        BranchId = 3,
-
-
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
+                        BranchId = 1,
                },
                        new Menu
                {
-
-
-                        Date = new DateTime(2025-01-21),
+                        Date = DateTime.Today,
                         TimeOfDay = "Lunch",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
-                        BranchId = 3,
-
-
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
+                        BranchId = 1,
                },
                           new Menu
                {
-
-
-                        Date = new DateTime(2025-4-14),
+                        Date = DateTime.Today,
                         TimeOfDay = "Breakfast",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
-                        BranchId = 4,
-
-
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
+                        BranchId = 1,
                },
                        new Menu
                {
-
-
-                        Date = new DateTime(2025-01-21),
+                        Date = DateTime.Today,
                         TimeOfDay = "Lunch",
-                        IsTime = true,
-                        TimeFrom = new TimeSpan(6, 0, 0),
-                        TimeTo = new TimeSpan(9, 0, 0),
-                        BranchId = 4,
-
-
+                        IsTime = false,
+                        TimeFrom = null,
+                        TimeTo = null,
+                        BranchId = 1,
                },
-
-
-
-
-                };
+             };
 
 
 

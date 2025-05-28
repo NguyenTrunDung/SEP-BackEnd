@@ -39,7 +39,7 @@ namespace HOMMS.Infrastructure.Seeds
 
                  new MenuDetail
                 {
-                    MenuId = 2,
+                    MenuId = 1,
                     FoodId = 2,
                     Qty = 410,
                     Sold = 510,
@@ -53,7 +53,7 @@ namespace HOMMS.Infrastructure.Seeds
                 },
                   new MenuDetail
                 {
-                    MenuId = 3,
+                    MenuId = 1,
                     FoodId = 3,
                     Qty = 180,
                     Sold = 120,

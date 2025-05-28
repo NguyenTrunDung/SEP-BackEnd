@@ -60,5 +60,23 @@ namespace HOMMS.Application.Implementations
             var foods = await _foodRepository.GetFoodsByBranchAndCategoryAsync(branchId, categoryId);
             return _mapper.Map<IEnumerable<FoodDto>>(foods);
         }
+
+        public async Task<IEnumerable<FoodDto>> GetFoodsByBranchAndDateAsync(int branchId, DateTime date)
+        {
+            var foods = await _foodRepository.GetFoodsByBranchAndDateAsync(branchId, date);
+            return _mapper.Map<IEnumerable<FoodDto>>(foods);
+        }
+
+        public async Task<IEnumerable<FoodCategoryDto>> GetCategoriesByBranchAndDateAsync(int branchId, DateTime date)
+        {
+            var categories = await _foodRepository.GetCategoriesByBranchAndDateAsync(branchId, date);
+            return _mapper.Map<IEnumerable<FoodCategoryDto>>(categories);
+        }
+
+        public async Task<IEnumerable<FoodDto>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date)
+        {
+            var foods = await _foodRepository.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, date);
+            return _mapper.Map<IEnumerable<FoodDto>>(foods);
+        }
     }
 } 

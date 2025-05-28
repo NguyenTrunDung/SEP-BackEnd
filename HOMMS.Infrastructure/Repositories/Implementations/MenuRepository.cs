@@ -83,7 +83,9 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             return menu;
         }
         
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets all menus with their details for a specific branch on a specific date (for guest/ordering)
+        /// </summary>
         public async Task<IEnumerable<Menu>> GetMenusWithDetailsByBranchAndDateAsync(int branchId, DateTime date)
         {
             return await DbSet
@@ -124,5 +126,6 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                     g => g.AsEnumerable()
                 );
         }
+
     }
 } 

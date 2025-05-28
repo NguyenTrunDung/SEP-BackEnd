@@ -98,7 +98,7 @@ namespace HOMMS.Infrastructure.Extensions
                 }
 
                 ///Seed Menus Detail if none exist
-                if (!await context.Menus.AnyAsync())
+                if (!await context.MenuDetails.AnyAsync())
                 {
                     logger.LogInformation("Seeding menus detail...");
                     await MenuDetailSeedData.MenuDetailDataAsync(services);

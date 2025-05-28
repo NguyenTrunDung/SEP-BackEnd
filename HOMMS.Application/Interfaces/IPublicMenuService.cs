@@ -29,7 +29,9 @@ namespace HOMMS.Application.Interfaces
 
         Task<Dictionary<FoodCategoryDto, IEnumerable<MenuDetailDto>>> GetMenuDetailsByCategoryAsync(int menuId);
 
-
+        Task<(IEnumerable<FoodDto> foods, IEnumerable<FoodCategoryDto> categories)> GetFoodsAndCategoriesByBranchAndDateAsync(int branchId, DateTime date);
+        Task<IEnumerable<FoodCategoryDto>> GetCategoriesByBranchAndDateAsync(int branchId, DateTime date);
+        Task<IEnumerable<FoodDto>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date);
 
     }
 }

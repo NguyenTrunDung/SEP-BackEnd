@@ -1,7 +1,5 @@
 using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
-using HOMMS.Domain.Entities;
-using HOMMS.Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,9 +10,9 @@ using HOMMS.Common.Helpers;
 
 namespace HOMMS.API.Controllers.V1
 {
+    [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/public/menus")]
-    [ApiController]
     public class PublicMenuController : ControllerBase
     {
         private readonly IPublicMenuService _publicMenuService;
@@ -38,7 +36,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         /// <summary>
-        /// Gets menus for the currently selected branch
+        /// Gets all menus for the current branch on a specific date
         /// </summary>
         /// <param name="date">Optional date to filter menus (defaults to today)</param>
         /// <returns>List of menus</returns>
@@ -53,10 +51,10 @@ namespace HOMMS.API.Controllers.V1
         }
 
         /// <summary>
-        /// Gets a specific menu by ID with its food details
+        /// Gets details for a specific menu
         /// </summary>
         /// <param name="id">Menu ID</param>
-        /// <returns>Menu details with foods</returns>
+        /// <returns>Menu details with foods and categories</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponseBase<MenuDto>>> GetMenu(int id)
         {
@@ -64,184 +62,95 @@ namespace HOMMS.API.Controllers.V1
             if (menu == null)
                 return NotFound(new ApiResponseBase<MenuDto>(null, "Menu not found", "error"));
             var menuDto = _mapper.Map<MenuDto>(menu);
-            // Optionally map details by category if needed
             return Ok(new ApiResponseBase<MenuDto>(menuDto, "Menu retrieved successfully"));
         }
 
         /// <summary>
-        /// Gets all menus with their food details for the current branch on a specific date
+        /// Gets all foods and categories for the current branch by date
         /// </summary>
-        /// <param name="date">Optional date to filter menus (defaults to today)</param>
-        /// <returns>List of menus with their food details</returns>
-        [HttpGet("with-details")]
-        public async Task<ActionResult<IEnumerable<MenuDto>>> GetMenusWithDetails([FromQuery] DateTime? date = null)
+        /// <param name="date">Optional date to filter (defaults to today)</param>
+        /// <returns>Foods and categories for the day</returns>
+        [HttpGet("menu-by-date")]
+        public async Task<ActionResult<ApiResponseBase<object>>> GetMenuByDate([FromQuery] DateTime? date = null)
         {
-            try
-            {
-                var dateToFilter = date ?? DateTime.Today;
-                int branchId = _branchContext.GetCurrentBranchId();
-
-                var menus = await _publicMenuService.GetMenusWithDetailsByBranchAndDateAsync(branchId, dateToFilter);
-                var menuDtos = new List<MenuDto>();
-
-                foreach (var menu in menus)
-                {
-                    var menuDto = new MenuDto
-                    {
-                        Id = menu.Id,
-                        Name = menu.Name,
-                        Date = menu.Date,
-                        TimeOfDay = menu.TimeOfDay,
-                        IsTime = menu.IsTime,
-                        TimeFrom = menu.TimeFrom,
-                        TimeTo = menu.TimeTo,
-                        BranchId = menu.BranchId,
-                        Branch = menu.Branch != null ? new BranchDto
-                        {
-                            Id = menu.Branch.Id,
-                            Name = menu.Branch.Name,
-                            Code = menu.Branch.Code,
-                            Address = menu.Branch.Address,
-                            Phone = menu.Branch.Phone,
-                            Email = menu.Branch.Email
-                        } : null
-                    };
-
-                    // Add menu details
-                    var menuDetails = menu.MenuDetails
-                        .Where(md => md.Status == true && md.Food?.Category != null)
-                        .Select(md => new MenuDetailDto
-                        {
-                            Id = md.Id,
-                            MenuId = md.MenuId,
-                            FoodId = md.FoodId,
-                            Quantity = md.Quantity,
-                            Sold = md.Sold,
-                            PriceForGuest = md.PriceForGuest ?? md.Food?.PriceForGuest,
-                            PriceForPatient = md.PriceForPatient ?? md.Food?.PriceForPatient,
-                            PriceForStaff = md.PriceForStaff ?? md.Food?.PriceForStaff,
-                            DiscountPrice = md.DiscountPrice,
-                            Status = md.Status,
-                            Food = new FoodDto
-                            {
-                                Id = md.Food.Id,
-                                Name = md.Food.Name,
-                                Description = md.Food.Description,
-                                CategoryId = md.Food.CategoryId,
-                                ImageUrl = md.Food.ImageUrl,
-                                IsSetDish = md.Food.IsSetDish,
-                                IsAddOn = md.Food.IsAddOn,
-                                PriceForGuest = md.Food.PriceForGuest,
-                                PriceForPatient = md.Food.PriceForPatient,
-                                PriceForStaff = md.Food.PriceForStaff,
-                                Sort = md.Food.Sort,
-                                Category = md.Food.Category != null ? new FoodCategoryDto
-                                {
-                                    Id = md.Food.Category.Id,
-                                    Name = md.Food.Category.Name,
-                                    ImageUrl = md.Food.Category.ImageUrl,
-                                    Sort = md.Food.Category.Sort
-                                } : null
-                            }
-                        }).ToList();
-
-                    menuDto.MenuDetails = menuDetails;
-
-                    // Organize by category
-                    menuDto.FoodsByCategory = menuDetails
-                        .Where(md => md.Food?.Category != null)
-                        .GroupBy(md => md.Food.Category!)
-                        .OrderBy(g => g.Key.Sort)
-                        .ToDictionary(
-                            g => g.Key,
-                            g => g.ToList()
-                        );
-
-                    menuDtos.Add(menuDto);
-                }
-
-                return Ok(menuDtos);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Gets all menus for all active branches on a specific date
-        /// </summary>
-        /// <param name="date">Optional date to filter menus (defaults to today)</param>
-        /// <returns>List of branches with their menus</returns>
-        [HttpGet("all-branches")]
-        public async Task<ActionResult<AllBranchesMenusDto>> GetMenusForAllBranches([FromQuery] DateTime? date = null)
-        {
-            try
-            {
-                var dateToFilter = date ?? DateTime.Today;
-                var branchesWithMenus = await _publicMenuService.GetMenusForAllBranchesAsync(dateToFilter);
-
-                var result = new AllBranchesMenusDto
-                {
-                    Date = dateToFilter,
-                    Branches = branchesWithMenus.Select(kvp => new BranchMenusDto
-                    {
-                        Branch = new BranchDto
-                        {
-                            Id = kvp.Key.Id,
-                            Name = kvp.Key.Name,
-                            Code = kvp.Key.Code,
-                            Address = kvp.Key.Address,
-                            Phone = kvp.Key.Phone,
-                            Email = kvp.Key.Email
-                        },
-                        Menus = kvp.Value.Select(m => new MenuDto
-                        {
-                            Id = m.Id,
-                            Name = m.Name,
-                            Date = m.Date,
-                            TimeOfDay = m.TimeOfDay,
-                            IsTime = m.IsTime,
-                            TimeFrom = m.TimeFrom,
-                            TimeTo = m.TimeTo,
-                            BranchId = m.BranchId
-                        }).ToList()
-                    }).ToList()
-                };
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Gets all active food categories for the current branch
-        /// </summary>
-        /// <returns>List of food categories</returns>
-        [HttpGet("categories")]
-        public async Task<ActionResult<ApiResponseBase<List<FoodCategoryDto>>>> GetFoodCategories()
-        {
+            var dateToFilter = date ?? DateTime.Today;
             int branchId = _branchContext.GetCurrentBranchId();
-            var categories = await _foodCategoryService.GetActiveCategoriesByBranchAsync(branchId);
+            // TODO: Implement these service methods for real data
+            var foods = await _foodService.GetFoodsByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
+            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
+            var foodDtos = _mapper.Map<List<FoodDto>>(foods);
             var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
-            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories retrieved successfully"));
+            var result = new {
+                foods = foodDtos,
+                categories = categoryDtos
+            };
+            return Ok(new ApiResponseBase<object>(result, "Foods and categories for the day retrieved successfully"));
         }
 
         /// <summary>
-        /// Gets all foods for a specific category in the current branch
+        /// Gets all categories for the current branch by date
+        /// </summary>
+        /// <param name="date">Optional date to filter (defaults to today)</param>
+        /// <returns>List of food categories for the day</returns>
+        [HttpGet("categories/by-date")]
+        public async Task<ActionResult<ApiResponseBase<List<FoodCategoryDto>>>> GetCategoriesByDate([FromQuery] DateTime? date = null)
+        {
+            var dateToFilter = date ?? DateTime.Today;
+            int branchId = _branchContext.GetCurrentBranchId();
+            // TODO: Implement this service method for real data
+            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
+            var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
+            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for the day retrieved successfully"));
+        }
+
+        /// <summary>
+        /// Gets all foods for a specific category and date
         /// </summary>
         /// <param name="categoryId">Category ID</param>
-        /// <returns>List of foods in the category</returns>
+        /// <param name="date">Optional date to filter (defaults to today)</param>
+        /// <returns>List of foods in the category for the day</returns>
         [HttpGet("categories/{categoryId}/foods")]
-        public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoodsByCategory(int categoryId)
+        public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoodsByCategoryAndDate(int categoryId, [FromQuery] DateTime? date = null)
         {
+            var dateToFilter = date ?? DateTime.Today;
             int branchId = _branchContext.GetCurrentBranchId();
-            var foods = await _foodService.GetFoodsByBranchAndCategoryAsync(branchId, categoryId);
+            // TODO: Implement this service method for real data
+            var foods = await _foodService.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, dateToFilter); // You need to implement this
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
-            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods retrieved successfully"));
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods in category for the day retrieved successfully"));
+        }
+
+        /// <summary>
+        /// Gets all foods for a branch and date (menu/guest context)
+        /// </summary>
+        [HttpGet("foods/by-branch-date")]
+        public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoodsByBranchAndDate([FromQuery] int branchId, [FromQuery] DateTime date)
+        {
+            var foods = await _foodService.GetFoodsByBranchAndDateAsync(branchId, date);
+            var foodDtos = _mapper.Map<List<FoodDto>>(foods);
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch and date retrieved successfully"));
+        }
+
+        /// <summary>
+        /// Gets all categories for a branch and date (menu/guest context)
+        /// </summary>
+        [HttpGet("categories/by-branch-date")]
+        public async Task<ActionResult<ApiResponseBase<List<FoodCategoryDto>>>> GetCategoriesByBranchAndDate([FromQuery] int branchId, [FromQuery] DateTime date)
+        {
+            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, date);
+            var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
+            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for branch and date retrieved successfully"));
+        }
+
+        /// <summary>
+        /// Gets all foods for a branch, category, and date (menu/guest context)
+        /// </summary>
+        [HttpGet("foods/by-branch-category-date")]
+        public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoodsByBranchCategoryAndDate([FromQuery] int branchId, [FromQuery] int categoryId, [FromQuery] DateTime date)
+        {
+            var foods = await _foodService.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, date);
+            var foodDtos = _mapper.Map<List<FoodDto>>(foods);
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch, category, and date retrieved successfully"));
         }
     }
 }
