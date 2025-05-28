@@ -27,6 +27,8 @@ namespace HOMMS.Domain.Dtos
         /// Gets or sets the sort order for this category
         /// </summary>
         public int Sort { get; set; }
+
+
     }
     
     /// <summary>

@@ -54,5 +54,63 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .ThenBy(f => f.Sort)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Food>> GetFoodsByBranchAndDateAsync(int branchId, DateTime date)
+        {
+            // Get all foods available in menus for the branch and date
+            var menus = await DbContext.Set<Menu>()
+                .Where(m => m.BranchId == branchId && m.Date.Date == date.Date)
+                .Include(m => m.MenuDetails)
+                    .ThenInclude(md => md.Food)
+                .ToListAsync();
+
+            var foods = menus
+                .SelectMany(m => m.MenuDetails)
+                .Where(md => md.Status == true && md.Food != null)
+                .Select(md => md.Food)
+                .Distinct()
+                .ToList();
+
+            return foods;
+        }
+
+        public async Task<IEnumerable<FoodCategory>> GetCategoriesByBranchAndDateAsync(int branchId, DateTime date)
+        {
+            // Get all categories of foods available in menus for the branch and date
+            var menus = await DbContext.Set<Menu>()
+                .Where(m => m.BranchId == branchId && m.Date.Date == date.Date)
+                .Include(m => m.MenuDetails)
+                    .ThenInclude(md => md.Food)
+                        .ThenInclude(f => f.Category)
+                .ToListAsync();
+
+            var categories = menus
+                .SelectMany(m => m.MenuDetails)
+                .Where(md => md.Status == true && md.Food != null && md.Food.Category != null)
+                .Select(md => md.Food.Category)
+                .Distinct()
+                .ToList();
+
+            return categories;
+        }
+
+        public async Task<IEnumerable<Food>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date)
+        {
+            // Get all foods in a category available in menus for the branch and date
+            var menus = await DbContext.Set<Menu>()
+                .Where(m => m.BranchId == branchId && m.Date.Date == date.Date)
+                .Include(m => m.MenuDetails)
+                    .ThenInclude(md => md.Food)
+                .ToListAsync();
+
+            var foods = menus
+                .SelectMany(m => m.MenuDetails)
+                .Where(md => md.Status == true && md.Food != null && md.Food.CategoryId == categoryId)
+                .Select(md => md.Food)
+                .Distinct()
+                .ToList();
+
+            return foods;
+        }
     }
 } 

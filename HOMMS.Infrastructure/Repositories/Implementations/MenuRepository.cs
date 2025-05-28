@@ -36,8 +36,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             
             var branchesWithMenus = await DbContext.Set<Branch>()
                 .Where(b => b.IsActive)
-                .Include(b => DbContext.Set<Menu>()
-                    .Where(m => m.BranchId == b.Id && m.Date.Date == date.Date)
+                .Include(b => b.Menus
+                    .Where(m=> m.Date == date.Date)
                     .OrderBy(m => m.TimeOfDay))
                 .ToListAsync();
                 
@@ -83,7 +83,9 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             return menu;
         }
         
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets all menus with their details for a specific branch on a specific date (for guest/ordering)
+        /// </summary>
         public async Task<IEnumerable<Menu>> GetMenusWithDetailsByBranchAndDateAsync(int branchId, DateTime date)
         {
             return await DbSet
@@ -124,5 +126,6 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                     g => g.AsEnumerable()
                 );
         }
+
     }
 } 

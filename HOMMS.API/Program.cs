@@ -25,6 +25,24 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddCustomServices();
 
+// Add CORS policy for development
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("DevCorsPolicy", policy =>
+        {
+            policy.WithOrigins(
+                "http://localhost:3000", // React default
+                "http://localhost:4200", // Angular default
+                "http://localhost:5173"  // Vite default
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+    });
+}
+
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -59,6 +77,7 @@ builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
 
+
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
@@ -72,6 +91,24 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("orders:add")));
     options.AddPolicy("Permission:orders:edit", policy =>
         policy.Requirements.Add(new PermissionRequirement("orders:edit")));
+    // Foods
+    options.AddPolicy("Permission:foods:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foods:view")));
+    options.AddPolicy("Permission:foods:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foods:add")));
+    options.AddPolicy("Permission:foods:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foods:edit")));
+    options.AddPolicy("Permission:foods:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foods:delete")));
+    // FoodCategories
+    options.AddPolicy("Permission:foodcategories:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foodcategories:view")));
+    options.AddPolicy("Permission:foodcategories:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foodcategories:add")));
+    options.AddPolicy("Permission:foodcategories:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foodcategories:edit")));
+    options.AddPolicy("Permission:foodcategories:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("foodcategories:delete")));
     // Add more policies for other permissions as needed
 });
 
@@ -81,6 +118,9 @@ builder.Services.AddHostedService<HOMMS.API.PrintUrlsHostedService>();
 // Register IUnitOfWork, UnitOfWork, IBranchService, and BranchService
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IFoodService, FoodService>();
+builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
+builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -119,6 +159,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    // Use CORS policy in development
+    app.UseCors("DevCorsPolicy");
 }
 
 app.UseHttpsRedirection();
