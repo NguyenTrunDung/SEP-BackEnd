@@ -355,115 +355,14 @@
       "name": "PublicMenuController",
       "item": [
         {
-          "name": "Get Menus for Current Branch",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus?date={{date}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "public", "menus"],
-              "query": [
-                {
-                  "key": "date",
-                  "value": "{{date}}",
-                  "description": "Optional. Format: yyyy-MM-dd"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Menu by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus/{{menuId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "public", "menus", "{{menuId}}"]
-            }
-          }
-        },
-        {
-          "name": "Get Menus with Details",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus/with-details?date={{date}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "public", "menus", "with-details"],
-              "query": [
-                {
-                  "key": "date",
-                  "value": "{{date}}",
-                  "description": "Optional. Format: yyyy-MM-dd"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Menus for All Branches",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus/all-branches?date={{date}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "public", "menus", "all-branches"],
-              "query": [
-                {
-                  "key": "date",
-                  "value": "{{date}}",
-                  "description": "Optional. Format: yyyy-MM-dd"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Food Categories",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "public", "menus", "categories"]
-            }
-          }
-        },
-        {
-          "name": "Get Foods by Category",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus/categories/{{categoryId}}/foods",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "api",
-                "v1",
-                "public",
-                "menus",
-                "categories",
-                "{{categoryId}}",
-                "foods"
-              ]
-            }
-          }
-        },
-        {
           "name": "Get Foods and Categories by Date (Current Branch)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus/menu-by-date?date=2024-06-26",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "public", "menus", "menu-by-date"],
+              "raw": "{{baseUrl}}/api/v1/public/menus/menu-by-date?date=2025-05-29",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "v1", "public", "menus", "menu-by-date" ],
               "query": [
                 {
                   "key": "date",
@@ -480,13 +379,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus/categories/by-date?date=2024-06-26",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "public", "menus", "categories", "by-date"],
+              "raw": "{{baseUrl}}/api/v1/public/menus/categories/by-date?date=2025-05-29",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "v1", "public", "menus", "categories", "by-date" ],
               "query": [
                 {
                   "key": "date",
-                  "value": "2024-06-26",
+                  "value": "2025-05-29",
                   "description": "Optional. Format: yyyy-MM-dd"
                 }
               ]
@@ -499,8 +398,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/public/menus/categories/2/foods?date=2024-06-26",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/api/v1/public/menus/categories/2/foods?date=2025-05-29",
+              "host": [ "{{baseUrl}}" ],
               "path": [
                 "api",
                 "v1",
@@ -513,72 +412,9 @@
               "query": [
                 {
                   "key": "date",
-                  "value": "2024-06-26",
+                  "value": "2025-05-29",
                   "description": "Optional. Format: yyyy-MM-dd"
                 }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Foods (Menu/Guest)",
-      "item": [
-        {
-          "name": "Get Foods by Branch and Date",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "X-Branch-Id", "value": "1" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/foods/by-branch-date?branchId=1&date=2024-06-26",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "foods", "by-branch-date"],
-              "query": [
-                { "key": "branchId", "value": "1" },
-                { "key": "date", "value": "2024-06-26" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Categories by Branch and Date",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "X-Branch-Id", "value": "1" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/foods/categories/by-branch-date?branchId=1&date=2024-06-26",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "foods", "categories", "by-branch-date"],
-              "query": [
-                { "key": "branchId", "value": "1" },
-                { "key": "date", "value": "2024-06-26" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Foods by Branch, Category, and Date",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "X-Branch-Id", "value": "1" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/foods/by-branch-category-date?branchId=1&categoryId=2&date=2024-06-26",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "foods", "by-branch-category-date"],
-              "query": [
-                { "key": "branchId", "value": "1" },
-                { "key": "categoryId", "value": "2" },
-                { "key": "date", "value": "2024-06-26" }
               ]
             }
           }

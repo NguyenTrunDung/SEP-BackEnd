@@ -1,5 +1,8 @@
+using AutoMapper;
 using HOMMS.Application.Interfaces;
+using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
+using HOMMS.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -13,18 +16,23 @@ namespace HOMMS.API.Controllers.V1
     public class FoodsController : ControllerBase
     {
         private readonly IFoodService _foodService;
+        private readonly IMapper _mapper;
 
-        public FoodsController(IFoodService foodService)
+        public FoodsController(IFoodService foodService, IMapper mapper)
         {
             _foodService = foodService;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Authorize(Policy = "Permission:foods:view")]
-        public async Task<ActionResult<IEnumerable<FoodDto>>> GetFoods([FromQuery] int branchId)
+        public async Task<ActionResult<ApiResponseBase<FoodDto>>> GetFoods([FromQuery] int branchId)
         {
             var foods = await _foodService.GetFoodsByBranchAsync(branchId);
-            return Ok(foods);
+            if (foods == null)
+                return NotFound(new ApiResponseBase<MenuDto>(null, "Foods not found", "error"));
+            var foodsDto = _mapper.Map<FoodDto>(foods);
+            return Ok(new ApiResponseBase<FoodDto>(foodsDto, "Foods retrieved successfull"));
         }
 
         [HttpGet("{id}")]
