@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using HOMMS.Infrastructure.Data;
+using HOMMS.Common.Constants;
 
 namespace HOMMS.API.Controllers
 {
@@ -77,7 +78,6 @@ namespace HOMMS.API.Controllers
                 return BadRequest(ModelState);
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-            
             if (user == null)
                 return BadRequest("Invalid login attempt.");
 
@@ -86,12 +86,39 @@ namespace HOMMS.API.Controllers
                 return BadRequest("Email not confirmed. Please confirm your email before logging in.");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-
             if (!result.Succeeded)
                 return BadRequest("Invalid login attempt.");
 
-            // Generate JWT token
-            var token = await GenerateJwtToken(user);
+            // --- Gather all permissions for the user ---
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var allPermissions = new HashSet<string>();
+
+            if (userRoles.Contains("Admin"))
+            {
+                // Admin System: add ALL permissions in the system
+                allPermissions = new HashSet<string>(PermissionConstants.All);
+            }
+            else
+            {
+                var userBranchRoles = _context.BranchUserRoles
+                    .Where(bur => bur.UserId == user.Id)
+                    .Select(bur => bur.BranchRole)
+                    .ToList();
+
+                foreach (var role in userBranchRoles)
+                {
+                    if (!string.IsNullOrEmpty(role.Permissions))
+                    {
+                        foreach (var perm in role.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            allPermissions.Add(perm.Trim());
+                        }
+                    }
+                }
+            }
+
+            // Generate JWT token with all permissions
+            var token = await GenerateJwtToken(user, null, null, null, string.Join(",", allPermissions));
 
             return Ok(new { Token = token });
         }
@@ -183,6 +210,17 @@ namespace HOMMS.API.Controllers
             if (user == null)
                 return Unauthorized();
 
+            // Check if user is Admin System (global or for any branch)
+            var isAdminSystem = await _userManager.IsInRoleAsync(user, "Admin");
+            if (isAdminSystem)
+            {
+                return BadRequest("Admin System should use the dashboard dropdown to switch branches. This endpoint is not required.");
+            }
+
+            string permissions = null;
+            string branchRoleName = null;
+            int? branchRoleId = null;
+
             // Check if user has a BranchUserRole for the selected branch
             var branchUserRole = _context.BranchUserRoles
                 .Where(bur => bur.UserId == user.Id && bur.BranchId == model.BranchId)
@@ -198,7 +236,11 @@ namespace HOMMS.API.Controllers
             if (branchUserRole == null)
                 return Forbid();
 
-            var token = await GenerateJwtToken(user, branchUserRole.BranchId, branchUserRole.BranchRoleId, branchUserRole.Name, branchUserRole.Permissions);
+            branchRoleId = branchUserRole.BranchRoleId;
+            branchRoleName = branchUserRole.Name;
+            permissions = branchUserRole.Permissions;
+
+            var token = await GenerateJwtToken(user, model.BranchId, branchRoleId, branchRoleName, permissions);
             return Ok(new { Token = token });
         }
 

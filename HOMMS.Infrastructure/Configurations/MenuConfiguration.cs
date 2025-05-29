@@ -19,6 +19,7 @@ namespace HOMMS.Infrastructure.Configurations
             
             // Properties
             builder.Property(m => m.Date)
+                   .HasColumnType("date")
                    .IsRequired();
                    
             builder.Property(m => m.TimeOfDay)

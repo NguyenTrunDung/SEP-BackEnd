@@ -134,4 +134,5 @@ namespace HOMMS.Domain.Dtos
         /// </summary>
         public List<MenuDto>? Menus { get; set; } = new List<MenuDto>();
     }
+
 } 

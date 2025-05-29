@@ -34,7 +34,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<Menu> GetMenuWithDetailsAsync(int menuId);
         
         /// <summary>
-        /// Gets all menus with their details for a specific branch on a specific date
+        /// Gets all menus with their details for a specific branch on a specific date (for guest/ordering)
         /// </summary>
         /// <param name="branchId">Branch ID</param>
         /// <param name="date">Date to filter</param>

@@ -20,15 +20,23 @@ namespace HOMMS.API.Middleware
         public async Task InvokeAsync(HttpContext context, IBranchContext branchContext)
         {
             bool branchSet = false;
-            
-            // Option 1: Extract from route data
-            if (context.Request.RouteValues.TryGetValue("branchId", out var branchIdFromRoute) && 
+            var user = context.User;
+            var isAdminSystem = user?.Identity?.IsAuthenticated == true && user.IsInRole("Admin");
+
+            // Admin System: always allow branch selection via header
+            if (isAdminSystem && context.Request.Headers.TryGetValue("X-Branch-Id", out var adminBranchIdHeader) && int.TryParse(adminBranchIdHeader.FirstOrDefault(), out int adminBranchId))
+            {
+                branchContext.SetCurrentBranchId(adminBranchId);
+                branchSet = true;
+            }
+            // Option 1: Extract from route data (for non-admins)
+            else if (context.Request.RouteValues.TryGetValue("branchId", out var branchIdFromRoute) && 
                 int.TryParse(branchIdFromRoute?.ToString(), out int branchId))
             {
                 branchContext.SetCurrentBranchId(branchId);
                 branchSet = true;
             }
-            // Option 2: Extract from header
+            // Option 2: Extract from header (for non-admins)
             else if (context.Request.Headers.TryGetValue("X-Branch-Id", out var branchIdHeader) && 
                     int.TryParse(branchIdHeader.FirstOrDefault(), out branchId))
             {

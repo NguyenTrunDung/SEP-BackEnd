@@ -13,7 +13,8 @@ namespace HOMMS.Application.Profiles
         {
             // Food -> FoodDto
             CreateMap<Food, FoodDto>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image));
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category)); ;
 
             // FoodCategory -> FoodCategoryDto
             CreateMap<FoodCategory, FoodCategoryDto>()

@@ -1,0 +1,435 @@
+{
+  "info": {
+    "name": "HOMMS API",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "description": "Hospital Canteen Order Management System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@homms.com\",\n  \"password\": \"Admin@123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Foods",
+      "item": [
+        {
+          "name": "Get All (by Branch)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foods?branchId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods"],
+              "query": [{ "key": "branchId", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foods/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bánh mì\",\n  \"categoryId\": 1,\n  \"description\": \"Bánh mì đặc biệt\",\n  \"priceForGuest\": 20000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foods",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods"]
+            }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bánh mì thịt\",\n  \"categoryId\": 1,\n  \"description\": \"Bánh mì thịt đặc biệt\",\n  \"priceForGuest\": 25000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foods/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foods/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "FoodCategories",
+      "item": [
+        {
+          "name": "Get All (by Branch)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foodcategories?branchId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories"],
+              "query": [{ "key": "branchId", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foodcategories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Món mới\",\n  \"imageUrl\": \"images/FoodCategories/new.jpg\",\n  \"sort\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foodcategories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories"]
+            }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Món mới cập nhật\",\n  \"imageUrl\": \"images/FoodCategories/new2.jpg\",\n  \"sort\": 11\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foodcategories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "X-Branch-Id", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/foodcategories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Branches",
+      "item": [
+        {
+          "name": "Get All Branches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/branches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches"]
+            }
+          }
+        },
+        {
+          "name": "Get Default Branch",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/branches/default",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "default"]
+            }
+          }
+        },
+        {
+          "name": "Set Current Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/branches/set-current/{{branchId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "set-current", "{{branchId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Current Branch",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/branches/current",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "current"]
+            }
+          }
+        },
+        {
+          "name": "Secure Action (orders:add permission)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/branches/secure-action",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "secure-action"]
+            }
+          }
+        },
+        {
+          "name": "Get Admin System User (users:views permission)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/branches/admin-system-user?branchCode={{branchCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "admin-system-user"],
+              "query": [{ "key": "branchCode", "value": "{{branchCode}}" }]
+            }
+          }
+        },
+        {
+          "name": "Assign Admin System (users:edit permission)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/branches/assign-admin-system/{{userId}}?branchCode={{branchCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "branches",
+                "assign-admin-system",
+                "{{userId}}"
+              ],
+              "query": [{ "key": "branchCode", "value": "{{branchCode}}" }]
+            }
+          }
+        },
+        {
+          "name": "List Admin System Users (users:views permission)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/branches/admin-system-users?branchCode={{branchCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "admin-system-users"],
+              "query": [{ "key": "branchCode", "value": "{{branchCode}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PublicMenuController",
+      "item": [
+        {
+          "name": "Get Foods and Categories by Date (Current Branch)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/menus/menu-by-date?date=2025-05-29",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "v1", "public", "menus", "menu-by-date" ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2024-06-26",
+                  "description": "Optional. Format: yyyy-MM-dd"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Categories by Date (Current Branch)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/menus/categories/by-date?date=2025-05-29",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "v1", "public", "menus", "categories", "by-date" ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-05-29",
+                  "description": "Optional. Format: yyyy-MM-dd"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Foods by Category and Date (Current Branch)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/menus/categories/2/foods?date=2025-05-29",
+              "host": [ "{{baseUrl}}" ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "menus",
+                "categories",
+                "2",
+                "foods"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-05-29",
+                  "description": "Optional. Format: yyyy-MM-dd"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5281"
+    },
+    {
+      "key": "jwtToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4MjJjOTNmNC1hNWI0LTRiMTktOGRhNC0xZGRkMjdlNTMzNDIiLCJlbWFpbCI6ImFkbWluQGhvbW1zLmNvbSIsImp0aSI6IjU4NWM0N2JlLWI4NmUtNGQ2MS04M2EwLTdmYTIxY2QxZWIxMiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJhZG1pbkBob21tcy5jb20iLCJGaXJzdE5hbWUiOiJTeXN0ZW0iLCJMYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsInBlcm1pc3Npb24iOlsiZm9vZHM6dmlldyIsImZvb2RzOmFkZCIsImZvb2RzOmVkaXQiLCJmb29kczpkZWxldGUiLCJmb29kY2F0ZWdvcmllczp2aWV3IiwiZm9vZGNhdGVnb3JpZXM6YWRkIiwiZm9vZGNhdGVnb3JpZXM6ZWRpdCIsImZvb2RjYXRlZ29yaWVzOmRlbGV0ZSIsIm9yZGVyczp2aWV3Iiwib3JkZXJzOmFkZCIsIm9yZGVyczplZGl0Iiwib3JkZXJzOmRlbGV0ZSIsImJyYW5jaGVzOnZpZXciLCJicmFuY2hlczphZGQiLCJicmFuY2hlczplZGl0IiwiYnJhbmNoZXM6ZGVsZXRlIiwidXNlcnM6dmlldyIsInVzZXJzOmFkZCIsInVzZXJzOmVkaXQiLCJ1c2VyczpkZWxldGUiXSwiZXhwIjoxNzQ4MzY5NTI0LCJpc3MiOiJIT01NUy5BUEkiLCJhdWQiOiJIT01NUy5DbGllbnQifQ.nvop3GfpDxkCkyuk5dkxb8CwQrQxbrYJlI7DCEN19NY"
+    }
+  ]
+}
