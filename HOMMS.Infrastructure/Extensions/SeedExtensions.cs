@@ -23,17 +23,91 @@ namespace HOMMS.Infrastructure.Extensions
                 await context.Database.MigrateAsync();
                 logger.LogInformation("Database migrations applied successfully.");
 
-                // Seed branch first and get its Id
-                var branchId = await HOMMS.Infrastructure.Seeds.BranchSeedData.SeedDefaultBranchAsync(services);
+                // Only seed branches if none exist
+                int branchId = 0;
+                if (!await context.Branches.AnyAsync())
+                {
+                    logger.LogInformation("Seeding branches...");
+                    branchId = await HOMMS.Infrastructure.Seeds.BranchSeedData.SeedDefaultBranchAsync(services);
+                    logger.LogInformation("Branches seeded successfully.");
+                }
+                else
+                {
+                    branchId = context.Branches.Select(b => b.Id).FirstOrDefault();
+                    logger.LogInformation("Branches already exist. Skipping branch seeding.");
+                }
 
-                logger.LogInformation("Seeding identity data (roles and admin user)...");
-                await IdentitySeedData.SeedRolesAndAdminAsync(services, branchId);
-                logger.LogInformation("Identity data seeded successfully.");
+                // Only seed roles and admin if no roles exist
+                if (!await context.Roles.AnyAsync())
+                {
+                    logger.LogInformation("Seeding identity data (roles and admin user)...");
+                    await IdentitySeedData.SeedRolesAndAdminAsync(services, branchId);
+                    logger.LogInformation("Identity data seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Roles already exist. Skipping identity seeding.");
+                }
 
-                // Seed branch roles and permissions using the actual branchId
-                logger.LogInformation("Seeding branch roles and permissions...");
-                await HOMMS.Infrastructure.Seeds.BranchRoleSeedData.SeedBranchRolesAsync(services, branchId);
-                logger.LogInformation("Branch roles and permissions seeded successfully.");
+                // Only seed branch roles if none exist for this branch
+                if (!await context.BranchRoles.AnyAsync(r => r.BranchId == branchId))
+                {
+                    logger.LogInformation("Seeding branch roles and permissions...");
+                    await HOMMS.Infrastructure.Seeds.BranchRoleSeedData.SeedBranchRolesAsync(services, branchId);
+                    logger.LogInformation("Branch roles and permissions seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation($"Branch roles already exist for branchId {branchId}. Skipping branch role seeding.");
+                }
+
+                // Seed Food Categories if none exist
+                if (!await context.FoodCategories.AnyAsync())
+                {
+                    logger.LogInformation("Seeding food categories...");
+                    await FoodCategorySeedData.SeedCateAsync(services).ConfigureAwait(false);
+                    logger.LogInformation("Food categories seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Food categories already exist. Skipping food category seeding.");
+                }
+
+                ///Seed Foods if none exist
+                if (!await context.Foods.AnyAsync())
+                {
+                    logger.LogInformation("Seeding foods...");
+                    await FoodSeedData.SeedFoodsAsync(services);
+                    logger.LogInformation("Foods seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Foods already exist. Skipping food seeding.");
+                }
+
+                ///Seed Menus if none exist
+                if (!await context.Menus.AnyAsync())
+                {
+                    logger.LogInformation("Seeding menus...");
+                    await MenuSeedData.MenuSeedDataAsync(services);
+                    logger.LogInformation("Menus seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Menus already exist. Skipping menu seeding.");
+                }
+
+                ///Seed Menus Detail if none exist
+                if (!await context.MenuDetails.AnyAsync())
+                {
+                    logger.LogInformation("Seeding menus detail...");
+                    await MenuDetailSeedData.MenuDetailDataAsync(services);
+                    logger.LogInformation("Menus detail seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Menus detail already exist. Skipping menu seeding.");
+                }
 
                 // Add other seed methods here if needed
                 // logger.LogInformation("Seeding additional data...");
