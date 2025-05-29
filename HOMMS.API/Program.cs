@@ -60,6 +60,7 @@ builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
 builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
@@ -144,10 +145,10 @@ app.MapControllers();
 try
 {
     Log.Information("Starting web host");
-    
+
     // Seed the database
     await app.SeedDatabaseAsync();
-    
+
     // Print listening URLs to the terminal and log with Serilog
     var addresses = app.Urls;
     foreach (var address in addresses)
@@ -155,7 +156,7 @@ try
         Console.WriteLine($"Now listening on: {address}");
         Log.Information("Now listening on serilog: {Address}", address);
     }
-    
+
     app.Run();
 }
 catch (Exception ex)
