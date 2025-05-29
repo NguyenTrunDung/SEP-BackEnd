@@ -365,5 +365,3 @@ FodyWeavers.xsd
 # Cursor IDE files
 .cursor/
 HOMMS.Infrastructure/Data/HOMMS.sql
-/HOMMS.API/appsettings.Development.json
-/HOMMS.API/appsettings.json
