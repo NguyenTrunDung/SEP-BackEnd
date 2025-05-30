@@ -18,4 +18,12 @@ namespace HOMMS.Domain.Dtos
         public int? Total { get; set; }
         public string? Code { get; set; }
     }
+
+    public class RevenueDto
+    {
+        public DateTime RDate { get; set; }
+        public int RTotal { get; set; }
+
+    }
+
 }

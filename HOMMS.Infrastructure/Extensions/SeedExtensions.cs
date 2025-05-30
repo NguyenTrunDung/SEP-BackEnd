@@ -109,6 +109,19 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation("Menus detail already exist. Skipping menu seeding.");
                 }
 
+
+                ///Seed Order if none exist
+                if (!await context.Orders.AnyAsync())
+                {
+                    logger.LogInformation("Seeding order detail...");
+                    await OrderSeedData.OrderSeedDataAsync(services);
+                    logger.LogInformation("Order seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Order already exist. Skipping order seeding.");
+                }
+
                 // Add other seed methods here if needed
                 // logger.LogInformation("Seeding additional data...");
                 // await ProductSeedData.SeedAsync(context);

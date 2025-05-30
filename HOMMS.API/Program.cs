@@ -78,7 +78,7 @@ builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
 builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-
+builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
@@ -89,6 +89,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 // Register permission policies (add more as needed)
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("Permission:orders:view", policy =>
+       policy.Requirements.Add(new PermissionRequirement("orders:view")));
     options.AddPolicy("Permission:orders:add", policy =>
         policy.Requirements.Add(new PermissionRequirement("orders:add")));
     options.AddPolicy("Permission:orders:edit", policy =>
@@ -125,6 +127,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
+builder.Services.AddScoped<IRevenueService, RevenueService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

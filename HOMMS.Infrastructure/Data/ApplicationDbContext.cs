@@ -42,6 +42,7 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<BranchUserRole> BranchUserRoles { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
+        //public DbSet<Order> Revenues { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
