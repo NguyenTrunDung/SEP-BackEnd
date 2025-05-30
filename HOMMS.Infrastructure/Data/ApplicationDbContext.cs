@@ -39,6 +39,9 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<MenuDetail> MenuDetails { get; set; }
         public DbSet<BranchRole> BranchRoles { get; set; }
         public DbSet<BranchUserRole> BranchUserRoles { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -110,6 +113,8 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new BranchConfiguration());
             builder.ApplyConfiguration(new BranchRoleConfiguration());
             builder.ApplyConfiguration(new BranchUserRoleConfiguration());
+            builder.ApplyConfiguration(new OrderConfiguration());
+            builder.ApplyConfiguration(new OrderDetailConfiguration());
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
@@ -156,9 +161,9 @@ namespace HOMMS.Infrastructure.Data
         private void ApplyBranchFilter<TEntity>(dynamic builder)
             where TEntity : class, IBranchEntity
         {
-            builder.HasQueryFilter((System.Linq.Expressions.Expression<System.Func<TEntity, bool>>)(e => !_multiTenancyEnabled || e.BranchId == GetCurrentBranchId()));
+            builder.HasQueryFilter((System.Linq.Expressions.Expression<System.Func<TEntity, bool>>) (e => !_multiTenancyEnabled || e.BranchId == GetCurrentBranchId()));
         }
-        
+
         // Gets the current branch ID from the branch context or returns the default
         private int GetCurrentBranchId()
         {
@@ -179,32 +184,32 @@ namespace HOMMS.Infrastructure.Data
             if (_multiTenancyEnabled)
             {
                 var branchId = GetCurrentBranchId();
-                
+
                 foreach (var entry in ChangeTracker.Entries<IBranchEntity>()
                     .Where(e => e.State == EntityState.Added && e.Entity.BranchId == 0))
                 {
                     entry.Entity.BranchId = branchId;
                 }
             }
-            
+
             return base.SaveChangesAsync(cancellationToken);
         }
-        
+
         public override int SaveChanges()
         {
             // Apply branch filtering for new entities if multi-tenancy is enabled
             if (_multiTenancyEnabled)
             {
                 var branchId = GetCurrentBranchId();
-                
+
                 foreach (var entry in ChangeTracker.Entries<IBranchEntity>()
                     .Where(e => e.State == EntityState.Added && e.Entity.BranchId == 0))
                 {
                     entry.Entity.BranchId = branchId;
                 }
             }
-            
+
             return base.SaveChanges();
         }
     }
-} 
+}
