@@ -51,14 +51,10 @@ namespace HOMMS.Domain.Entities
         public string? VatEmail { get; set; }
         
         // Pricing and fees
-        [Column(TypeName = "bigint")]
-        public long? Total { get; set; }
-        [Column(TypeName = "bigint")]
-        public long? ShippingFee { get; set; }
+        public int? Total { get; set; }
+        public int? ShippingFee { get; set; }
         public bool? FoodTool { get; set; }
-        [Column(TypeName = "bigint")]
-        public long? FoodToolFee { get; set; }
-        
+        public int? FoodToolFee { get; set; }
         // Payment information
         /// <summary>
         /// Gets or sets the payment method used for this order

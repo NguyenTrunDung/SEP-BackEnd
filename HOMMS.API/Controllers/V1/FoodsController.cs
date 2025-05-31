@@ -26,13 +26,14 @@ namespace HOMMS.API.Controllers.V1
 
         [HttpGet]
         [Authorize(Policy = "Permission:foods:view")]
-        public async Task<ActionResult<ApiResponseBase<FoodDto>>> GetFoods([FromQuery] int branchId)
+        public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoods([FromQuery] int branchId)
         {
             var foods = await _foodService.GetFoodsByBranchAsync(branchId);
             if (foods == null)
-                return NotFound(new ApiResponseBase<MenuDto>(null, "Foods not found", "error"));
-            var foodsDto = _mapper.Map<FoodDto>(foods);
-            return Ok(new ApiResponseBase<FoodDto>(foodsDto, "Foods retrieved successfull"));
+                return NotFound(new ApiResponseBase<List<FoodDto>>(null, "Foods not found", "error", 0));
+            var foodsDto = _mapper.Map<List<FoodDto>>(foods);
+            var totalCount = foodsDto.Count;
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodsDto, "Foods retrieved successfully", "success", totalCount));
         }
 
         [HttpGet("{id}")]
