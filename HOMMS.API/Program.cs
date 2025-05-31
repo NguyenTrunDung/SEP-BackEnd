@@ -76,6 +76,8 @@ builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
+builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
 // Register generic repository for all entities
@@ -118,6 +120,8 @@ builder.Services.AddHostedService<HOMMS.API.PrintUrlsHostedService>();
 // Register IUnitOfWork, UnitOfWork, IBranchService, and BranchService
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
@@ -183,10 +187,10 @@ app.MapControllers();
 try
 {
     Log.Information("Starting web host");
-    
+
     // Seed the database
     await app.SeedDatabaseAsync();
-    
+
     // Print listening URLs to the terminal and log with Serilog
     var addresses = app.Urls;
     foreach (var address in addresses)
@@ -194,7 +198,7 @@ try
         Console.WriteLine($"Now listening on: {address}");
         Log.Information("Now listening on serilog: {Address}", address);
     }
-    
+
     app.Run();
 }
 catch (Exception ex)
