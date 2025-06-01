@@ -17,7 +17,23 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="date">Date to filter</param>
         /// <returns>Menus matching the criteria</returns>
         Task<IEnumerable<Menu>> GetMenusByBranchAndDateAsync(int branchId, DateTime date);
-        
+
+        /// <summary>
+        /// Gets menus for a specific branch
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <returns>Menus matching the criteria</returns>
+        Task<IEnumerable<Menu>> GetMenusByBranch(int branchId);
+
+
+        /// <summary>
+        /// Deletes a menu by its ID.
+        /// </summary>
+        /// <param name="menuId">ID of the menu to delete</param>
+        /// <returns>True if deletion was successful; otherwise, false</returns>
+        Task<bool> DeleteMenu(int menuId);
+
+
         /// <summary>
         /// Gets all active menus across all branches for a specific date
         /// This method bypasses the branch filter

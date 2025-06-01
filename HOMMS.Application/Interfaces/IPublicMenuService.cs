@@ -15,6 +15,9 @@ namespace HOMMS.Application.Interfaces
 
 
         Task<IEnumerable<MenuDto>> GetMenusByBranchAndDateAsync(int branchId, DateTime date);
+        Task<IEnumerable<MenuDto>> GetMenusByBranch(int branchId);
+        Task<bool> DeleteMenu(int menuId);
+
 
         Task<Dictionary<BranchDto, IEnumerable<MenuDto>>> GetMenusForAllBranchesAsync(DateTime date);
 
