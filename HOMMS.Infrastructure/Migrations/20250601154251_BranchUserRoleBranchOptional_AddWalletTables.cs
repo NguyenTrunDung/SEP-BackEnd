@@ -6,11 +6,54 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HOMMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddOrdersOderDetails : Migration
+    public partial class BranchUserRoleBranchOptional_AddWalletTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<string>(
+                name: "CustomerCode",
+                table: "Users",
+                type: "nvarchar(20)",
+                maxLength: 20,
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "CustomerNotes",
+                table: "Users",
+                type: "nvarchar(1000)",
+                maxLength: 1000,
+                nullable: true);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "IsCustomerAccount",
+                table: "Users",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "IsCustomerEnabled",
+                table: "Users",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
+
+            migrationBuilder.AddColumn<long>(
+                name: "WalletBalance",
+                table: "Users",
+                type: "bigint",
+                nullable: false,
+                defaultValue: 0L);
+
+            migrationBuilder.AlterColumn<int>(
+                name: "BranchId",
+                table: "BranchUserRoles",
+                type: "int",
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: "int");
+
             migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
@@ -19,6 +62,7 @@ namespace HOMMS.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BranchId = table.Column<int>(type: "int", nullable: false),
                     BranchUserId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ReceiveDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ReceiveTime = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
@@ -39,6 +83,9 @@ namespace HOMMS.Infrastructure.Migrations
                     ShippingFee = table.Column<int>(type: "int", nullable: true),
                     FoodTool = table.Column<bool>(type: "bit", nullable: true),
                     FoodToolFee = table.Column<int>(type: "int", nullable: true),
+                    PaymentMethod = table.Column<int>(type: "int", nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false),
+                    WalletAmountUsed = table.Column<long>(type: "bigint", nullable: true),
                     Printed = table.Column<bool>(type: "bit", nullable: true),
                     ConfirmedBy = table.Column<int>(type: "int", nullable: true),
                     TimeConfirmed = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -71,6 +118,11 @@ namespace HOMMS.Infrastructure.Migrations
                         principalTable: "Branches",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Orders_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -117,6 +169,50 @@ namespace HOMMS.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserWalletTransactions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    TransactionType = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<long>(type: "bigint", nullable: false),
+                    BalanceAfter = table.Column<long>(type: "bigint", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    OrderId = table.Column<int>(type: "int", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserWalletTransactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserWalletTransactions_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserWalletTransactions_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_UserWalletTransactions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_FoodId",
                 table: "OrderDetails",
@@ -151,6 +247,41 @@ namespace HOMMS.Infrastructure.Migrations
                 name: "IX_Orders_Status",
                 table: "Orders",
                 column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_UserId",
+                table: "Orders",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWalletTransactions_BranchId",
+                table: "UserWalletTransactions",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWalletTransactions_CreatedAt",
+                table: "UserWalletTransactions",
+                column: "CreatedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWalletTransactions_OrderId",
+                table: "UserWalletTransactions",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWalletTransactions_TransactionType",
+                table: "UserWalletTransactions",
+                column: "TransactionType");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWalletTransactions_UserId",
+                table: "UserWalletTransactions",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWalletTransactions_UserId_CreatedAt",
+                table: "UserWalletTransactions",
+                columns: new[] { "UserId", "CreatedAt" });
         }
 
         /// <inheritdoc />
@@ -160,7 +291,40 @@ namespace HOMMS.Infrastructure.Migrations
                 name: "OrderDetails");
 
             migrationBuilder.DropTable(
+                name: "UserWalletTransactions");
+
+            migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropColumn(
+                name: "CustomerCode",
+                table: "Users");
+
+            migrationBuilder.DropColumn(
+                name: "CustomerNotes",
+                table: "Users");
+
+            migrationBuilder.DropColumn(
+                name: "IsCustomerAccount",
+                table: "Users");
+
+            migrationBuilder.DropColumn(
+                name: "IsCustomerEnabled",
+                table: "Users");
+
+            migrationBuilder.DropColumn(
+                name: "WalletBalance",
+                table: "Users");
+
+            migrationBuilder.AlterColumn<int>(
+                name: "BranchId",
+                table: "BranchUserRoles",
+                type: "int",
+                nullable: false,
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "int",
+                oldNullable: true);
         }
     }
 }
