@@ -2,6 +2,7 @@ using HOMMS.Domain.Entities.Base;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HOMMS.Domain.Entities
 {
@@ -53,12 +54,56 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         [StringLength(500)]
         public string? Address { get; set; }
+
+        #region Customer-specific Properties
+        
+        /// <summary>
+        /// Gets or sets whether this user is a customer account (created by admin/manager)
+        /// </summary>
+        public bool IsCustomerAccount { get; set; } = false;
+        
+        /// <summary>
+        /// Gets or sets the wallet balance for customer accounts in VND (Vietnamese Dong)
+        /// VND doesn't use decimal places, stored as whole numbers
+        /// </summary>
+        [Column(TypeName = "bigint")]
+        public long WalletBalance { get; set; } = 0;
+        
+        /// <summary>
+        /// Gets or sets the customer code (unique identifier for customer accounts)
+        /// </summary>
+        [StringLength(20)]
+        public string? CustomerCode { get; set; }
+        
+        /// <summary>
+        /// Gets or sets additional notes about the customer (allergies, dietary restrictions, etc.)
+        /// Supports Vietnamese text
+        /// </summary>
+        [StringLength(1000)]
+        public string? CustomerNotes { get; set; }
+        
+        /// <summary>
+        /// Gets or sets whether the customer account is currently enabled for ordering
+        /// </summary>
+        public bool IsCustomerEnabled { get; set; } = true;
+        
+        #endregion
         
         /// <summary>
         /// Gets or sets the branch-user relationships for this user
         /// </summary>
         public virtual ICollection<BranchUser> BranchUsers { get; set; } = new List<BranchUser>();
         
+        /// <summary>
+        /// Gets or sets the wallet transactions for this user
+        /// </summary>
+        public virtual ICollection<UserWalletTransaction> WalletTransactions { get; set; } = new List<UserWalletTransaction>();
+        
+        /// <summary>
+        /// Gets or sets the orders placed by this user
+        /// </summary>
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
         #region Audit Properties
         
         /// <summary>

@@ -42,6 +42,7 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<BranchUserRole> BranchUserRoles { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -102,6 +103,21 @@ namespace HOMMS.Infrastructure.Data
                     filterMethod.Invoke(this, new object[] { entityBuilder });
                 }
             }
+
+            // Apply global query filter for soft delete (ISoftDeletable)
+            var softDeleteEntityTypes = builder.Model.GetEntityTypes()
+                .Where(e => typeof(ISoftDeletable).IsAssignableFrom(e.ClrType));
+            foreach (var entityType in softDeleteEntityTypes)
+            {
+                var method = typeof(ApplicationDbContext)
+                    .GetMethod(nameof(ApplySoftDeleteFilter), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    ?.MakeGenericMethod(entityType.ClrType);
+                if (method != null)
+                {
+                    var entityBuilder = builder.Entity(entityType.ClrType);
+                    method.Invoke(this, new object[] { entityBuilder });
+                }
+            }
         }
 
         private void ApplyEntityConfigurations(ModelBuilder builder)
@@ -116,6 +132,7 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new BranchUserRoleConfiguration());
             builder.ApplyConfiguration(new OrdersConfiguration());
             builder.ApplyConfiguration(new OrderDetailsConfiguration());
+            builder.ApplyConfiguration(new UserWalletTransactionConfiguration());
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
@@ -165,6 +182,12 @@ namespace HOMMS.Infrastructure.Data
             builder.HasQueryFilter((System.Linq.Expressions.Expression<System.Func<TEntity, bool>>)(e => !_multiTenancyEnabled || e.BranchId == GetCurrentBranchId()));
         }
         
+        private void ApplySoftDeleteFilter<TEntity>(dynamic builder)
+            where TEntity : class, ISoftDeletable
+        {
+            builder.HasQueryFilter((System.Linq.Expressions.Expression<System.Func<TEntity, bool>>)(e => !e.IsDeleted));
+        }
+
         // Gets the current branch ID from the branch context or returns the default
         private int GetCurrentBranchId()
         {

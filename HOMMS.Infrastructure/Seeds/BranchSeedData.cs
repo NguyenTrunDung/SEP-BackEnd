@@ -24,6 +24,7 @@ namespace HOMMS.Infrastructure.Seeds
                     Address = "Coteccons",
                     Phone = "0919000000",
                     IsActive = true,
+                    BranchId = 1,
                     CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 },
                 new Branch
@@ -33,6 +34,7 @@ namespace HOMMS.Infrastructure.Seeds
                     Address = "Cần Thơ",
                     Phone = "0123456789",
                     IsActive = true,
+                    BranchId = 2,
                     CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 },
                 new Branch
@@ -42,6 +44,7 @@ namespace HOMMS.Infrastructure.Seeds
                     Address = "TP Hồ Chí Minh",
                     Phone = "0123456789",
                     IsActive = true,
+                    BranchId = 3,
                     CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 },
                 new Branch
@@ -51,6 +54,7 @@ namespace HOMMS.Infrastructure.Seeds
                     Address = "Đại lộ Bình Dương, khu Gò Cát, Lái Thiêu, Thuận An, Bình Dương",
                     Phone = "0919111111",
                     IsActive = true,
+                    BranchId = 4,
                     CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 }
             };
