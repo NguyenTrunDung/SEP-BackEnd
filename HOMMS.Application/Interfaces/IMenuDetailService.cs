@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HOMMS.Domain.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,7 @@ namespace HOMMS.Application.Interfaces
 {
     public interface IMenuDetailService
     {
+        Task<MenuDetailViewDto?> GetMenuWithDetailsAsync(int menuId);
+        Task<bool> UpdateMenuWithDetailsAsync(UpdateMenuDto dto);
     }
 }

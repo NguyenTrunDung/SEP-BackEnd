@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace HOMMS.Infrastructure.Repositories.Interfaces
 {
-    public interface IMenuDetailRepository : IRepository<MenuDetail, int>
+    public interface IMenuDetailRepository : IRepository<Menu, int>
     {
+        Task<Menu?> GetMenuWithDetailsAsync(int id);
+        Task<bool> UpdateMenuWithDetailsAsync(Menu menu);
     }
 }
