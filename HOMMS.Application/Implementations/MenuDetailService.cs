@@ -109,5 +109,33 @@ namespace HOMMS.Application.Implementations
 
             return await _menuRepository.UpdateMenuWithDetailsAsync(menu);
         }
+        public async Task<bool> AddMenuWithDetailsAsync(CreateMenuDto dto)
+        {
+            var menu = new Menu
+            {
+                Date = dto.Date,
+                TimeOfDay = dto.TimeOfDay,
+                IsTime = dto.IsTime,
+                TimeFrom = dto.TimeFrom,
+                TimeTo = dto.TimeTo,
+                Name = dto.Name,
+                MenuDetails = dto.Details.Select(d => new MenuDetail
+                {
+                    FoodId = d.FoodId,
+                    Qty = d.Qty,
+                    PriceForGuest = d.PriceForGuest,
+                    PriceForPatient = d.PriceForPatient,
+                    PriceForStaff = d.PriceForStaff,
+                    DiscountPrice = d.DiscountPrice,
+                    Status = d.Status,
+                    DiscountFrom = d.DiscountFrom,
+                    DiscountTo = d.DiscountTo,
+                    IsQty = d.IsQty
+                }).ToList()
+            };
+
+            return await _menuRepository.AddMenuWithDetailsAsync(menu);
+        }
+
     }
 }

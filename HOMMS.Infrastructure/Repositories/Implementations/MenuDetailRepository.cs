@@ -32,5 +32,12 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             _dbContext.Menus.Update(menu);
             return await _dbContext.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> AddMenuWithDetailsAsync(Menu menu)
+        {
+            await _dbContext.Menus.AddAsync(menu);
+            return await _dbContext.SaveChangesAsync() > 0;
+        }
+
     }
 }

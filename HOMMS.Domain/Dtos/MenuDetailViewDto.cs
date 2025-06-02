@@ -30,4 +30,16 @@ namespace HOMMS.Domain.Dtos
 
         public List<MenuDetailsDto> Details { get; set; } = new(); // update toàn bộ danh sách
     }
+    public class CreateMenuDto
+    {
+        public int Id { get; set; }   // ID của Menu
+        public DateTime Date { get; set; }
+        public string? TimeOfDay { get; set; }
+        public bool IsTime { get; set; }
+        public TimeSpan? TimeFrom { get; set; }
+        public TimeSpan? TimeTo { get; set; }
+        public string? Name { get; set; }
+
+        public List<MenuDetailsDto> Details { get; set; } = new(); // update toàn bộ danh sách
+    }
 }

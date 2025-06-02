@@ -103,5 +103,12 @@ namespace HOMMS.Application.Implementations
             var foods = allMenuDetails.Select(md => md.Food).Distinct().ToList();
             return _mapper.Map<IEnumerable<FoodDto>>(foods);
         }
+       
+        public async Task<IEnumerable<MenuDto>> SearchMenusByDateAsync(DateTime date, int? branchId = null)
+        {
+            var menus = await _menuRepository.SearchMenusByDateAsync(date, branchId);
+            return _mapper.Map<IEnumerable<MenuDto>>(menus);
+        }
+
     }
 }

@@ -150,5 +150,21 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 );
         }
 
+        // Search menu by Date
+        public async Task<IEnumerable<Menu>> SearchMenusByDateAsync(DateTime date, int? branchId = null)
+        {
+            var query = DbSet
+                .Where(m => m.Date.Date == date.Date);
+
+            if (branchId.HasValue)
+            {
+                query = query.Where(m => m.BranchId == branchId.Value);
+            }
+
+            return await query
+                .OrderBy(m => m.BranchId)
+                .ThenBy(m => m.TimeOfDay)
+                .ToListAsync();
+        }
     }
 } 

@@ -186,5 +186,24 @@ namespace HOMMS.API.Controllers.V1
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
             return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch, category, and date retrieved successfully"));
         }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<ApiResponseBase<List<MenuDto>>>> SearchMenusByDate(
+         [FromQuery] string date,
+         [FromQuery] int? branchId = null)
+        {
+            if (!DateTime.TryParseExact(date, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out DateTime parsedDate))
+            {
+                return BadRequest(new ApiResponseBase<List<MenuDto>>(null, "Invalid date format. Use yyyy-MM-dd", "error"));
+            }
+
+            int effectiveBranchId = branchId ?? _branchContext.GetCurrentBranchId();
+            var menus = await _publicMenuService.SearchMenusByDateAsync(parsedDate, effectiveBranchId);
+            var menuDtos = _mapper.Map<List<MenuDto>>(menus);
+
+            return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully"));
+        }
+
+
     }
 }

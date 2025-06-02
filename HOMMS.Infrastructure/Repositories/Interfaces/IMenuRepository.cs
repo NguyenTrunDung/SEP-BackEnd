@@ -72,5 +72,14 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="menuId">Menu ID</param>
         /// <returns>Dictionary of food categories with their menu details</returns>
         Task<Dictionary<FoodCategory, IEnumerable<MenuDetail>>> GetMenuDetailsByCategoryAsync(int menuId);
+
+        /// <summary>
+        /// Searches menus by date, optionally filtered by branch
+        /// </summary>
+        /// <param name="date">Date to search</param>
+        /// <param name="branchId">Optional branch ID</param>
+        /// <returns>List of menus matching the search</returns>
+        Task<IEnumerable<Menu>> SearchMenusByDateAsync(DateTime date, int? branchId = null);
+
     }
 } 
