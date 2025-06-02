@@ -26,7 +26,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpGet("Branch/{branchId}/Day/{date}")]
-        //[Authorize(Policy = "Permission:orders:view")]
+        [Authorize(Policy = "Permission:orders:view")]
         public async Task<IActionResult> GetRevenueByDayAsync(int branchId, DateTime date)//nhập theo kiểu YY-MM-DD
         {
             var re = await _revenueService.GetRevenueByDayAsync(branchId, date);
@@ -35,12 +35,12 @@ namespace HOMMS.API.Controllers.V1
                 return NotFound(new ApiResponseBase<IEnumerable<RevenueDto>>(null, "Revenues not found", "error"));
             }
 
-            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues retrieved successfully"));
+            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues by day retrieved successfully"));
         }
 
 
         [HttpGet("Branch/{branchId}/Week/{date}")]
-        //[Authorize(Policy = "Permission:orders:view")]
+        [Authorize(Policy = "Permission:orders:view")]
         public async Task<IActionResult> GetRevenueByWeekAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByWeekAsync(branchId, date);
@@ -49,12 +49,12 @@ namespace HOMMS.API.Controllers.V1
                 return NotFound(new ApiResponseBase<IEnumerable<RevenueDto>>(null, "Revenues not found", "error"));
             }
 
-            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues retrieved successfully"));
+            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues by week retrieved successfully"));
         }
 
 
         [HttpGet("Branch/{branchId}/Month/{date}")]
-        //[Authorize(Policy = "Permission:orders:view")]
+        [Authorize(Policy = "Permission:orders:view")]
         public async Task<IActionResult> GetRevenueByMonthAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByMonthAsync(branchId, date);
@@ -63,12 +63,12 @@ namespace HOMMS.API.Controllers.V1
                 return NotFound(new ApiResponseBase<IEnumerable<RevenueDto>>(null, "Revenues not found", "error"));
             }
 
-            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues retrieved successfully"));
+            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues by month retrieved successfully"));
         }
 
 
         [HttpGet("Branch/{branchId}/Year/{date}")]
-        //[Authorize(Policy = "Permission:orders:view")]
+        [Authorize(Policy = "Permission:orders:view")]
         public async Task<IActionResult> GetRevenueByYearAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByYearAsync(branchId, date);
@@ -77,7 +77,7 @@ namespace HOMMS.API.Controllers.V1
                 return NotFound(new ApiResponseBase<IEnumerable<RevenueDto>>(null, "Revenues not found", "error"));
             }
 
-            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues retrieved successfully"));
+            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues by year retrieved successfully"));
         }
 
 
