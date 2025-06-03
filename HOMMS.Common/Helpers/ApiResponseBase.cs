@@ -27,12 +27,19 @@ namespace HOMMS.Common.Helpers
         [JsonPropertyName("data")]
         public T? Data { get; set; }
 
+        /// <summary>
+        /// Gets or sets the total count of items (for list responses)
+        /// </summary>
+        [JsonPropertyName("totalCount")]
+        public int? TotalCount { get; set; }
+
         public ApiResponseBase() { }
-        public ApiResponseBase(T? data, string? message = null, string status = "success")
+        public ApiResponseBase(T? data, string? message = null, string status = "success", int? totalCount = null)
         {
             Data = data;
             Message = message;
             Status = status;
+            TotalCount = totalCount;
         }
     }
 } 
