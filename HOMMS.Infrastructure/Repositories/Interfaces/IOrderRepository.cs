@@ -31,5 +31,8 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
             int? maxTotal,
             string? code
         );
+
+        Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId);
+        Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status);
     }
 }

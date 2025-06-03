@@ -100,6 +100,22 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                                  .ToListAsync();
         }
 
+        public async Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId)
+        {
+            return await DbSet.Where(o => o.BranchId == branchId && (o.Status == "Pending" || o.Status == "Preparing"))
+                .Include(o => o.OrderDetails)
+                .OrderBy(o => o.OrderDate)
+                .ToListAsync();
+        }
 
+        public async Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status)
+        {
+            var order = await DbSet.FindAsync(orderId);
+            if (order == null) return false;
+
+            order.Status = status;
+            await DbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }

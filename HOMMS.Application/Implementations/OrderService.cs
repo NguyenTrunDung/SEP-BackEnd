@@ -1,5 +1,6 @@
 ﻿using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
+using HOMMS.Infrastructure.Repositories.Implementations;
 using HOMMS.Infrastructure.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -95,5 +96,26 @@ namespace HOMMS.Application.Implementations
             }).ToList();
         }
 
+        public async Task<IEnumerable<OrderDto>> GetOrderListByChefAsync(int branchId)
+        {
+            var orders = await _unitOfWork.OrderRepository.GetOrderListByChefAsync(branchId);
+            return orders.Select(o => new OrderDto
+            {
+                Id = o.Id,
+                OrderDate = o.OrderDate,
+                ReceiveDate = o.ReceiveDate,
+                ReceiveTime = o.ReceiveTime,
+                Status = o.Status,
+                CustomerName = o.CustomerName,
+                CustomerPhone = o.CustomerPhone,
+                Total = o.Total,
+                Code = o.Code
+            }).ToList();
+        }
+
+        public async Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status)
+        {
+            return await _unitOfWork.OrderRepository.UpdateOrderStatusByChefAsync(orderId, status);
+        }
     }
 }
