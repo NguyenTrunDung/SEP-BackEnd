@@ -42,7 +42,9 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<BranchUserRole> BranchUserRoles { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
+
         public DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
+
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
