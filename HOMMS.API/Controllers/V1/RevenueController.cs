@@ -26,7 +26,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpGet("Branch/{branchId}/Day/{date}")]
-        //[Authorize(Policy = "Permission:orders:view")]
+        [Authorize(Policy = "Permission:orders:view")]
         public async Task<IActionResult> GetRevenueByDayAsync(int branchId, DateTime date)//nhập theo kiểu YY-MM-DD
         {
             var re = await _revenueService.GetRevenueByDayAsync(branchId, date);
@@ -40,7 +40,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("Branch/{branchId}/Week/{date}")]
-        //[Authorize(Policy = "Permission:orders:view")]
+        [Authorize(Policy = "Permission:orders:view")]
         public async Task<IActionResult> GetRevenueByWeekAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByWeekAsync(branchId, date);
@@ -54,7 +54,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("Branch/{branchId}/Month/{date}")]
-        //[Authorize(Policy = "Permission:orders:view")]
+        [Authorize(Policy = "Permission:orders:view")]
         public async Task<IActionResult> GetRevenueByMonthAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByMonthAsync(branchId, date);
@@ -68,7 +68,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("Branch/{branchId}/Year/{date}")]
-        ////[Authorize(Policy = "Permission:orders:view")]
+        [Authorize(Policy = "Permission:orders:view")]
         public async Task<IActionResult> GetRevenueByYearAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByYearAsync(branchId, date);
