@@ -8,6 +8,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
     {
         private readonly ApplicationDbContext _context;
         public IBranchRepository BranchRepository { get; }
+<<<<<<< HEAD
         public IOrderRepository OrderRepository { get; }//new order
         public IOrderDetailsRepository OrderDetailsRepository { get; }//new ordertail
         // Add other repositories as needed
@@ -18,6 +19,16 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             BranchRepository = branchRepository;
             OrderRepository = orderRepository;//moi them 
             OrderDetailsRepository = orderDetailsRepository;//moi them 
+=======
+        public IOrderRepository OrderRepository { get; }
+        // Add other repositories as needed
+
+        public UnitOfWork(ApplicationDbContext context, IBranchRepository branchRepository, IOrderRepository orderRepository)
+        {
+            _context = context;
+            BranchRepository = branchRepository;
+            OrderRepository = orderRepository;
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
             // Initialize other repositories here
         }
 

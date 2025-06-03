@@ -34,6 +34,14 @@ namespace HOMMS.Application.Profiles
             // Order -> OrderDto
             CreateMap<Order, OrderDto>();
 
+<<<<<<< HEAD
+=======
+            // OrderDetail -> OrderDetailDto
+            CreateMap<OrderDetail, OrderDetailDto>()
+                .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Qty))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total));
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
         }
     }
 } 

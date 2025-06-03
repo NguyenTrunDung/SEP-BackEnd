@@ -722,8 +722,12 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
+<<<<<<< HEAD
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
+=======
+                        .HasColumnType("nvarchar(max)");
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
 
                     b.Property<string>("CustomerAddress")
                         .HasMaxLength(255)
@@ -766,11 +770,14 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+<<<<<<< HEAD
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
                     b.Property<bool>("IsPaid")
+=======
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("KitchenCompletionTime")
@@ -780,8 +787,12 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastModifiedBy")
+<<<<<<< HEAD
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
+=======
+                        .HasColumnType("nvarchar(max)");
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
 
                     b.Property<int?>("LocationId")
                         .HasColumnType("int");
@@ -792,9 +803,12 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
+<<<<<<< HEAD
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
 
+=======
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
                     b.Property<bool?>("Printed")
                         .HasColumnType("bit");
 
@@ -813,6 +827,10 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
+<<<<<<< HEAD
+=======
+                        .IsRequired()
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -826,9 +844,12 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+<<<<<<< HEAD
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
+=======
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
                     b.Property<string>("VatAddress")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -845,6 +866,7 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+<<<<<<< HEAD
                     b.Property<long?>("WalletAmountUsed")
                         .HasColumnType("bigint");
 
@@ -859,11 +881,22 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("Status");
 
                     b.HasIndex("UserId");
+=======
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchUserId");
+
+                    b.HasIndex("BranchId", "Status");
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
 
                     b.ToTable("Orders", (string)null);
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("HOMMS.Domain.Entities.OrderDetails", b =>
+=======
+            modelBuilder.Entity("HOMMS.Domain.Entities.OrderDetail", b =>
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -899,19 +932,35 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
+<<<<<<< HEAD
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+=======
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<int?>("Price")
+<<<<<<< HEAD
                         .HasColumnType("int");
 
                     b.Property<int?>("Qty")
                         .HasColumnType("int");
 
                     b.Property<int?>("Total")
+=======
+                        .HasPrecision(18, 2)
+                        .HasColumnType("int");
+
+                    b.Property<int>("Qty")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Total")
+                        .HasPrecision(18, 2)
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -925,6 +974,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("OrderDetails", (string)null);
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
                 {
                     b.Property<int>("Id")
@@ -1001,6 +1051,8 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("UserWalletTransactions", (string)null);
                 });
 
+=======
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -1240,6 +1292,7 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasForeignKey("BranchUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+<<<<<<< HEAD
                     b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId");
@@ -1252,6 +1305,14 @@ namespace HOMMS.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.OrderDetails", b =>
+=======
+                    b.Navigation("Branch");
+
+                    b.Navigation("BranchUser");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.OrderDetail", b =>
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
                 {
                     b.HasOne("HOMMS.Domain.Entities.Food", "Food")
                         .WithMany()
@@ -1266,7 +1327,12 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasOne("HOMMS.Domain.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
+<<<<<<< HEAD
                         .OnDelete(DeleteBehavior.Cascade);
+=======
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
 
                     b.Navigation("Food");
 
@@ -1275,6 +1341,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Order");
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -1301,6 +1368,8 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+=======
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.ApplicationRole", null)
@@ -1397,8 +1466,11 @@ namespace HOMMS.Infrastructure.Migrations
             modelBuilder.Entity("HOMMS.Domain.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+<<<<<<< HEAD
 
                     b.Navigation("WalletTransactions");
+=======
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
                 });
 #pragma warning restore 612, 618
         }

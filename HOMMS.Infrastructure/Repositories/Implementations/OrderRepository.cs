@@ -98,8 +98,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                                      (o.ReceiveTime != null && o.ReceiveTime.Contains(keyword))
                                  )
                                  .ToListAsync();
-        }
 
+        }
         public async Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId)
         {
             return await DbSet.Where(o => o.BranchId == branchId && (o.Status == "Pending" || o.Status == "Preparing"))

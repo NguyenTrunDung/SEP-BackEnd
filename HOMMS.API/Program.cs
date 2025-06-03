@@ -76,9 +76,13 @@ builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
+<<<<<<< HEAD
 builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
+=======
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));

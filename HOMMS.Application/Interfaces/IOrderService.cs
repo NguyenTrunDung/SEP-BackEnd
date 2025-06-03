@@ -9,6 +9,7 @@ namespace HOMMS.Application.Interfaces
 {
     public interface IOrderService
     {
+<<<<<<< HEAD
         Task<List<OrderDto>> GetOrdersByBranchIdAsync(int branchId);
 
         Task<List<OrderDto>> SearchOrdersAsync(string keyword);
@@ -30,6 +31,8 @@ namespace HOMMS.Application.Interfaces
             string? code
         );
 
+=======
+>>>>>>> e3865cdc654066f1ea2d6f094ce2e277511e07c4
         Task<IEnumerable<OrderDto>> GetOrderListByChefAsync(int branchId);
         Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status);
     }
