@@ -9,6 +9,9 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
 {
     public interface IOrderRepository : IRepository<Order, int>
     {
+        Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId);
+        Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status);
+
         Task<List<Order>> GetOrdersByBranchIdAsync(int branchId);
         /// <summary>
         /// Tìm kiếm đơn hàng theo từ khóa, áp dụng trên các trường: Code, CustomerName, CustomerPhone, Status, ReceiveTime.
