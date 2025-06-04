@@ -19,6 +19,24 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             _context = context;
         }
 
+        public async Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId)
+        {
+            return await DbSet.Where(o => o.BranchId == branchId && (o.Status == "Pending" || o.Status == "Preparing"))
+                .Include(o => o.OrderDetails)
+                .OrderBy(o => o.OrderDate)
+                .ToListAsync();
+        }
+
+        public async Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status)
+        {
+            var order = await DbSet.FindAsync(orderId);
+            if (order == null) return false;
+
+            order.Status = status;
+            await DbContext.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<List<Order>> GetOrdersByBranchIdAsync(int branchId)
         {
             return await _context.Orders
@@ -27,17 +45,17 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         }
 
         public async Task<List<Order>> FilterOrdersAsync(
-    DateTime? startOrderDate,
-    DateTime? endOrderDate,
-    DateTime? startReceiveDate,
-    DateTime? endReceiveDate,
-    string? receiveTime,
-    string? status,
-    string? customerName,
-    string? customerPhone,
-    int? minTotal,
-    int? maxTotal,
-    string? code)
+            DateTime? startOrderDate,
+            DateTime? endOrderDate,
+            DateTime? startReceiveDate,
+            DateTime? endReceiveDate,
+            string? receiveTime,
+            string? status,
+            string? customerName,
+            string? customerPhone,
+            int? minTotal,
+            int? maxTotal,
+            string? code)
         {
             var query = _context.Orders.AsQueryable();
 

@@ -1,5 +1,7 @@
-﻿using HOMMS.Application.Interfaces;
+﻿using AutoMapper;
+using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
+using HOMMS.Infrastructure.Repositories.Implementations;
 using HOMMS.Infrastructure.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -12,10 +14,22 @@ namespace HOMMS.Application.Implementations
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public OrderService(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<OrderDto>> GetOrderListByChefAsync(int branchId)
+        {
+            var orders = await _unitOfWork.OrderRepository.GetOrderListByChefAsync(branchId);
+            return _mapper.Map<IEnumerable<OrderDto>>(orders);
+        }
+
+        public async Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status)
+        {
+            return await _unitOfWork.OrderRepository.UpdateOrderStatusByChefAsync(orderId, status);
         }
 
         public async Task<List<OrderDto>> GetOrdersByBranchIdAsync(int branchId)

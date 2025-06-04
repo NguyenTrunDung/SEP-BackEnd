@@ -1,6 +1,7 @@
 ﻿using HOMMS.Application.Interfaces;
-using HOMMS.Domain.Dtos;
 using HOMMS.Common.Helpers;
+using HOMMS.Domain.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,25 @@ namespace HOMMS.API.Controllers.V1
         public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
+        }
+
+
+        [HttpGet("chef-order-list/{branchId}")]
+        //[Authorize(Policy = "Permission:orders:view")]
+        public async Task<IActionResult> GetOrderListByChefAsync(int branchId)
+        {
+            var orders = await _orderService.GetOrderListByChefAsync(branchId);
+            var orderList = orders?.ToList() ?? new List<OrderDto>();
+            var totalCount = orderList.Count;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orderList, "Chef order list retrieved successfully", "success", totalCount));
+        }
+
+        [HttpPut("chef-update-order-status/{orderId}")]
+        //[Authorize(Policy = "Permission:orders:edit")]
+        public async Task<IActionResult> UpdateOrderStatusByChefAsync(int orderId, [FromBody] string status)
+        {
+            var success = await _orderService.UpdateOrderStatusByChefAsync(orderId, status);
+            return success ? Ok(new ApiResponseBase<object>(null, "Order status updated successfully")) : BadRequest(new ApiResponseBase<object>(null, "Failed to update order status", "error"));
         }
 
         [HttpGet("branch/{branchId}")]
