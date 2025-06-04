@@ -21,7 +21,8 @@ namespace HOMMS.Infrastructure.Configurations
             builder.HasOne(bur => bur.Branch)
                 .WithMany()
                 .HasForeignKey(bur => bur.BranchId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent multiple cascade paths
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false); // Make the relationship optional
         }
     }
 } 

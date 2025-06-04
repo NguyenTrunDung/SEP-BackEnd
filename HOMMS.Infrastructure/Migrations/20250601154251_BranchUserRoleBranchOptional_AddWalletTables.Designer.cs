@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HOMMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250526165729_AddOrdersOderDetails")]
-    partial class AddOrdersOderDetails
+    [Migration("20250601154251_BranchUserRoleBranchOptional_AddWalletTables")]
+    partial class BranchUserRoleBranchOptional_AddWalletTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -87,6 +87,14 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CustomerCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CustomerNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -100,6 +108,12 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCustomerAccount")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCustomerEnabled")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModifiedAt")
@@ -155,6 +169,9 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<long>("WalletBalance")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -329,7 +346,7 @@ namespace HOMMS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<int>("BranchRoleId")
@@ -545,7 +562,7 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
@@ -756,6 +773,9 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("KitchenCompletionTime")
                         .HasColumnType("datetime2");
 
@@ -774,6 +794,9 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
 
                     b.Property<bool?>("Printed")
                         .HasColumnType("bit");
@@ -806,6 +829,9 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("VatAddress")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -822,6 +848,9 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<long?>("WalletAmountUsed")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BranchId");
@@ -831,6 +860,8 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("OrderDate");
 
                     b.HasIndex("Status");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders", (string)null);
                 });
@@ -895,6 +926,82 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderDetails", (string)null);
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BalanceAfter")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId")
+                        .HasDatabaseName("IX_UserWalletTransactions_BranchId");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_UserWalletTransactions_CreatedAt");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("TransactionType")
+                        .HasDatabaseName("IX_UserWalletTransactions_TransactionType");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_UserWalletTransactions_UserId");
+
+                    b.HasIndex("UserId", "CreatedAt")
+                        .HasDatabaseName("IX_UserWalletTransactions_UserId_CreatedAt");
+
+                    b.ToTable("UserWalletTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1045,8 +1152,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("HOMMS.Domain.Entities.BranchRole", "BranchRole")
                         .WithMany("BranchUserRoles")
@@ -1137,9 +1243,15 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasForeignKey("BranchUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Branch");
 
                     b.Navigation("BranchUser");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.OrderDetails", b =>
@@ -1157,14 +1269,39 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasOne("HOMMS.Domain.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Food");
 
                     b.Navigation("Menu");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.Order", "Order")
+                        .WithMany("WalletTransactions")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("WalletTransactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1221,6 +1358,10 @@ namespace HOMMS.Infrastructure.Migrations
             modelBuilder.Entity("HOMMS.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("BranchUsers");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("WalletTransactions");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Branch", b =>
@@ -1259,6 +1400,8 @@ namespace HOMMS.Infrastructure.Migrations
             modelBuilder.Entity("HOMMS.Domain.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("WalletTransactions");
                 });
 #pragma warning restore 612, 618
         }

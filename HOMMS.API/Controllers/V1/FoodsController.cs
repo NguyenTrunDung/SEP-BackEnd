@@ -26,48 +26,52 @@ namespace HOMMS.API.Controllers.V1
 
         [HttpGet]
         [Authorize(Policy = "Permission:foods:view")]
-        public async Task<ActionResult<ApiResponseBase<FoodDto>>> GetFoods([FromQuery] int branchId)
+        public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoods([FromQuery] int branchId)
         {
             var foods = await _foodService.GetFoodsByBranchAsync(branchId);
             if (foods == null)
-                return NotFound(new ApiResponseBase<MenuDto>(null, "Foods not found", "error"));
-            var foodsDto = _mapper.Map<FoodDto>(foods);
-            return Ok(new ApiResponseBase<FoodDto>(foodsDto, "Foods retrieved successfull"));
+                return NotFound(new ApiResponseBase<List<FoodDto>>(null, "Foods not found", "error", 0));
+            var foodsDto = _mapper.Map<List<FoodDto>>(foods);
+            var totalCount = foodsDto.Count;
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodsDto, "Foods retrieved successfully", "success", totalCount));
         }
 
         [HttpGet("{id}")]
         [Authorize(Policy = "Permission:foods:view")]
-        public async Task<ActionResult<FoodDto>> GetFood(int id)
+        public async Task<ActionResult<ApiResponseBase<FoodDto>>> GetFood(int id)
         {
             var food = await _foodService.GetByIdAsync(id);
-            if (food == null) return NotFound();
-            return Ok(food);
+            if (food == null)
+                return NotFound(new ApiResponseBase<FoodDto>(null, "Food not found", "error"));
+            return Ok(new ApiResponseBase<FoodDto>(food, "Food retrieved successfully"));
         }
 
         [HttpPost]
         [Authorize(Policy = "Permission:foods:add")]
-        public async Task<ActionResult<FoodDto>> CreateFood([FromBody] FoodDto dto)
+        public async Task<ActionResult<ApiResponseBase<FoodDto>>> CreateFood([FromBody] FoodDto dto)
         {
             var created = await _foodService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetFood), new { id = created.Id }, created);
+            return CreatedAtAction(nameof(GetFood), new { id = created.Id }, new ApiResponseBase<FoodDto>(created, "Food created successfully"));
         }
 
         [HttpPut("{id}")]
         [Authorize(Policy = "Permission:foods:edit")]
-        public async Task<ActionResult<FoodDto>> UpdateFood(int id, [FromBody] FoodDto dto)
+        public async Task<ActionResult<ApiResponseBase<FoodDto>>> UpdateFood(int id, [FromBody] FoodDto dto)
         {
             var updated = await _foodService.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            if (updated == null)
+                return NotFound(new ApiResponseBase<FoodDto>(null, "Food not found", "error"));
+            return Ok(new ApiResponseBase<FoodDto>(updated, "Food updated successfully"));
         }
 
         [HttpDelete("{id}")]
         [Authorize(Policy = "Permission:foods:delete")]
-        public async Task<IActionResult> DeleteFood(int id)
+        public async Task<ActionResult<ApiResponseBase<object>>> DeleteFood(int id)
         {
             var deleted = await _foodService.DeleteAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            if (!deleted)
+                return NotFound(new ApiResponseBase<object>(null, "Food not found", "error"));
+            return Ok(new ApiResponseBase<object>(null, "Food deleted successfully"));
         }
     }
 } 

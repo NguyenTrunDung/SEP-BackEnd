@@ -47,7 +47,8 @@ namespace HOMMS.API.Controllers.V1
             int branchId = _branchContext.GetCurrentBranchId();
             var menus = await _publicMenuService.GetMenusByBranchAndDateAsync(branchId, dateToFilter);
             var menuDtos = _mapper.Map<List<MenuDto>>(menus);
-            return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully"));
+            var totalCount = menuDtos.Count;
+            return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -109,14 +110,15 @@ namespace HOMMS.API.Controllers.V1
         {
             var dateToFilter = date ?? DateTime.Today;
             int branchId = _branchContext.GetCurrentBranchId();
-            // TODO: Implement these service methods for real data
-            var foods = await _foodService.GetFoodsByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
-            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
+            var foods = await _foodService.GetFoodsByBranchAndDateAsync(branchId, dateToFilter);
+            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter);
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
             var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
             var result = new {
                 foods = foodDtos,
-                categories = categoryDtos
+                categories = categoryDtos,
+                foodsTotalCount = foodDtos.Count,
+                categoriesTotalCount = categoryDtos.Count
             };
             return Ok(new ApiResponseBase<object>(result, "Foods and categories for the day retrieved successfully"));
         }
@@ -131,10 +133,10 @@ namespace HOMMS.API.Controllers.V1
         {
             var dateToFilter = date ?? DateTime.Today;
             int branchId = _branchContext.GetCurrentBranchId();
-            // TODO: Implement this service method for real data
-            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
+            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter);
             var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
-            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for the day retrieved successfully"));
+            var totalCount = categoryDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for the day retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -148,10 +150,10 @@ namespace HOMMS.API.Controllers.V1
         {
             var dateToFilter = date ?? DateTime.Today;
             int branchId = _branchContext.GetCurrentBranchId();
-            // TODO: Implement this service method for real data
-            var foods = await _foodService.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, dateToFilter); // You need to implement this
+            var foods = await _foodService.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, dateToFilter);
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
-            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods in category for the day retrieved successfully"));
+            var totalCount = foodDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods in category for the day retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -162,7 +164,8 @@ namespace HOMMS.API.Controllers.V1
         {
             var foods = await _foodService.GetFoodsByBranchAndDateAsync(branchId, date);
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
-            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch and date retrieved successfully"));
+            var totalCount = foodDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch and date retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -173,7 +176,8 @@ namespace HOMMS.API.Controllers.V1
         {
             var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, date);
             var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
-            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for branch and date retrieved successfully"));
+            var totalCount = categoryDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for branch and date retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -184,7 +188,8 @@ namespace HOMMS.API.Controllers.V1
         {
             var foods = await _foodService.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, date);
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
-            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch, category, and date retrieved successfully"));
+            var totalCount = foodDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch, category, and date retrieved successfully", "success", totalCount));
         }
 
         [HttpGet("search")]
