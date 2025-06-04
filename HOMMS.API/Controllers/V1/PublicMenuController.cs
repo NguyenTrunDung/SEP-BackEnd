@@ -52,6 +52,40 @@ namespace HOMMS.API.Controllers.V1
         }
 
         /// <summary>
+        /// Gets all menus for the current branch on a specific date
+        /// </summary>
+        /// <param name="date">Optional date to filter menus (defaults to today)</param>
+        /// <returns>List of menus</returns>
+        [HttpGet("branch/{branchId}")]
+        public async Task<ActionResult<ApiResponseBase<List<MenuDto>>>> GetMenusByBranch(int branchId)
+        {
+            //int branchId = _branchContext.GetCurrentBranchId();
+            var menus = await _publicMenuService.GetMenusByBranch(branchId);
+            var menuDtos = _mapper.Map<List<MenuDto>>(menus);
+            return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully"));
+        }
+
+        /// <summary>
+        /// Deletes a menu by its ID
+        /// </summary>
+        /// <param name="menuId">The ID of the menu to delete</param>
+        /// <returns>
+        /// 200 OK if the menu was deleted successfully,  
+        /// 404 Not Found if the menu does not exist
+        /// </returns>
+        [HttpDelete("{menuId}")]
+        public async Task<IActionResult> DeleteMenu(int menuId)
+        {
+            var result = await _publicMenuService.DeleteMenu(menuId);
+            if (!result)
+            {
+                return NotFound(new { message = "Menu not found" });
+            }
+
+            return Ok(new { message = "Menu deleted successfully" });
+        }
+
+        /// <summary>
         /// Gets details for a specific menu
         /// </summary>
         /// <param name="id">Menu ID</param>
@@ -157,5 +191,24 @@ namespace HOMMS.API.Controllers.V1
             var totalCount = foodDtos.Count;
             return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch, category, and date retrieved successfully", "success", totalCount));
         }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<ApiResponseBase<List<MenuDto>>>> SearchMenusByDate(
+         [FromQuery] string date,
+         [FromQuery] int? branchId = null)
+        {
+            if (!DateTime.TryParseExact(date, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out DateTime parsedDate))
+            {
+                return BadRequest(new ApiResponseBase<List<MenuDto>>(null, "Invalid date format. Use yyyy-MM-dd", "error"));
+            }
+
+            int effectiveBranchId = branchId ?? _branchContext.GetCurrentBranchId();
+            var menus = await _publicMenuService.SearchMenusByDateAsync(parsedDate, effectiveBranchId);
+            var menuDtos = _mapper.Map<List<MenuDto>>(menus);
+
+            return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully"));
+        }
+
+
     }
 }

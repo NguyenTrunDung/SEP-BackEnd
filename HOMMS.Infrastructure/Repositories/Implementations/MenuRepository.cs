@@ -27,7 +27,30 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .OrderBy(m => m.TimeOfDay)
                 .ToListAsync();
         }
-        
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<Menu>> GetMenusByBranch(int branchId)
+        {
+            return await DbSet
+                .Where(m => m.BranchId == branchId)
+                .OrderBy(m => m.TimeOfDay)
+                .ToListAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> DeleteMenu(int menuId)
+        {
+            var menu = await DbSet.FirstOrDefaultAsync(m => m.Id == menuId);
+            if (menu == null)
+            {
+                return false;
+            }
+
+            DbSet.Remove(menu);
+            return true;
+        }
+
+
         /// <inheritdoc/>
         public async Task<Dictionary<Branch, IEnumerable<Menu>>> GetMenusForAllBranchesAsync(DateTime date)
         {
@@ -127,5 +150,21 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 );
         }
 
+        // Search menu by Date
+        public async Task<IEnumerable<Menu>> SearchMenusByDateAsync(DateTime date, int? branchId = null)
+        {
+            var query = DbSet
+                .Where(m => m.Date.Date == date.Date);
+
+            if (branchId.HasValue)
+            {
+                query = query.Where(m => m.BranchId == branchId.Value);
+            }
+
+            return await query
+                .OrderBy(m => m.BranchId)
+                .ThenBy(m => m.TimeOfDay)
+                .ToListAsync();
+        }
     }
 } 
