@@ -49,6 +49,9 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<DiseaseCategory> DiseaseCategories { get; set; }
         public DbSet<PatientDiseaseCategory> PatientDiseaseCategories { get; set; }
         public DbSet<DiseaseCategoryFoodRestriction> DiseaseCategoryFoodRestrictions { get; set; }
+        
+        // Patient Management DbSet
+        public DbSet<Patient> Patients { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -143,6 +146,9 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new DiseaseCategoryConfiguration());
             builder.ApplyConfiguration(new PatientDiseaseCategoryConfiguration());
             builder.ApplyConfiguration(new DiseaseCategoryFoodRestrictionConfiguration());
+            
+            // Patient configurations
+            builder.ApplyConfiguration(new PatientConfiguration());
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
@@ -151,7 +157,16 @@ namespace HOMMS.Infrastructure.Data
             builder.Entity<ApplicationUser>(entity =>
             {
                 entity.ToTable("Users");
-                // Customize properties, indexes, etc.
+                
+                // Configure Patient relationship
+                entity.HasOne(u => u.Patient)
+                    .WithOne(p => p.User)
+                    .HasForeignKey<ApplicationUser>(u => u.PatientId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                    
+                // Add index for PatientId
+                entity.HasIndex(u => u.PatientId)
+                    .HasDatabaseName("IX_Users_PatientId");
             });
 
             builder.Entity<ApplicationRole>(entity =>

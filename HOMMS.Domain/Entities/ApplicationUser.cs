@@ -142,6 +142,17 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         public virtual ICollection<PatientDiseaseCategory> PatientDiseaseCategories { get; set; } = new List<PatientDiseaseCategory>();
 
+        /// <summary>
+        /// Gets or sets the patient ID if this user is linked to a patient record (optional)
+        /// </summary>
+        [StringLength(450)]
+        public string? PatientId { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the patient record associated with this user (optional)
+        /// </summary>
+        public virtual Patient? Patient { get; set; }
+
         #region Audit Properties
         
         /// <summary>
