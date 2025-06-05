@@ -227,67 +227,83 @@ namespace HOMMS.Infrastructure.Seeds
 
         public static void SeedPatientDiseaseCategories(ModelBuilder modelBuilder)
         {
-            // Seed some sample patient assignments for testing
+            // Seed sample patient assignments using actual Patient IDs from PatientSeedData
             modelBuilder.Entity<PatientDiseaseCategory>().HasData(
                 new PatientDiseaseCategory
                 {
                     Id = 1,
                     BranchId = 1,
-                    PatientId = "patient-123", // Sample patient ID
+                    PatientId = "CTH-P001", // Nguyễn Văn An - Diabetes patient
                     DiseaseCategoryId = 1, // Diabetes Type 2
                     DiagnosedDate = DateTime.UtcNow.AddDays(-30),
                     PatientSeverityLevel = 3,
-                    PatientSpecificNotes = "Patient has difficulty controlling blood sugar levels, requires strict monitoring",
+                    PatientSpecificNotes = "Bệnh nhân khó kiểm soát đường huyết, cần theo dõi chặt chẽ",
                     IsActive = true,
-                    AssignedByPhysician = "Dr. Nguyen Van A",
+                    AssignedByPhysician = "BS. Trần Thị Hoa",
                     ExpiryDate = null,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "Dr. Nguyen Van A"
+                    CreatedBy = "BS. Trần Thị Hoa"
                 },
                 new PatientDiseaseCategory
                 {
                     Id = 2,
                     BranchId = 1,
-                    PatientId = "patient-456", // Sample patient ID
+                    PatientId = "CTH-P002", // Lê Thị Bình - Hypertension patient
                     DiseaseCategoryId = 2, // Hypertension
                     DiagnosedDate = DateTime.UtcNow.AddDays(-60),
                     PatientSeverityLevel = 2,
-                    PatientSpecificNotes = "Mild hypertension, responds well to dietary changes",
+                    PatientSpecificNotes = "Cao huyết áp nhẹ, đáp ứng tốt với thay đổi chế độ ăn",
                     IsActive = true,
-                    AssignedByPhysician = "Dr. Tran Thi B",
+                    AssignedByPhysician = "BS. Nguyễn Minh Đức",
                     ExpiryDate = null,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "Dr. Tran Thi B"
+                    CreatedBy = "BS. Nguyễn Minh Đức"
                 },
                 new PatientDiseaseCategory
                 {
                     Id = 3,
                     BranchId = 1,
-                    PatientId = "patient-789", // Sample patient ID with multiple conditions
-                    DiseaseCategoryId = 1, // Diabetes Type 2
+                    PatientId = "CTH-P004", // Trần Thị Dung - Food allergy patient
+                    DiseaseCategoryId = 6, // Food Allergies
                     DiagnosedDate = DateTime.UtcNow.AddDays(-90),
                     PatientSeverityLevel = 3,
-                    PatientSpecificNotes = "Diabetes with complications",
+                    PatientSpecificNotes = "Dị ứng nghiêm trọng với hải sản, tránh hoàn toàn tôm, cua, cá",
                     IsActive = true,
-                    AssignedByPhysician = "Dr. Le Van C",
+                    AssignedByPhysician = "BS. Lê Văn Thành",
                     ExpiryDate = null,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "Dr. Le Van C"
+                    CreatedBy = "BS. Lê Văn Thành"
                 },
                 new PatientDiseaseCategory
                 {
                     Id = 4,
-                    BranchId = 1,
-                    PatientId = "patient-789", // Same patient with multiple conditions
-                    DiseaseCategoryId = 2, // Hypertension
-                    DiagnosedDate = DateTime.UtcNow.AddDays(-85),
-                    PatientSeverityLevel = 2,
-                    PatientSpecificNotes = "Secondary hypertension due to diabetes complications",
+                    BranchId = 2,
+                    PatientId = "SGH-P001", // Nguyễn Thị Phương - Kidney disease patient
+                    DiseaseCategoryId = 4, // Chronic Kidney Disease
+                    DiagnosedDate = DateTime.UtcNow.AddDays(-120),
+                    PatientSeverityLevel = 4,
+                    PatientSpecificNotes = "Bệnh thận mạn giai đoạn cuối, hạn chế protein và phospho",
                     IsActive = true,
-                    AssignedByPhysician = "Dr. Le Van C",
+                    AssignedByPhysician = "PGS.TS. Lương Văn Khải",
                     ExpiryDate = null,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "Dr. Le Van C"
+                    CreatedBy = "PGS.TS. Lương Văn Khải"
+                },
+                // Multi-condition patient example
+                new PatientDiseaseCategory
+                {
+                    Id = 5,
+                    BranchId = 1,
+                    PatientId = "CTH-P001", // Same patient (Nguyễn Văn An) with multiple conditions
+                    DiseaseCategoryId = 2, // Hypertension (secondary to diabetes)
+                    DiagnosedDate = DateTime.UtcNow.AddDays(-85),
+                    PatientSeverityLevel = 2,
+                    PatientSpecificNotes = "Tăng huyết áp thứ phát do biến chứng tiểu đường",
+                    IsActive = true,
+                    AssignedByPhysician = "BS. Trần Thị Hoa",
+                    ExpiryDate = null,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "BS. Trần Thị Hoa"
                 }
             );
         }

@@ -67,9 +67,9 @@ namespace HOMMS.Domain.Entities
         public virtual Branch? Branch { get; set; }
         
         /// <summary>
-        /// Gets or sets the patient (customer) associated with this disease category
+        /// Gets or sets the patient associated with this disease category
         /// </summary>
-        public virtual ApplicationUser? Patient { get; set; }
+        public virtual Patient? Patient { get; set; }
         
         /// <summary>
         /// Gets or sets the disease category associated with this patient

@@ -22,6 +22,9 @@ namespace HOMMS.Infrastructure.Configurations
             // Properties
             builder.Property(o => o.BranchId).IsRequired();
             builder.Property(o => o.BranchUserId).IsRequired(false);
+            builder.Property(o => o.UserId).HasMaxLength(450).IsRequired(false);
+            builder.Property(o => o.PatientId).HasMaxLength(450).IsRequired(false);
+            builder.Property(o => o.IsPatientOrder).HasDefaultValue(false);
             builder.Property(o => o.OrderDate).IsRequired();
             builder.Property(o => o.ReceiveDate).IsRequired(false);
             builder.Property(o => o.ReceiveTime).HasMaxLength(10);
@@ -61,7 +64,17 @@ namespace HOMMS.Infrastructure.Configurations
             builder.HasOne(o => o.BranchUser)
                    .WithMany()
                    .HasForeignKey(o => o.BranchUserId)
-.OnDelete(DeleteBehavior.SetNull);
+                   .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(o => o.User)
+                   .WithMany(u => u.Orders)
+                   .HasForeignKey(o => o.UserId)
+                   .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(o => o.Patient)
+                   .WithMany(p => p.Orders)
+                   .HasForeignKey(o => o.PatientId)
+                   .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasMany(o => o.OrderDetails)
                    .WithOne()
@@ -81,6 +94,9 @@ namespace HOMMS.Infrastructure.Configurations
             builder.HasIndex(o => o.BranchId);
             builder.HasIndex(o => o.OrderDate);
             builder.HasIndex(o => o.Status);
+            builder.HasIndex(o => o.UserId);
+            builder.HasIndex(o => o.PatientId);
+            builder.HasIndex(o => o.IsPatientOrder);
         }
     }
 }

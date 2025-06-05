@@ -134,6 +134,18 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation("Order detail already exist. Skipping order detail seeding.");
                 }
 
+                ///Seed Patients if none exist
+                if (!await context.Patients.AnyAsync())
+                {
+                    logger.LogInformation("Seeding patients...");
+                    await PatientSeedData.SeedPatientsAsync(services);
+                    logger.LogInformation("Patients seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Patients already exist. Skipping patient seeding.");
+                }
+
 
                 // Add other seed methods here if needed
                 // logger.LogInformation("Seeding additional data...");

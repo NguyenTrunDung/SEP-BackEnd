@@ -138,11 +138,6 @@ namespace HOMMS.Domain.Entities
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
         /// <summary>
-        /// Gets or sets the disease categories assigned to this patient
-        /// </summary>
-        public virtual ICollection<PatientDiseaseCategory> PatientDiseaseCategories { get; set; } = new List<PatientDiseaseCategory>();
-
-        /// <summary>
         /// Gets or sets the patient ID if this user is linked to a patient record (optional)
         /// </summary>
         [StringLength(450)]
