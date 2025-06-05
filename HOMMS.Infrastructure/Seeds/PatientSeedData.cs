@@ -19,8 +19,8 @@ namespace HOMMS.Infrastructure.Seeds
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
             var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("PatientSeeding");
-        {
-            var patients = new List<Patient>
+            {
+                var patients = new List<Patient>
             {
                 // Bệnh viện Cần Thơ - Active patients
                 new Patient
@@ -45,7 +45,7 @@ namespace HOMMS.Infrastructure.Seeds
                 },
                 new Patient
                 {
-                    Id = "CTH-P002", 
+                    Id = "CTH-P002",
                     BranchId = 1,
                     MedicalRecordNumber = "BN002-2024",
                     FullName = "Lê Thị Bình",
@@ -150,16 +150,17 @@ namespace HOMMS.Infrastructure.Seeds
                 }
             };
 
-            try
-            {
-                await context.Patients.AddRangeAsync(patients);
-                await context.SaveChangesAsync();
-                logger.LogInformation($"Successfully seeded {patients.Count} patients.");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while seeding patients.");
-                throw;
+                try
+                {
+                    await context.Patients.AddRangeAsync(patients);
+                    await context.SaveChangesAsync();
+                    logger.LogInformation($"Successfully seeded {patients.Count} patients.");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error occurred while seeding patients.");
+                    throw;
+                }
             }
         }
         
