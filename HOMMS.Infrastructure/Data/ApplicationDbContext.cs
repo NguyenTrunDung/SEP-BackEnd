@@ -44,8 +44,11 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<OrderDetails> OrderDetails { get; set; }
 
         public DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
-
-
+        
+        // Disease Category Management DbSets
+        public DbSet<DiseaseCategory> DiseaseCategories { get; set; }
+        public DbSet<PatientDiseaseCategory> PatientDiseaseCategories { get; set; }
+        public DbSet<DiseaseCategoryFoodRestriction> DiseaseCategoryFoodRestrictions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -135,6 +138,11 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new OrdersConfiguration());
             builder.ApplyConfiguration(new OrderDetailsConfiguration());
             builder.ApplyConfiguration(new UserWalletTransactionConfiguration());
+            
+            // Disease Category configurations
+            builder.ApplyConfiguration(new DiseaseCategoryConfiguration());
+            builder.ApplyConfiguration(new PatientDiseaseCategoryConfiguration());
+            builder.ApplyConfiguration(new DiseaseCategoryFoodRestrictionConfiguration());
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
