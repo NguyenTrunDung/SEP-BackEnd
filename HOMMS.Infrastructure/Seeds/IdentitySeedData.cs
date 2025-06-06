@@ -25,16 +25,29 @@ namespace HOMMS.Infrastructure.Seeds
 
             // Seed Admin User
             await SeedAdminUserAsync(userManager);
-            // No default branch role assignment for admin user
+            
+            // Seed Hospital Staff Users (Doctors, Nurses, etc.)
+            await SeedHospitalStaffAsync(userManager);
         }
 
         private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
         {
-            // Define roles
-            string[] roleNames = { "Admin", "Manager", "User" };
-
-            foreach (var roleName in roleNames)
+            // Define all roles including medical staff roles
+            var roles = new Dictionary<string, string>
             {
+                { "Admin", "System administrator with full access" },
+                { "Manager", "Hospital manager with administrative access" },
+                { "User", "Regular user account" },
+                { "Doctor", "Medical doctor with patient care responsibilities" },
+                { "Nurse", "Nursing staff with patient care responsibilities" },
+                { "Nutritionist", "Dietary specialist managing nutritional care" }
+            };
+
+            foreach (var roleInfo in roles)
+            {
+                var roleName = roleInfo.Key;
+                var description = roleInfo.Value;
+                
                 // Check if role exists
                 var roleExists = await roleManager.RoleExistsAsync(roleName);
                 if (!roleExists)
@@ -43,7 +56,7 @@ namespace HOMMS.Infrastructure.Seeds
                     var role = new ApplicationRole
                     {
                         Name = roleName,
-                        Description = $"Built-in {roleName} role",
+                        Description = description,
                         CreatedAt = DateTime.UtcNow
                     };
 
@@ -78,6 +91,54 @@ namespace HOMMS.Infrastructure.Seeds
                 }
             }
             return adminUser;
+        }
+
+        private static async Task SeedHospitalStaffAsync(UserManager<ApplicationUser> userManager)
+        {
+            // Define hospital staff accounts
+            var staffAccounts = new[]
+            {
+                // Nurses
+                new { Email = "nurse.tran@hospital.com", FirstName = "Trần", LastName = "Thị Hoa", Role = "Nurse", Password = "Nurse@123456" },
+                new { Email = "nurse.duc@hospital.com", FirstName = "Nguyễn", LastName = "Minh Đức", Role = "Nurse", Password = "Nurse@123456" },
+                new { Email = "nurse.thanh@hospital.com", FirstName = "Lê", LastName = "Văn Thành", Role = "Nurse", Password = "Nurse@123456" },
+                new { Email = "nurse.mai@hospital.com", FirstName = "Phạm", LastName = "Thị Mai", Role = "Nurse", Password = "Nurse@123456" },
+                
+                // Doctors
+                // new { Email = "doctor.khai@hospital.com", FirstName = "Lương", LastName = "Văn Khải", Role = "Doctor", Password = "Doctor@123456" },
+                // new { Email = "doctor.linh@hospital.com", FirstName = "Nguyễn", LastName = "Thị Linh", Role = "Doctor", Password = "Doctor@123456" },
+                // new { Email = "doctor.hung@hospital.com", FirstName = "Trần", LastName = "Văn Hùng", Role = "Doctor", Password = "Doctor@123456" },
+                
+                // Nutritionists
+                // new { Email = "nutritionist.anh@hospital.com", FirstName = "Hoàng", LastName = "Thị Anh", Role = "Nutritionist", Password = "Nutritionist@123456" },
+                // new { Email = "nutritionist.minh@hospital.com", FirstName = "Võ", LastName = "Minh Tâm", Role = "Nutritionist", Password = "Nutritionist@123456" }
+            };
+
+            foreach (var staffInfo in staffAccounts)
+            {
+                var existingUser = await userManager.FindByEmailAsync(staffInfo.Email);
+                if (existingUser == null)
+                {
+                    var user = new ApplicationUser
+                    {
+                        UserName = staffInfo.Email,
+                        Email = staffInfo.Email,
+                        FirstName = staffInfo.FirstName,
+                        LastName = staffInfo.LastName,
+                        EmailConfirmed = true, // Auto-confirm email for staff
+                        PhoneNumberConfirmed = true,
+                        CreatedAt = DateTime.UtcNow,
+                        IsActive = true
+                    };
+
+                    var result = await userManager.CreateAsync(user, staffInfo.Password);
+                    if (result.Succeeded)
+                    {
+                        // Assign appropriate role
+                        await userManager.AddToRoleAsync(user, staffInfo.Role);
+                    }
+                }
+            }
         }
     }
 } 

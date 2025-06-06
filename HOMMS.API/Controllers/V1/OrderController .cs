@@ -1,4 +1,5 @@
-﻿using HOMMS.Application.Interfaces;
+﻿using Asp.Versioning;
+using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
 using Microsoft.AspNetCore.Authorization;
@@ -7,8 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HOMMS.API.Controllers.V1
 {
-    [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [Route("api/[controller]")]
+    [ApiController]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
