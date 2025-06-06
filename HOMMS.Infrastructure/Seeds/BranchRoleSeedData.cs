@@ -74,7 +74,15 @@ namespace HOMMS.Infrastructure.Seeds
                     IsDefault = false,
                     Permissions = "overview:views,orders:views,orders:add,orders:edit,menu:views,menu:edit,menu:add,kitchen:views",
                     CreatedAt = DateTime.UtcNow
-                }
+                },
+                new BranchRole
+                {
+                    Name = "Nhà bếp",
+                    BranchId = branchId,
+                    IsDefault = false,
+                    Permissions = "kitchen:views,kitchen:status",
+                    CreatedAt = DateTime.UtcNow
+                },
             };
             foreach (var role in otherRoles)
             {
