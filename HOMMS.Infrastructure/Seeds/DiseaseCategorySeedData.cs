@@ -74,7 +74,7 @@ namespace HOMMS.Infrastructure.Seeds
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = "System"
                 },
-                
+
                 // Hypertension Restrictions
                 new DiseaseCategoryFoodRestriction
                 {
@@ -117,7 +117,7 @@ namespace HOMMS.Infrastructure.Seeds
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = "System"
                 },
-                
+
                 // Kidney Disease Restrictions
                 new DiseaseCategoryFoodRestriction
                 {
@@ -247,13 +247,13 @@ namespace HOMMS.Infrastructure.Seeds
             {
                 // Get all disease categories to seed
                 var diseaseCategories = GetDiseaseCategoriesData();
-                
+
                 // Only add categories that don't already exist
                 foreach (var category in diseaseCategories)
                 {
                     var exists = await dbContext.DiseaseCategories
                         .AnyAsync(dc => dc.Code == category.Code && dc.BranchId == category.BranchId);
-                    
+
                     if (!exists)
                     {
                         dbContext.DiseaseCategories.Add(category);
@@ -286,7 +286,7 @@ namespace HOMMS.Infrastructure.Seeds
                 // Check if we already have data with real user IDs
                 var existingAssignment = await dbContext.PatientDiseaseCategories
                     .FirstOrDefaultAsync(x => x.CreatedBy != null && !x.CreatedBy.StartsWith("temp-"));
-                
+
                 if (existingAssignment != null)
                 {
                     // Already seeded with real user IDs
@@ -298,20 +298,20 @@ namespace HOMMS.Infrastructure.Seeds
                 var nurseTran = await userManager.FindByEmailAsync("nurse.tran@hospital.com");
                 var nurseDuc = await userManager.FindByEmailAsync("nurse.duc@hospital.com");
                 var nurseThanh = await userManager.FindByEmailAsync("nurse.thanh@hospital.com");
-               // var doctorKhai = await userManager.FindByEmailAsync("doctor.khai@hospital.com");
+                // var doctorKhai = await userManager.FindByEmailAsync("doctor.khai@hospital.com");
 
                 if (nurseTran == null || nurseDuc == null || nurseThanh == null)
                 {
                     // Users not yet created, create manual assignments with actual data
                     logger.LogInformation("Hospital staff users not found, seeding patient disease categories with manual assignments...");
-                    
+
                     var assignments = GetPatientDiseaseCategoryData();
                     foreach (var assignment in assignments)
                     {
                         var exists = await dbContext.PatientDiseaseCategories
-                            .AnyAsync(pdc => pdc.PatientId == assignment.PatientId && 
+                            .AnyAsync(pdc => pdc.PatientId == assignment.PatientId &&
                                            pdc.DiseaseCategoryId == assignment.DiseaseCategoryId);
-                        
+
                         if (!exists)
                         {
                             assignment.CreatedBy = "system"; // Use system as fallback
@@ -342,9 +342,9 @@ namespace HOMMS.Infrastructure.Seeds
                                 case "temp-nurse-3":
                                     assignment.CreatedBy = nurseThanh.Id;
                                     break;
-                                //case "temp-doctor-1":
-                                //    assignment.CreatedBy = doctorKhai.Id;
-                                //break;
+                                    //case "temp-doctor-1":
+                                    //    assignment.CreatedBy = doctorKhai.Id;
+                                    //break;
                             }
                         }
                     }
@@ -363,9 +363,9 @@ namespace HOMMS.Infrastructure.Seeds
                         foreach (var assignment in assignments)
                         {
                             var exists = await dbContext.PatientDiseaseCategories
-                                .AnyAsync(pdc => pdc.PatientId == assignment.PatientId && 
+                                .AnyAsync(pdc => pdc.PatientId == assignment.PatientId &&
                                                pdc.DiseaseCategoryId == assignment.DiseaseCategoryId);
-                            
+
                             if (!exists)
                             {
                                 // Map placeholder to real user ID
@@ -377,7 +377,7 @@ namespace HOMMS.Infrastructure.Seeds
                                 {
                                     assignment.CreatedBy = nurseTran.Id; // Default fallback
                                 }
-                                
+
                                 dbContext.PatientDiseaseCategories.Add(assignment);
                             }
                         }
@@ -400,104 +400,104 @@ namespace HOMMS.Infrastructure.Seeds
         private static List<DiseaseCategory> GetDiseaseCategoriesData()
         {
             return new List<DiseaseCategory>
-            {
-                new DiseaseCategory
-                {
-                    BranchId = 1, // Can Tho Hospital
-                    Name = "Diabetes Type 2",
-                    Code = "DM2",
-                    Description = "Type 2 diabetes mellitus requiring dietary carbohydrate management",
-                    DietaryRestrictions = "Avoid high sugar foods, limit simple carbohydrates, avoid sugary drinks, limit white rice",
-                    RecommendedFoods = "Brown rice, whole grains, lean proteins, vegetables, low-glycemic fruits",
-                    IsActive = true,
-                    SeverityLevel = 3,
-                    RequiresApproval = true,
-                    ColorCode = "#FF6B6B",
-                    SortOrder = 1,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "System"
-                },
-                new DiseaseCategory
-                {
-                    BranchId = 1,
-                    Name = "Hypertension",
-                    Code = "HTN",
-                    Description = "High blood pressure requiring low sodium diet",
-                    DietaryRestrictions = "Avoid high sodium foods, limit salt, avoid processed foods, limit soy sauce",
-                    RecommendedFoods = "Fresh fruits, vegetables, low-sodium broths, grilled/steamed foods",
-                    IsActive = true,
-                    SeverityLevel = 2,
-                    RequiresApproval = false,
-                    ColorCode = "#4ECDC4",
-                    SortOrder = 2,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "System"
-                },
-                new DiseaseCategory
-                {
-                    BranchId = 1,
-                    Name = "Cardiovascular Disease",
-                    Code = "CVD",
-                    Description = "Heart disease requiring low fat and low cholesterol diet",
-                    DietaryRestrictions = "Avoid fried foods, limit saturated fats, avoid high cholesterol foods",
-                    RecommendedFoods = "Fish, lean poultry, vegetables, fruits, whole grains, low-fat dairy",
-                    IsActive = true,
-                    SeverityLevel = 3,
-                    RequiresApproval = true,
-                    ColorCode = "#45B7D1",
-                    SortOrder = 3,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "System"
-                },
-                new DiseaseCategory
-                {
-                    BranchId = 1,
-                    Name = "Chronic Kidney Disease",
-                    Code = "CKD",
-                    Description = "Kidney disease requiring protein and potassium restriction",
-                    DietaryRestrictions = "Limit protein, avoid high potassium foods (bananas, oranges), limit phosphorus",
-                    RecommendedFoods = "White rice, apples, cabbage, low-protein foods, controlled portions",
-                    IsActive = true,
-                    SeverityLevel = 4,
-                    RequiresApproval = true,
-                    ColorCode = "#F7DC6F",
-                    SortOrder = 4,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "System"
-                },
-                new DiseaseCategory
-                {
-                    BranchId = 1,
-                    Name = "Gastritis",
-                    Code = "GAST",
-                    Description = "Stomach inflammation requiring bland diet",
-                    DietaryRestrictions = "Avoid spicy foods, acidic foods, alcohol, coffee, carbonated drinks",
-                    RecommendedFoods = "Bland foods, rice porridge, steamed vegetables, lean proteins",
-                    IsActive = true,
-                    SeverityLevel = 2,
-                    RequiresApproval = false,
-                    ColorCode = "#BB8FCE",
-                    SortOrder = 5,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "System"
-                },
-                new DiseaseCategory
-                {
-                    BranchId = 1,
-                    Name = "Food Allergies",
-                    Code = "ALLERGY",
-                    Description = "Various food allergies requiring complete avoidance of specific foods",
-                    DietaryRestrictions = "Complete avoidance of allergen foods, read all ingredient labels carefully",
-                    RecommendedFoods = "Safe alternative foods verified to be allergen-free",
-                    IsActive = true,
-                    SeverityLevel = 4,
-                    RequiresApproval = true,
-                    ColorCode = "#E74C3C",
-                    SortOrder = 6,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "System"
-                }
-            };
+    {
+        new DiseaseCategory
+        {
+            BranchId = 1, // Bệnh viện Cần Thơ
+            Name = "Tiểu đường Type 2",
+            Code = "DM2",
+            Description = "Bệnh tiểu đường type 2 cần quản lý carbohydrate trong chế độ ăn",
+            DietaryRestrictions = "Tránh thực phẩm nhiều đường, hạn chế carbohydrate đơn giản, tránh nước ngọt, hạn chế cơm trắng",
+            RecommendedFoods = "Gạo lứt, ngũ cốc nguyên hạt, protein nạc, rau củ, trái cây có chỉ số đường huyết thấp",
+            IsActive = true,
+            SeverityLevel = 3,
+            RequiresApproval = true,
+            ColorCode = "#FF6B6B",
+            SortOrder = 1,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "System"
+        },
+        new DiseaseCategory
+        {
+            BranchId = 1,
+            Name = "Tăng huyết áp",
+            Code = "HTN",
+            Description = "Huyết áp cao cần chế độ ăn ít natri",
+            DietaryRestrictions = "Tránh thực phẩm nhiều natri, hạn chế muối, tránh thực phẩm chế biến sẵn, hạn chế nước mắm",
+            RecommendedFoods = "Trái cây tươi, rau củ, nước dùng ít muối, thực phẩm nướng/hấp",
+            IsActive = true,
+            SeverityLevel = 2,
+            RequiresApproval = false,
+            ColorCode = "#4ECDC4",
+            SortOrder = 2,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "System"
+        },
+        new DiseaseCategory
+        {
+            BranchId = 1,
+            Name = "Bệnh tim mạch",
+            Code = "CVD",
+            Description = "Bệnh tim cần chế độ ăn ít chất béo và cholesterol",
+            DietaryRestrictions = "Tránh thực phẩm chiên rán, hạn chế chất béo bão hòa, tránh thực phẩm nhiều cholesterol",
+            RecommendedFoods = "Cá, thịt gia cầm nạc, rau củ, trái cây, ngũ cốc nguyên hạt, sữa ít béo",
+            IsActive = true,
+            SeverityLevel = 3,
+            RequiresApproval = true,
+            ColorCode = "#45B7D1",
+            SortOrder = 3,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "System"
+        },
+        new DiseaseCategory
+        {
+            BranchId = 1,
+            Name = "Bệnh thận mạn tính",
+            Code = "CKD",
+            Description = "Bệnh thận cần hạn chế protein và kali",
+            DietaryRestrictions = "Hạn chế protein, tránh thực phẩm nhiều kali (chuối, cam), hạn chế phosphor",
+            RecommendedFoods = "Cơm trắng, táo, bắp cải, thực phẩm ít protein, khẩu phần được kiểm soát",
+            IsActive = true,
+            SeverityLevel = 4,
+            RequiresApproval = true,
+            ColorCode = "#F7DC6F",
+            SortOrder = 4,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "System"
+        },
+        new DiseaseCategory
+        {
+            BranchId = 1,
+            Name = "Viêm dạ dày",
+            Code = "GAST",
+            Description = "Viêm dạ dày cần chế độ ăn nhạt",
+            DietaryRestrictions = "Tránh thực phẩm cay, thực phẩm có tính axit, rượu bia, cà phê, nước có ga",
+            RecommendedFoods = "Thực phẩm nhạt, cháo, rau củ hấp, protein nạc",
+            IsActive = true,
+            SeverityLevel = 2,
+            RequiresApproval = false,
+            ColorCode = "#BB8FCE",
+            SortOrder = 5,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "System"
+        },
+        new DiseaseCategory
+        {
+            BranchId = 1,
+            Name = "Dị ứng thực phẩm",
+            Code = "ALLERGY",
+            Description = "Các loại dị ứng thực phẩm cần tránh hoàn toàn thực phẩm gây dị ứng",
+            DietaryRestrictions = "Tránh hoàn toàn thực phẩm gây dị ứng, đọc kỹ nhãn thành phần",
+            RecommendedFoods = "Thực phẩm thay thế an toàn đã được xác minh không gây dị ứng",
+            IsActive = true,
+            SeverityLevel = 4,
+            RequiresApproval = true,
+            ColorCode = "#E74C3C",
+            SortOrder = 6,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "System"
+        }
+    };
         }
 
         /// <summary>
@@ -579,10 +579,10 @@ namespace HOMMS.Infrastructure.Seeds
         {
             // This method would be called to seed Vietnamese-specific food items
             // and their disease category relationships for comprehensive testing
-            
+
             // Note: This assumes Food entities exist with these IDs
             // In a real implementation, you would coordinate with your Food seeding
-            
+
             var vietnameseFoodRestrictions = new List<DiseaseCategoryFoodRestriction>
             {
                 // Vietnamese Traditional Foods with Disease Restrictions
@@ -619,4 +619,4 @@ namespace HOMMS.Infrastructure.Seeds
             modelBuilder.Entity<DiseaseCategoryFoodRestriction>().HasData(vietnameseFoodRestrictions);
         }
     }
-} 
+}

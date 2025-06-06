@@ -124,6 +124,24 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("foodcategories:edit")));
     options.AddPolicy("Permission:foodcategories:delete", policy =>
         policy.Requirements.Add(new PermissionRequirement("foodcategories:delete")));
+    // Areas
+    options.AddPolicy("Permission:areas:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("areas:view")));
+    options.AddPolicy("Permission:areas:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("areas:add")));
+    options.AddPolicy("Permission:areas:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("areas:edit")));
+    options.AddPolicy("Permission:areas:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("areas:delete")));
+    // Locations
+    options.AddPolicy("Permission:locations:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("locations:view")));
+    options.AddPolicy("Permission:locations:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("locations:add")));
+    options.AddPolicy("Permission:locations:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("locations:edit")));
+    options.AddPolicy("Permission:locations:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("locations:delete")));
     // Add more policies for other permissions as needed
 });
 

@@ -52,6 +52,10 @@ namespace HOMMS.Infrastructure.Data
         
         // Patient Management DbSet
         public DbSet<Patient> Patients { get; set; }
+        
+        // Area and Location Management DbSets
+        public DbSet<Area> Areas { get; set; }
+        public DbSet<Location> Locations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -149,6 +153,10 @@ namespace HOMMS.Infrastructure.Data
             
             // Patient configurations
             builder.ApplyConfiguration(new PatientConfiguration());
+            
+            // Area and Location configurations
+            builder.ApplyConfiguration(new AreaConfiguration());
+            builder.ApplyConfiguration(new LocationConfiguration());
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
