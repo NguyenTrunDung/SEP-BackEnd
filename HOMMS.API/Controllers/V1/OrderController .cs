@@ -19,9 +19,9 @@ namespace HOMMS.API.Controllers.V1
         }
 
 
-        [HttpGet("chef-order-list/{branchId}")]
-        //[Authorize(Policy = "Permission:orders:view")]
-        public async Task<IActionResult> GetOrderListByChefAsync(int branchId)
+        [HttpGet("chef/{branchId}")]
+        //[Authorize(Policy = "Permission:kitchen:view")]
+        public async Task<ActionResult<ApiResponseBase<List<OrderDto>>>> GetOrderListByChefAsync(int branchId)
         {
             var orders = await _orderService.GetOrderListByChefAsync(branchId);
             var orderList = orders?.ToList() ?? new List<OrderDto>();
@@ -29,13 +29,14 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<List<OrderDto>>(orderList, "Chef order list retrieved successfully", "success", totalCount));
         }
 
-        [HttpPut("chef-update-order-status/{orderId}")]
-        //[Authorize(Policy = "Permission:orders:edit")]
-        public async Task<IActionResult> UpdateOrderStatusByChefAsync(int orderId, [FromBody] string status)
+        [HttpPut("chef/status/{orderId}")]
+        //[Authorize(Policy = "Permission:kitchen:status")]
+        public async Task<IActionResult> UpdateOrderStatusByChefAsync(int orderId)
         {
-            var success = await _orderService.UpdateOrderStatusByChefAsync(orderId, status);
+            var success = await _orderService.UpdateOrderStatusByChefAsync(orderId);
             return success ? Ok(new ApiResponseBase<object>(null, "Order status updated successfully")) : BadRequest(new ApiResponseBase<object>(null, "Failed to update order status", "error"));
         }
+
 
         [HttpGet("branch/{branchId}")]
         public async Task<IActionResult> GetOrdersByBranchId(int branchId)

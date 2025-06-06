@@ -30,9 +30,8 @@ namespace HOMMS.Application.Interfaces
             string? code
         );
 
-
         Task<IEnumerable<OrderDto>> GetOrderListByChefAsync(int branchId);
-        Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status);
+        Task<bool> UpdateOrderStatusByChefAsync(int orderId);
 
     }
 }
