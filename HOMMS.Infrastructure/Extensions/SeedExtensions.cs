@@ -110,6 +110,20 @@ namespace HOMMS.Infrastructure.Extensions
                 }
 
 
+                ///Seed System Log if none exist
+                if (!await context.SystemLogs.AnyAsync())
+                {
+                    logger.LogInformation("Seeding System Logl...");
+                    await SystemLogSeedData.SystemLogSeedDataAsync(services);
+                    logger.LogInformation("System Log seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("System Log already exist. Skipping menu seeding.");
+                }
+
+
+
                 ///Seed Order if none exist
                 if (!await context.Orders.AnyAsync())
                 {

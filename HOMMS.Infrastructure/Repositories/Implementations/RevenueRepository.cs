@@ -29,7 +29,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public async Task<IEnumerable<Order>> GetRevenueByWeekAsync(int branchId, DateTime date)
         {
 
-            var startOfWeek = date;
+            var startOfWeek = date.Date.AddDays( -(int)date.DayOfWeek + (date.DayOfWeek == DayOfWeek.Sunday ? -6 : 1));
             var endOfWeek = startOfWeek.AddDays(6);
 
             return await DbSet

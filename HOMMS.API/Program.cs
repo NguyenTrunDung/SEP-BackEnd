@@ -80,6 +80,7 @@ builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IMenuDetailRepository, MenuDetailRepository>();
 builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
+builder.Services.AddScoped<ISystemLogRepository, SystemLogRepository>();
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
@@ -115,6 +116,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Permission:foodcategories:delete", policy =>
         policy.Requirements.Add(new PermissionRequirement("foodcategories:delete")));
     // Add more policies for other permissions as needed
+    //SystemLog
+    options.AddPolicy("Permission:systemlog:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("systemlog:view")));
+    options.AddPolicy("Permission:systemlog:add", policy =>
+       policy.Requirements.Add(new PermissionRequirement("systemlog:add")));
 });
 
 // Register PrintUrlsHostedService
@@ -130,6 +136,7 @@ builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
 builder.Services.AddScoped<IMenuDetailService,MenuDetailService>();
 builder.Services.AddScoped<IRevenueService, RevenueService>();
+builder.Services.AddScoped<ISystemLogService, SystemLogService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
