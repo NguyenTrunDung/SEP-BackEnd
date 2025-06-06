@@ -4,6 +4,7 @@ using HOMMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HOMMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250605184811_PatientDiseaseTable_Fixrelationship")]
+    partial class PatientDiseaseTable_Fixrelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1247,6 +1250,10 @@ namespace HOMMS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AssignedByPhysician")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
@@ -1254,7 +1261,7 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
@@ -1300,10 +1307,13 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("BranchId")
                         .HasDatabaseName("IX_PatientDiseaseCategories_BranchId");
 
-                    b.HasIndex("CreatedBy")
-                        .HasDatabaseName("IX_PatientDiseaseCategories_CreatedBy");
-
                     b.HasIndex("DiseaseCategoryId");
+
+                    b.HasIndex("ExpiryDate")
+                        .HasDatabaseName("IX_PatientDiseaseCategories_ExpiryDate");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_PatientDiseaseCategories_IsActive");
 
                     b.HasIndex("PatientId", "DiseaseCategoryId")
                         .IsUnique()

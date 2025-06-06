@@ -18,9 +18,6 @@ namespace HOMMS.Infrastructure.Configurations
                 
             builder.Property(x => x.PatientSpecificNotes)
                 .HasMaxLength(1000);
-                
-            builder.Property(x => x.AssignedByPhysician)
-                .HasMaxLength(100);
             
             // Configure relationships
             builder.HasOne(x => x.Branch)
@@ -46,11 +43,8 @@ namespace HOMMS.Infrastructure.Configurations
             builder.HasIndex(x => x.BranchId)
                 .HasDatabaseName("IX_PatientDiseaseCategories_BranchId");
                 
-            builder.HasIndex(x => x.IsActive)
-                .HasDatabaseName("IX_PatientDiseaseCategories_IsActive");
-                
-            builder.HasIndex(x => x.ExpiryDate)
-                .HasDatabaseName("IX_PatientDiseaseCategories_ExpiryDate");
+            builder.HasIndex(x => x.CreatedBy)
+                .HasDatabaseName("IX_PatientDiseaseCategories_CreatedBy");
         }
     }
 } 

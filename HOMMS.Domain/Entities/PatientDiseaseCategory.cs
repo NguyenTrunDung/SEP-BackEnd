@@ -49,12 +49,6 @@ namespace HOMMS.Domain.Entities
         public bool IsActive { get; set; } = true;
         
         /// <summary>
-        /// Gets or sets the doctor/physician who assigned this disease category
-        /// </summary>
-        [StringLength(100)]
-        public string? AssignedByPhysician { get; set; }
-        
-        /// <summary>
         /// Gets or sets when this assignment expires (if temporary)
         /// </summary>
         public DateTime? ExpiryDate { get; set; }

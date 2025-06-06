@@ -80,6 +80,8 @@ builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IMenuDetailRepository, MenuDetailRepository>();
 builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
@@ -130,6 +132,12 @@ builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
 builder.Services.AddScoped<IMenuDetailService,MenuDetailService>();
 builder.Services.AddScoped<IRevenueService, RevenueService>();
+
+// Disease Category and Patient Dietary Services
+// TODO: Uncomment when service implementations are created
+// builder.Services.AddScoped<IDiseaseCategoryService, DiseaseCategoryService>();
+// builder.Services.AddScoped<IPatientDietaryService, PatientDietaryService>();    
+// builder.Services.AddScoped<IDietaryValidationService, DietaryValidationService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
