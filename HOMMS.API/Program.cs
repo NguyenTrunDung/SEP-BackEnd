@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.AspNetCore.Authorization;
 using HOMMS.Application.Implementations;
+using Asp.Versioning;
+using Asp.Versioning.Conventions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,15 +58,21 @@ builder.Services.AddIdentityServices(builder.Configuration);
 // Add API versioning
 builder.Services.AddApiVersioning(options =>
 {
-    options.ReportApiVersions = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
     options.AssumeDefaultVersionWhenUnspecified = true;
-    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
-});
-
-builder.Services.AddVersionedApiExplorer(options =>
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("x-api-version"),
+        new MediaTypeApiVersionReader("x-api-version")
+    );
+}).AddMvc(options =>
 {
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
+    options.Conventions.Add(new VersionByNamespaceConvention());
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV"; // Correct format for API Explorer
+    options.SubstituteApiVersionInUrl = true; // Substitute version in URL
 });
 
 // Register branch context for multi-tenancy
@@ -143,7 +151,10 @@ builder.Services.AddScoped<IRevenueService, RevenueService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    // Configure multiple Swagger documents for different API versions
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "HOMMS API", Version = "v1" });
+    options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "HOMMS API", Version = "v2" });
+    
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -175,7 +186,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        // Configure Swagger UI for multiple API versions
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
+    });
     // Use CORS policy in development
     app.UseCors("DevCorsPolicy");
 }

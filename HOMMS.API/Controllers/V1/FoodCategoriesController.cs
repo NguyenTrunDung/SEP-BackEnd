@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HOMMS.Common.Helpers;
+using Asp.Versioning;
 
 namespace HOMMS.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class FoodCategoriesController : ControllerBase
     {
