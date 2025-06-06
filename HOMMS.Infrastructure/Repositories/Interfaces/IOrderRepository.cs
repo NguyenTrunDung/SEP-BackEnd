@@ -9,8 +9,15 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
 {
     public interface IOrderRepository : IRepository<Order, int>
     {
+        /// <summary>
+        /// Retrieves a list of orders for a chef by a specific branch ID
+        /// </summary>
         Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId);
-        Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status);
+
+        /// <summary>
+        /// Allows a chef to update the status of an order
+        /// </summary>
+        Task<bool> UpdateOrderStatusByChefAsync(int orderId);
 
         Task<List<Order>> GetOrdersByBranchIdAsync(int branchId);
         /// <summary>

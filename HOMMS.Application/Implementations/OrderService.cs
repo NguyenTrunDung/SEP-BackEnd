@@ -15,21 +15,24 @@ namespace HOMMS.Application.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IOrderRepository _orderRepository;
+
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderRepository orderRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _orderRepository = orderRepository;
         }
 
         public async Task<IEnumerable<OrderDto>> GetOrderListByChefAsync(int branchId)
         {
-            var orders = await _unitOfWork.OrderRepository.GetOrderListByChefAsync(branchId);
+            var orders = await _orderRepository.GetOrderListByChefAsync(branchId);
             return _mapper.Map<IEnumerable<OrderDto>>(orders);
         }
 
-        public async Task<bool> UpdateOrderStatusByChefAsync(int orderId, string status)
+        public async Task<bool> UpdateOrderStatusByChefAsync(int orderId)
         {
-            return await _unitOfWork.OrderRepository.UpdateOrderStatusByChefAsync(orderId, status);
+            return await _orderRepository.UpdateOrderStatusByChefAsync(orderId);
         }
 
         public async Task<List<OrderDto>> GetOrdersByBranchIdAsync(int branchId)

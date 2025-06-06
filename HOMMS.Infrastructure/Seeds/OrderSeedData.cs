@@ -82,9 +82,33 @@ namespace HOMMS.Infrastructure.Seeds
                     CustomerName = "Vu Thi F",
                     Code = "ORD-006"
                 },
-                
-
-
+                new Order
+                {
+                    BranchId = 1,
+                    OrderDate = new DateTime(2024, 6, 6, 17, 0, 0),
+                    Total = 310000,
+                    Status = "Preparing",
+                    CustomerName = "Vu Thi T",
+                    Code = "ORD-008"
+                },
+                new Order
+                {
+                    BranchId = 1,
+                    OrderDate = new DateTime(2024, 6, 6, 14, 30, 0),
+                    Total = 250000,
+                    Status = "Completed",
+                    CustomerName = "Vu Thi S",
+                    Code = "ORD-009"
+                },
+                new Order
+                {
+                    BranchId = 1,
+                    OrderDate = new DateTime(2024, 6, 6),
+                    Total = 310000,
+                    Status = "Preparing",
+                    CustomerName = "Vu Thi G",
+                    Code = "ORD-010"
+                },
             };
 
             foreach (var Order in rev)
