@@ -44,8 +44,18 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<SystemLog> SystemLogs { get; set; }
         public DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
-
-
+        
+        // Disease Category Management DbSets
+        public DbSet<DiseaseCategory> DiseaseCategories { get; set; }
+        public DbSet<PatientDiseaseCategory> PatientDiseaseCategories { get; set; }
+        public DbSet<DiseaseCategoryFoodRestriction> DiseaseCategoryFoodRestrictions { get; set; }
+        
+        // Patient Management DbSet
+        public DbSet<Patient> Patients { get; set; }
+        
+        // Area and Location Management DbSets
+        public DbSet<Area> Areas { get; set; }
+        public DbSet<Location> Locations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -135,7 +145,22 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new OrdersConfiguration());
             builder.ApplyConfiguration(new OrderDetailsConfiguration());
             builder.ApplyConfiguration(new UserWalletTransactionConfiguration());
+
             builder.ApplyConfiguration(new SystemLogsConfigurations());
+
+            
+            // Disease Category configurations
+            builder.ApplyConfiguration(new DiseaseCategoryConfiguration());
+            builder.ApplyConfiguration(new PatientDiseaseCategoryConfiguration());
+            builder.ApplyConfiguration(new DiseaseCategoryFoodRestrictionConfiguration());
+            
+            // Patient configurations
+            builder.ApplyConfiguration(new PatientConfiguration());
+            
+            // Area and Location configurations
+            builder.ApplyConfiguration(new AreaConfiguration());
+            builder.ApplyConfiguration(new LocationConfiguration());
+
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
@@ -144,7 +169,16 @@ namespace HOMMS.Infrastructure.Data
             builder.Entity<ApplicationUser>(entity =>
             {
                 entity.ToTable("Users");
-                // Customize properties, indexes, etc.
+                
+                // Configure Patient relationship
+                entity.HasOne(u => u.Patient)
+                    .WithOne(p => p.User)
+                    .HasForeignKey<ApplicationUser>(u => u.PatientId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                    
+                // Add index for PatientId
+                entity.HasIndex(u => u.PatientId)
+                    .HasDatabaseName("IX_Users_PatientId");
             });
 
             builder.Entity<ApplicationRole>(entity =>

@@ -1,0 +1,110 @@
+using HOMMS.Domain.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace HOMMS.Infrastructure.Repositories.Interfaces
+{
+    /// <summary>
+    /// Repository interface for patient operations
+    /// </summary>
+    public interface IPatientRepository : IRepository<Patient, string>
+    {
+        /// <summary>
+        /// Gets patients for a specific branch
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <returns>Patients for the branch</returns>
+        Task<IEnumerable<Patient>> GetPatientsByBranchAsync(int branchId);
+        
+        /// <summary>
+        /// Gets active patients for a specific branch
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <returns>Active patients for the branch</returns>
+        Task<IEnumerable<Patient>> GetActivePatientsByBranchAsync(int branchId);
+        
+        /// <summary>
+        /// Gets patient by medical record number
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <param name="medicalRecordNumber">Medical record number</param>
+        /// <returns>Patient with the medical record number</returns>
+        Task<Patient?> GetPatientByMedicalRecordNumberAsync(int branchId, string medicalRecordNumber);
+        
+        /// <summary>
+        /// Gets patient with their disease categories
+        /// </summary>
+        /// <param name="patientId">Patient ID</param>
+        /// <returns>Patient with disease categories</returns>
+        Task<Patient?> GetPatientWithDiseaseCategoriesAsync(string patientId);
+        
+        /// <summary>
+        /// Gets patients with their disease categories for a specific branch
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <returns>Patients with disease categories</returns>
+        Task<IEnumerable<Patient>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId);
+        
+        /// <summary>
+        /// Gets patients by room number
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <param name="roomNumber">Room number</param>
+        /// <returns>Patients in the room</returns>
+        Task<IEnumerable<Patient>> GetPatientsByRoomAsync(int branchId, string roomNumber);
+        
+        /// <summary>
+        /// Gets patients by attending physician
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <param name="physicianName">Physician name</param>
+        /// <returns>Patients under the physician's care</returns>
+        Task<IEnumerable<Patient>> GetPatientsByPhysicianAsync(int branchId, string physicianName);
+        
+        /// <summary>
+        /// Gets patients by external system ID
+        /// </summary>
+        /// <param name="externalSystemId">External system ID</param>
+        /// <returns>Patient with the external system ID</returns>
+        Task<Patient?> GetPatientByExternalIdAsync(string externalSystemId);
+        
+        /// <summary>
+        /// Gets patients that need synchronization (not synced recently)
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <param name="lastSyncThreshold">Threshold for last sync date</param>
+        /// <returns>Patients needing sync</returns>
+        Task<IEnumerable<Patient>> GetPatientsNeedingSyncAsync(int branchId, DateTime lastSyncThreshold);
+        
+        /// <summary>
+        /// Gets patients requiring dietary supervision
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <returns>Patients requiring dietary supervision</returns>
+        Task<IEnumerable<Patient>> GetPatientsRequiringDietarySupervisionAsync(int branchId);
+        
+        /// <summary>
+        /// Gets recently discharged patients
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <param name="fromDate">Start date for discharge</param>
+        /// <returns>Recently discharged patients</returns>
+        Task<IEnumerable<Patient>> GetRecentlyDischargedPatientsAsync(int branchId, DateTime fromDate);
+        
+        /// <summary>
+        /// Searches patients by name or medical record number
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <param name="searchTerm">Search term</param>
+        /// <returns>Matching patients</returns>
+        Task<IEnumerable<Patient>> SearchPatientsAsync(int branchId, string searchTerm);
+        
+        /// <summary>
+        /// Bulk update last sync time for patients
+        /// </summary>
+        /// <param name="patientIds">Patient IDs to update</param>
+        /// <param name="syncTime">Sync timestamp</param>
+        /// <returns>Number of updated records</returns>
+        Task<int> BulkUpdateLastSyncAsync(IEnumerable<string> patientIds, DateTime syncTime);
+    }
+} 

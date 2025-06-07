@@ -92,6 +92,19 @@ namespace HOMMS.Domain.Entities
 
 
 
+
         public virtual ICollection<SystemLog> SystemLogs { get; set; } = new HashSet<SystemLog>();
+
+        
+        /// <summary>
+        /// Gets or sets the navigation property for disease categories belonging to this branch
+        /// </summary>
+        public virtual ICollection<DiseaseCategory> DiseaseCategories { get; set; } = new HashSet<DiseaseCategory>();
+        
+        /// <summary>
+        /// Gets or sets the navigation property for patients belonging to this branch
+        /// </summary>
+        public virtual ICollection<Patient> Patients { get; set; } = new HashSet<Patient>();
+
     }
 } 

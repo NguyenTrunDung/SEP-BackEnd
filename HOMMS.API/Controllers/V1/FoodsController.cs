@@ -1,4 +1,7 @@
-﻿using AutoMapper;
+
+using Asp.Versioning;
+using AutoMapper;
+
 using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
@@ -12,6 +15,7 @@ namespace HOMMS.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class FoodsController : ControllerBase
     {
