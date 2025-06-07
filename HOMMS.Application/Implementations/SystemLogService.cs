@@ -32,20 +32,19 @@ namespace HOMMS.Application.Implementations
 
         public async Task<IEnumerable<SystemLogDto>> GetSystemLogAll(int branchId, DateTime dateStart, DateTime dateEnd)
         {
-            var sys = await _systemLogRepository.GetSystemLogAll(branchId, dateStart,dateEnd);
+            var sys = await _systemLogRepository.GetSystemLogAll(branchId, dateStart, dateEnd);
 
-            var log = sys.Select( tem => new SystemLogDto
+            var log = sys.Select(tem => new SystemLogDto
             {
-
                 UserId = tem.UserId,
                 Note = tem.Note,
                 Date = tem.LastModifiedAt.HasValue
-               ? tem.LastModifiedAt.Value
-               : tem.CreatedAt
-            });
+                    ? tem.LastModifiedAt.Value
+                    : tem.CreatedAt
+            })
+            .OrderByDescending(c => c.Date); 
 
-
-            return _mapper.Map<IEnumerable<SystemLogDto>> (log);
+            return _mapper.Map<IEnumerable<SystemLogDto>>(log);
         }
     }
 }
