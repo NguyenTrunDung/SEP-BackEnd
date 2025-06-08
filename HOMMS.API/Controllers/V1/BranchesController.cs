@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
+using Asp.Versioning;
 
 namespace HOMMS.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class BranchesController : ControllerBase
     {
@@ -46,12 +48,14 @@ namespace HOMMS.API.Controllers.V1
                 {
                     var userBranches = await _branchRepository.GetUserBranchesAsync(userId);
                     var userBranchDtos = _mapper.Map<List<BranchDto>>(userBranches);
-                    return Ok(new ApiResponseBase<List<BranchDto>>(userBranchDtos, "User branches retrieved successfully"));
+                    var totalCount = userBranchDtos.Count;
+                    return Ok(new ApiResponseBase<List<BranchDto>>(userBranchDtos, "User branches retrieved successfully", "success", totalCount));
                 }
             }
             var activeBranches = await _branchRepository.GetActiveBranchesAsync();
             var activeBranchDtos = _mapper.Map<List<BranchDto>>(activeBranches);
-            return Ok(new ApiResponseBase<List<BranchDto>>(activeBranchDtos, "Active branches retrieved successfully"));
+            var totalCountActive = activeBranchDtos.Count;
+            return Ok(new ApiResponseBase<List<BranchDto>>(activeBranchDtos, "Active branches retrieved successfully", "success", totalCountActive));
         }
         
         /// <summary>

@@ -74,6 +74,17 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<DateTime?>("AdmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AttendingPhysician")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("BedNumber")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -83,6 +94,17 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CustomerNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("DischargeDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -97,6 +119,12 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCustomerAccount")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCustomerEnabled")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModifiedAt")
@@ -127,6 +155,10 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PatientId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -143,6 +175,13 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("RequiresDietarySupervision")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("RoomNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -152,6 +191,9 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<long>("WalletBalance")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -163,7 +205,78 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("PatientId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Users_PatientId")
+                        .HasFilter("[PatientId] IS NOT NULL");
+
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.Area", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("Sort")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("BranchId", "Name")
+                        .IsUnique();
+
+                    b.HasIndex("BranchId", "Sort");
+
+                    b.ToTable("Areas", (string)null);
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Branch", b =>
@@ -326,7 +439,7 @@ namespace HOMMS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<int>("BranchRoleId")
@@ -366,6 +479,167 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("BranchUserRoles");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ColorCode")
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("DietaryRestrictions")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("RecommendedFoods")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("RequiresApproval")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SeverityLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId")
+                        .HasDatabaseName("IX_DiseaseCategories_BranchId");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_DiseaseCategories_IsActive");
+
+                    b.HasIndex("BranchId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("IX_DiseaseCategories_BranchId_Code");
+
+                    b.ToTable("DiseaseCategories", (string)null);
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategoryFoodRestriction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AlternativeRecommendations")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DiseaseCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FoodId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("RequiresPhysicianOverride")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RestrictionLevel")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId")
+                        .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_BranchId");
+
+                    b.HasIndex("FoodId");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_IsActive");
+
+                    b.HasIndex("RestrictionLevel")
+                        .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_RestrictionLevel");
+
+                    b.HasIndex("DiseaseCategoryId", "FoodId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_DiseaseCategoryId_FoodId");
+
+                    b.ToTable("DiseaseCategoryFoodRestrictions", (string)null);
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Food", b =>
@@ -456,6 +730,8 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("DiseaseCategoryId");
+
                     b.HasIndex("BranchId", "Name");
 
                     b.ToTable("Foods", (string)null);
@@ -521,6 +797,88 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("BranchId", "Name");
 
                     b.ToTable("Food_Categories", (string)null);
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.Location", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AreaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("RoomNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("Sort")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AreaId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("AreaId", "Name")
+                        .IsUnique();
+
+                    b.HasIndex("AreaId", "Sort");
+
+                    b.HasIndex("BranchId", "RoomNumber")
+                        .IsUnique()
+                        .HasFilter("[RoomNumber] IS NOT NULL");
+
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Menu", b =>
@@ -753,6 +1111,14 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPatientOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<DateTime?>("KitchenCompletionTime")
                         .HasColumnType("datetime2");
 
@@ -771,6 +1137,13 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("PatientId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
 
                     b.Property<bool?>("Printed")
                         .HasColumnType("bit");
@@ -803,6 +1176,10 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("VatAddress")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -819,15 +1196,24 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<long?>("WalletAmountUsed")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BranchId");
 
                     b.HasIndex("BranchUserId");
 
+                    b.HasIndex("IsPatientOrder");
+
                     b.HasIndex("OrderDate");
 
+                    b.HasIndex("PatientId");
+
                     b.HasIndex("Status");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders", (string)null);
                 });
@@ -892,6 +1278,262 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderDetails", (string)null);
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.Patient", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("AdmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AttendingPhysician")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("BedNumber")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DischargeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExternalSystemId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Gender")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MedicalRecordNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("RequiresDietarySupervision")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("RoomNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId")
+                        .HasDatabaseName("IX_Patients_BranchId");
+
+                    b.HasIndex("ExternalSystemId")
+                        .HasDatabaseName("IX_Patients_ExternalSystemId");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_Patients_IsActive");
+
+                    b.HasIndex("BranchId", "MedicalRecordNumber")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Patients_BranchId_MedicalRecordNumber");
+
+                    b.HasIndex("BranchId", "RoomNumber", "BedNumber")
+                        .HasDatabaseName("IX_Patients_BranchId_Room_Bed");
+
+                    b.ToTable("Patients", (string)null);
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.PatientDiseaseCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DiagnosedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DiseaseCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("PatientSeverityLevel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PatientSpecificNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId")
+                        .HasDatabaseName("IX_PatientDiseaseCategories_BranchId");
+
+                    b.HasIndex("CreatedBy")
+                        .HasDatabaseName("IX_PatientDiseaseCategories_CreatedBy");
+
+                    b.HasIndex("DiseaseCategoryId");
+
+                    b.HasIndex("PatientId", "DiseaseCategoryId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PatientDiseaseCategories_PatientId_DiseaseCategoryId");
+
+                    b.ToTable("PatientDiseaseCategories", (string)null);
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BalanceAfter")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId")
+                        .HasDatabaseName("IX_UserWalletTransactions_BranchId");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_UserWalletTransactions_CreatedAt");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("TransactionType")
+                        .HasDatabaseName("IX_UserWalletTransactions_TransactionType");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_UserWalletTransactions_UserId");
+
+                    b.HasIndex("UserId", "CreatedAt")
+                        .HasDatabaseName("IX_UserWalletTransactions_UserId_CreatedAt");
+
+                    b.ToTable("UserWalletTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1000,6 +1642,27 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("HOMMS.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Patient", "Patient")
+                        .WithOne("User")
+                        .HasForeignKey("HOMMS.Domain.Entities.ApplicationUser", "PatientId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.Area", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("HOMMS.Domain.Entities.Branch", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "Manager")
@@ -1042,8 +1705,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("HOMMS.Domain.Entities.BranchRole", "BranchRole")
                         .WithMany("BranchUserRoles")
@@ -1064,6 +1726,44 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany("DiseaseCategories")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategoryFoodRestriction", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.DiseaseCategory", "DiseaseCategory")
+                        .WithMany("FoodRestrictions")
+                        .HasForeignKey("DiseaseCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.Food", "Food")
+                        .WithMany("FoodRestrictions")
+                        .HasForeignKey("FoodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("DiseaseCategory");
+
+                    b.Navigation("Food");
+                });
+
             modelBuilder.Entity("HOMMS.Domain.Entities.Food", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -1077,9 +1777,15 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("HOMMS.Domain.Entities.DiseaseCategory", "DiseaseCategory")
+                        .WithMany("Foods")
+                        .HasForeignKey("DiseaseCategoryId");
+
                     b.Navigation("Branch");
 
                     b.Navigation("Category");
+
+                    b.Navigation("DiseaseCategory");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.FoodCategory", b =>
@@ -1089,6 +1795,25 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.Location", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Area", "Area")
+                        .WithMany("Locations")
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Area");
 
                     b.Navigation("Branch");
                 });
@@ -1134,9 +1859,23 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasForeignKey("BranchUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("HOMMS.Domain.Entities.Patient", "Patient")
+                        .WithMany("Orders")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Branch");
 
                     b.Navigation("BranchUser");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.OrderDetails", b =>
@@ -1154,14 +1893,77 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasOne("HOMMS.Domain.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Food");
 
                     b.Navigation("Menu");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.Patient", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany("Patients")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.PatientDiseaseCategory", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.DiseaseCategory", "DiseaseCategory")
+                        .WithMany("PatientDiseaseCategories")
+                        .HasForeignKey("DiseaseCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.Patient", "Patient")
+                        .WithMany("PatientDiseaseCategories")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("DiseaseCategory");
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.Order", "Order")
+                        .WithMany("WalletTransactions")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("WalletTransactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1218,6 +2020,15 @@ namespace HOMMS.Infrastructure.Migrations
             modelBuilder.Entity("HOMMS.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("BranchUsers");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("WalletTransactions");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.Area", b =>
+                {
+                    b.Navigation("Locations");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Branch", b =>
@@ -1226,11 +2037,15 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.Navigation("BranchUsers");
 
+                    b.Navigation("DiseaseCategories");
+
                     b.Navigation("FoodCategories");
 
                     b.Navigation("Foods");
 
                     b.Navigation("Menus");
+
+                    b.Navigation("Patients");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.BranchRole", b =>
@@ -1238,8 +2053,19 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("BranchUserRoles");
                 });
 
+            modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
+                {
+                    b.Navigation("FoodRestrictions");
+
+                    b.Navigation("Foods");
+
+                    b.Navigation("PatientDiseaseCategories");
+                });
+
             modelBuilder.Entity("HOMMS.Domain.Entities.Food", b =>
                 {
+                    b.Navigation("FoodRestrictions");
+
                     b.Navigation("MenuDetails");
                 });
 
@@ -1256,6 +2082,17 @@ namespace HOMMS.Infrastructure.Migrations
             modelBuilder.Entity("HOMMS.Domain.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("WalletTransactions");
+                });
+
+            modelBuilder.Entity("HOMMS.Domain.Entities.Patient", b =>
+                {
+                    b.Navigation("Orders");
+
+                    b.Navigation("PatientDiseaseCategories");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

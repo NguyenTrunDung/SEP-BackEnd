@@ -1,12 +1,17 @@
-﻿using HOMMS.Application.Interfaces;
+﻿using Asp.Versioning;
+using HOMMS.Application.Interfaces;
+using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HOMMS.API.Controllers.V1
 {
-    [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [Route("api/[controller]")]
+    [ApiController]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -16,18 +21,40 @@ namespace HOMMS.API.Controllers.V1
             _orderService = orderService;
         }
 
+
+        [HttpGet("chef/{branchId}")]
+        //[Authorize(Policy = "Permission:kitchen:view")]
+        public async Task<ActionResult<ApiResponseBase<List<OrderDto>>>> GetOrderListByChefAsync(int branchId)
+        {
+            var orders = await _orderService.GetOrderListByChefAsync(branchId);
+            var orderList = orders?.ToList() ?? new List<OrderDto>();
+            var totalCount = orderList.Count;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orderList, "Chef order list retrieved successfully", "success", totalCount));
+        }
+
+        [HttpPut("chef/status/{orderId}")]
+        //[Authorize(Policy = "Permission:kitchen:status")]
+        public async Task<IActionResult> UpdateOrderStatusByChefAsync(int orderId)
+        {
+            var success = await _orderService.UpdateOrderStatusByChefAsync(orderId);
+            return success ? Ok(new ApiResponseBase<object>(null, "Order status updated successfully")) : BadRequest(new ApiResponseBase<object>(null, "Failed to update order status", "error"));
+        }
+
+
         [HttpGet("branch/{branchId}")]
         public async Task<IActionResult> GetOrdersByBranchId(int branchId)
         {
             var orders = await _orderService.GetOrdersByBranchIdAsync(branchId);
-            return Ok(orders);
+            var totalCount = orders?.Count ?? 0;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
         // GET: api/order/search?keyword=abc
         [HttpGet("search")]
         public async Task<IActionResult> SearchOrders([FromQuery] string keyword)
         {
             var orders = await _orderService.SearchOrdersAsync(keyword);
-            return Ok(orders);
+            var totalCount = orders?.Count ?? 0;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
 
         [HttpGet("filter")]
@@ -57,8 +84,8 @@ namespace HOMMS.API.Controllers.V1
                 maxTotal,
                 code
             );
-
-            return Ok(orders);
+            var totalCount = orders?.Count ?? 0;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
 
     }

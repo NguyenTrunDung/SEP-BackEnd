@@ -109,6 +109,67 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation("Menus detail already exist. Skipping menu seeding.");
                 }
 
+
+                ///Seed Order if none exist
+                if (!await context.Orders.AnyAsync())
+                {
+                    logger.LogInformation("Seeding order detail...");
+                    await OrderSeedData.OrderSeedDataAsync(services);
+                    logger.LogInformation("Order seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Order already exist. Skipping order seeding.");
+                }
+
+                ///Seed Order Detail if none exist
+                if (!await context.OrderDetails.AnyAsync())
+                {
+                    logger.LogInformation("Seeding order detail...");
+                    await OrderDetailsSeedData.OrderDetailsSeedDataAsync(services);
+                    logger.LogInformation("Order detail seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Order detail already exist. Skipping order detail seeding.");
+                }
+
+                ///Seed Patients if none exist
+                if (!await context.Patients.AnyAsync())
+                {
+                    logger.LogInformation("Seeding patients...");
+                    await PatientSeedData.SeedPatientsAsync(services);
+                    logger.LogInformation("Patients seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Patients already exist. Skipping patient seeding.");
+                }
+
+                ///Seed Disease Categories if none exist
+                if (!await context.DiseaseCategories.AnyAsync())
+                {
+                    logger.LogInformation("Seeding disease categories...");
+                    await DiseaseCategorySeedData.SeedDiseaseCategoriesAsync(services);
+                    logger.LogInformation("Disease categories seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Disease categories already exist. Skipping disease category seeding.");
+                }
+
+                ///Seed Patient Disease Categories if none exist
+                if (!await context.PatientDiseaseCategories.AnyAsync())
+                {
+                    logger.LogInformation("Seeding patient disease categories...");
+                    await DiseaseCategorySeedData.SeedPatientDiseaseCategoriesAsync(services);
+                    logger.LogInformation("Patient disease categories seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Patient disease categories already exist. Skipping patient disease category seeding.");
+                }
+
                 // Add other seed methods here if needed
                 // logger.LogInformation("Seeding additional data...");
                 // await ProductSeedData.SeedAsync(context);

@@ -5,8 +5,10 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
     public interface IUnitOfWork
     {
         IBranchRepository BranchRepository { get; }
-        IOrderDetailsRepository OrderDetailsRepository { get; }  // Thêm
-        IOrderRepository OrderRepository { get; }  // Thêm
+        IOrderDetailsRepository OrderDetailsRepository { get; }  // Thï¿½m
+        IOrderRepository OrderRepository { get; }  // Thï¿½m
+        IMenuDetailRepository MenuDetailRepository { get; }
+        IPatientRepository PatientRepository { get; }
         // Add other repositories as needed, e.g.:
         // IMenuRepository MenuRepository { get; }
         // IFoodRepository FoodRepository { get; }

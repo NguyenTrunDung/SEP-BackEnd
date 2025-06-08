@@ -43,6 +43,19 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
 
+        public DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
+        
+        // Disease Category Management DbSets
+        public DbSet<DiseaseCategory> DiseaseCategories { get; set; }
+        public DbSet<PatientDiseaseCategory> PatientDiseaseCategories { get; set; }
+        public DbSet<DiseaseCategoryFoodRestriction> DiseaseCategoryFoodRestrictions { get; set; }
+        
+        // Patient Management DbSet
+        public DbSet<Patient> Patients { get; set; }
+        
+        // Area and Location Management DbSets
+        public DbSet<Area> Areas { get; set; }
+        public DbSet<Location> Locations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -102,6 +115,21 @@ namespace HOMMS.Infrastructure.Data
                     filterMethod.Invoke(this, new object[] { entityBuilder });
                 }
             }
+
+            // Apply global query filter for soft delete (ISoftDeletable)
+            var softDeleteEntityTypes = builder.Model.GetEntityTypes()
+                .Where(e => typeof(ISoftDeletable).IsAssignableFrom(e.ClrType));
+            foreach (var entityType in softDeleteEntityTypes)
+            {
+                var method = typeof(ApplicationDbContext)
+                    .GetMethod(nameof(ApplySoftDeleteFilter), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    ?.MakeGenericMethod(entityType.ClrType);
+                if (method != null)
+                {
+                    var entityBuilder = builder.Entity(entityType.ClrType);
+                    method.Invoke(this, new object[] { entityBuilder });
+                }
+            }
         }
 
         private void ApplyEntityConfigurations(ModelBuilder builder)
@@ -116,6 +144,19 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new BranchUserRoleConfiguration());
             builder.ApplyConfiguration(new OrdersConfiguration());
             builder.ApplyConfiguration(new OrderDetailsConfiguration());
+            builder.ApplyConfiguration(new UserWalletTransactionConfiguration());
+            
+            // Disease Category configurations
+            builder.ApplyConfiguration(new DiseaseCategoryConfiguration());
+            builder.ApplyConfiguration(new PatientDiseaseCategoryConfiguration());
+            builder.ApplyConfiguration(new DiseaseCategoryFoodRestrictionConfiguration());
+            
+            // Patient configurations
+            builder.ApplyConfiguration(new PatientConfiguration());
+            
+            // Area and Location configurations
+            builder.ApplyConfiguration(new AreaConfiguration());
+            builder.ApplyConfiguration(new LocationConfiguration());
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)
@@ -124,7 +165,16 @@ namespace HOMMS.Infrastructure.Data
             builder.Entity<ApplicationUser>(entity =>
             {
                 entity.ToTable("Users");
-                // Customize properties, indexes, etc.
+                
+                // Configure Patient relationship
+                entity.HasOne(u => u.Patient)
+                    .WithOne(p => p.User)
+                    .HasForeignKey<ApplicationUser>(u => u.PatientId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                    
+                // Add index for PatientId
+                entity.HasIndex(u => u.PatientId)
+                    .HasDatabaseName("IX_Users_PatientId");
             });
 
             builder.Entity<ApplicationRole>(entity =>
@@ -165,6 +215,12 @@ namespace HOMMS.Infrastructure.Data
             builder.HasQueryFilter((System.Linq.Expressions.Expression<System.Func<TEntity, bool>>)(e => !_multiTenancyEnabled || e.BranchId == GetCurrentBranchId()));
         }
         
+        private void ApplySoftDeleteFilter<TEntity>(dynamic builder)
+            where TEntity : class, ISoftDeletable
+        {
+            builder.HasQueryFilter((System.Linq.Expressions.Expression<System.Func<TEntity, bool>>)(e => !e.IsDeleted));
+        }
+
         // Gets the current branch ID from the branch context or returns the default
         private int GetCurrentBranchId()
         {

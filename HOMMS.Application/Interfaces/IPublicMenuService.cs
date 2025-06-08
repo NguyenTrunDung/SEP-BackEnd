@@ -15,6 +15,9 @@ namespace HOMMS.Application.Interfaces
 
 
         Task<IEnumerable<MenuDto>> GetMenusByBranchAndDateAsync(int branchId, DateTime date);
+        Task<IEnumerable<MenuDto>> GetMenusByBranch(int branchId);
+        Task<bool> DeleteMenu(int menuId);
+
 
         Task<Dictionary<BranchDto, IEnumerable<MenuDto>>> GetMenusForAllBranchesAsync(DateTime date);
 
@@ -32,6 +35,9 @@ namespace HOMMS.Application.Interfaces
         Task<(IEnumerable<FoodDto> foods, IEnumerable<FoodCategoryDto> categories)> GetFoodsAndCategoriesByBranchAndDateAsync(int branchId, DateTime date);
         Task<IEnumerable<FoodCategoryDto>> GetCategoriesByBranchAndDateAsync(int branchId, DateTime date);
         Task<IEnumerable<FoodDto>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date);
+    
+        Task<IEnumerable<MenuDto>> SearchMenusByDateAsync(DateTime date, int? branchId = null);
+
 
     }
 }

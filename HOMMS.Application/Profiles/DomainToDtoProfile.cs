@@ -30,6 +30,16 @@ namespace HOMMS.Application.Profiles
 
             // Branch -> BranchDto
             CreateMap<Branch, BranchDto>();
+
+            // Order -> OrderDto
+            CreateMap<Order, OrderDto>();
+
+            // OrderDetail -> OrderDetailDto
+            CreateMap<OrderDetails, OrderDetailsDto>()
+                .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Qty))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total));
+
         }
     }
 } 

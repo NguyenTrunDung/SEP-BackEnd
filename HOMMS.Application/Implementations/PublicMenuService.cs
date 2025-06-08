@@ -19,11 +19,13 @@ namespace HOMMS.Application.Implementations
 
         private readonly IMapper _mapper;
         private readonly IMenuRepository _menuRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PublicMenuService(IMapper mapper, IMenuRepository menuRepository)
+        public PublicMenuService(IMapper mapper, IMenuRepository menuRepository, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _menuRepository = menuRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Dictionary<FoodCategoryDto, IEnumerable<MenuDetailDto>>> GetMenuDetailsByCategoryAsync(int menuId)
@@ -36,6 +38,21 @@ namespace HOMMS.Application.Implementations
         {
             var menus = await _menuRepository.GetMenusByBranchAndDateAsync(branchId, date);
             return _mapper.Map<IEnumerable<MenuDto>>(menus);
+        }
+
+        public async Task<IEnumerable<MenuDto>> GetMenusByBranch(int branchId)
+        {
+            var menus = await _menuRepository.GetMenusByBranch(branchId);
+            return _mapper.Map<IEnumerable<MenuDto>>(menus);
+        }
+
+        public async Task<bool> DeleteMenu(int menuId)
+        {
+            var deleted = await _menuRepository.DeleteMenu(menuId);
+            if (!deleted) return false;
+
+            await _unitOfWork.SaveChangesAsync();
+            return true;
         }
 
         public async Task<IEnumerable<MenuDto>> GetMenusByBranchDateAndTimeOfDayAsync(int branchId, DateTime date, string timeOfDay)
@@ -86,5 +103,12 @@ namespace HOMMS.Application.Implementations
             var foods = allMenuDetails.Select(md => md.Food).Distinct().ToList();
             return _mapper.Map<IEnumerable<FoodDto>>(foods);
         }
+       
+        public async Task<IEnumerable<MenuDto>> SearchMenusByDateAsync(DateTime date, int? branchId = null)
+        {
+            var menus = await _menuRepository.SearchMenusByDateAsync(date, branchId);
+            return _mapper.Map<IEnumerable<MenuDto>>(menus);
+        }
+
     }
 }

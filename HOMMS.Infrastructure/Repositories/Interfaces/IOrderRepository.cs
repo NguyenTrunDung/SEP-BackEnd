@@ -9,6 +9,16 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
 {
     public interface IOrderRepository : IRepository<Order, int>
     {
+        /// <summary>
+        /// Retrieves a list of orders for a chef by a specific branch ID
+        /// </summary>
+        Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId);
+
+        /// <summary>
+        /// Allows a chef to update the status of an order
+        /// </summary>
+        Task<bool> UpdateOrderStatusByChefAsync(int orderId);
+
         Task<List<Order>> GetOrdersByBranchIdAsync(int branchId);
         /// <summary>
         /// Tìm kiếm đơn hàng theo từ khóa, áp dụng trên các trường: Code, CustomerName, CustomerPhone, Status, ReceiveTime.

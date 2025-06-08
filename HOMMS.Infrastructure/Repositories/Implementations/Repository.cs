@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using HOMMS.Domain.Entities.Base;
 
 namespace HOMMS.Infrastructure.Repositories.Implementations
 {
@@ -73,7 +74,15 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         /// <inheritdoc/>
         public virtual async Task<bool> DeleteAsync(TEntity entity)
         {
-            DbSet.Remove(entity);
+            if (entity is ISoftDeletable softDeletable)
+            {
+                softDeletable.IsDeleted = true;
+                DbContext.Entry(entity).State = EntityState.Modified;
+            }
+            else
+            {
+                DbSet.Remove(entity);
+            }
             var result = await DbContext.SaveChangesAsync();
             return result > 0;
         }

@@ -7,12 +7,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HOMMS.Common.Helpers;
+using Asp.Versioning;
 
 namespace HOMMS.API.Controllers.V1
 {
-    [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/public/menus")]
+    [Route("api/[controller]")]
+    [ApiController]
     public class PublicMenuController : ControllerBase
     {
         private readonly IPublicMenuService _publicMenuService;
@@ -47,7 +49,42 @@ namespace HOMMS.API.Controllers.V1
             int branchId = _branchContext.GetCurrentBranchId();
             var menus = await _publicMenuService.GetMenusByBranchAndDateAsync(branchId, dateToFilter);
             var menuDtos = _mapper.Map<List<MenuDto>>(menus);
+            var totalCount = menuDtos.Count;
+            return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully", "success", totalCount));
+        }
+
+        /// <summary>
+        /// Gets all menus for the current branch on a specific date
+        /// </summary>
+        /// <param name="date">Optional date to filter menus (defaults to today)</param>
+        /// <returns>List of menus</returns>
+        [HttpGet("branch/{branchId}")]
+        public async Task<ActionResult<ApiResponseBase<List<MenuDto>>>> GetMenusByBranch(int branchId)
+        {
+            //int branchId = _branchContext.GetCurrentBranchId();
+            var menus = await _publicMenuService.GetMenusByBranch(branchId);
+            var menuDtos = _mapper.Map<List<MenuDto>>(menus);
             return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully"));
+        }
+
+        /// <summary>
+        /// Deletes a menu by its ID
+        /// </summary>
+        /// <param name="menuId">The ID of the menu to delete</param>
+        /// <returns>
+        /// 200 OK if the menu was deleted successfully,  
+        /// 404 Not Found if the menu does not exist
+        /// </returns>
+        [HttpDelete("{menuId}")]
+        public async Task<IActionResult> DeleteMenu(int menuId)
+        {
+            var result = await _publicMenuService.DeleteMenu(menuId);
+            if (!result)
+            {
+                return NotFound(new { message = "Menu not found" });
+            }
+
+            return Ok(new { message = "Menu deleted successfully" });
         }
 
         /// <summary>
@@ -75,14 +112,15 @@ namespace HOMMS.API.Controllers.V1
         {
             var dateToFilter = date ?? DateTime.Today;
             int branchId = _branchContext.GetCurrentBranchId();
-            // TODO: Implement these service methods for real data
-            var foods = await _foodService.GetFoodsByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
-            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
+            var foods = await _foodService.GetFoodsByBranchAndDateAsync(branchId, dateToFilter);
+            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter);
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
             var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
             var result = new {
                 foods = foodDtos,
-                categories = categoryDtos
+                categories = categoryDtos,
+                foodsTotalCount = foodDtos.Count,
+                categoriesTotalCount = categoryDtos.Count
             };
             return Ok(new ApiResponseBase<object>(result, "Foods and categories for the day retrieved successfully"));
         }
@@ -97,10 +135,10 @@ namespace HOMMS.API.Controllers.V1
         {
             var dateToFilter = date ?? DateTime.Today;
             int branchId = _branchContext.GetCurrentBranchId();
-            // TODO: Implement this service method for real data
-            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter); // You need to implement this
+            var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, dateToFilter);
             var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
-            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for the day retrieved successfully"));
+            var totalCount = categoryDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for the day retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -114,10 +152,10 @@ namespace HOMMS.API.Controllers.V1
         {
             var dateToFilter = date ?? DateTime.Today;
             int branchId = _branchContext.GetCurrentBranchId();
-            // TODO: Implement this service method for real data
-            var foods = await _foodService.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, dateToFilter); // You need to implement this
+            var foods = await _foodService.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, dateToFilter);
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
-            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods in category for the day retrieved successfully"));
+            var totalCount = foodDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods in category for the day retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -128,7 +166,8 @@ namespace HOMMS.API.Controllers.V1
         {
             var foods = await _foodService.GetFoodsByBranchAndDateAsync(branchId, date);
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
-            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch and date retrieved successfully"));
+            var totalCount = foodDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch and date retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -139,7 +178,8 @@ namespace HOMMS.API.Controllers.V1
         {
             var categories = await _foodService.GetCategoriesByBranchAndDateAsync(branchId, date);
             var categoryDtos = _mapper.Map<List<FoodCategoryDto>>(categories);
-            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for branch and date retrieved successfully"));
+            var totalCount = categoryDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodCategoryDto>>(categoryDtos, "Categories for branch and date retrieved successfully", "success", totalCount));
         }
 
         /// <summary>
@@ -150,7 +190,27 @@ namespace HOMMS.API.Controllers.V1
         {
             var foods = await _foodService.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, date);
             var foodDtos = _mapper.Map<List<FoodDto>>(foods);
-            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch, category, and date retrieved successfully"));
+            var totalCount = foodDtos.Count;
+            return Ok(new ApiResponseBase<List<FoodDto>>(foodDtos, "Foods for branch, category, and date retrieved successfully", "success", totalCount));
         }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<ApiResponseBase<List<MenuDto>>>> SearchMenusByDate(
+         [FromQuery] string date,
+         [FromQuery] int? branchId = null)
+        {
+            if (!DateTime.TryParseExact(date, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out DateTime parsedDate))
+            {
+                return BadRequest(new ApiResponseBase<List<MenuDto>>(null, "Invalid date format. Use yyyy-MM-dd", "error"));
+            }
+
+            int effectiveBranchId = branchId ?? _branchContext.GetCurrentBranchId();
+            var menus = await _publicMenuService.SearchMenusByDateAsync(parsedDate, effectiveBranchId);
+            var menuDtos = _mapper.Map<List<MenuDto>>(menus);
+
+            return Ok(new ApiResponseBase<List<MenuDto>>(menuDtos, "Menus retrieved successfully"));
+        }
+
+
     }
 }

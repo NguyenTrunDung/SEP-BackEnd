@@ -8,7 +8,7 @@ namespace HOMMS.Domain.Entities
     public class BranchUserRole : BaseAuditableEntity<int>
     {
         public string UserId { get; set; } = string.Empty;
-        public int BranchId { get; set; }
+        public int? BranchId { get; set; } // Make BranchId nullable for optional relationship
         public int BranchRoleId { get; set; }
 
         public virtual ApplicationUser? User { get; set; }

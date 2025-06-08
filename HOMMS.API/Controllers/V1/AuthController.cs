@@ -1,4 +1,7 @@
+using Asp.Versioning;
+using HOMMS.Common.Constants;
 using HOMMS.Domain.Entities;
+using HOMMS.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +14,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using HOMMS.Infrastructure.Data;
-using HOMMS.Common.Constants;
 
-namespace HOMMS.API.Controllers
+namespace HOMMS.API.Controllers.V1
 {
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -150,7 +153,7 @@ namespace HOMMS.API.Controllers
 
             var user = await _userManager.FindByEmailAsync(model.Email);
             
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
                 return Ok("If your email is registered and confirmed, you will receive a password reset link.");
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);

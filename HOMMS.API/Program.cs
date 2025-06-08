@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.AspNetCore.Authorization;
 using HOMMS.Application.Implementations;
+using Asp.Versioning;
+using Asp.Versioning.Conventions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,15 +58,21 @@ builder.Services.AddIdentityServices(builder.Configuration);
 // Add API versioning
 builder.Services.AddApiVersioning(options =>
 {
-    options.ReportApiVersions = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
     options.AssumeDefaultVersionWhenUnspecified = true;
-    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
-});
-
-builder.Services.AddVersionedApiExplorer(options =>
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("x-api-version"),
+        new MediaTypeApiVersionReader("x-api-version")
+    );
+}).AddMvc(options =>
 {
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
+    options.Conventions.Add(new VersionByNamespaceConvention());
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV"; // Correct format for API Explorer
+    options.SubstituteApiVersionInUrl = true; // Substitute version in URL
 });
 
 // Register branch context for multi-tenancy
@@ -78,6 +86,9 @@ builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
 builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IMenuDetailRepository, MenuDetailRepository>();
+builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
 
 // Register generic repository for all entities
@@ -89,6 +100,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 // Register permission policies (add more as needed)
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("Permission:orders:view", policy =>
+       policy.Requirements.Add(new PermissionRequirement("orders:view")));
     options.AddPolicy("Permission:orders:add", policy =>
         policy.Requirements.Add(new PermissionRequirement("orders:add")));
     options.AddPolicy("Permission:orders:edit", policy =>
@@ -111,6 +124,24 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("foodcategories:edit")));
     options.AddPolicy("Permission:foodcategories:delete", policy =>
         policy.Requirements.Add(new PermissionRequirement("foodcategories:delete")));
+    // Areas
+    options.AddPolicy("Permission:areas:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("areas:view")));
+    options.AddPolicy("Permission:areas:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("areas:add")));
+    options.AddPolicy("Permission:areas:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("areas:edit")));
+    options.AddPolicy("Permission:areas:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("areas:delete")));
+    // Locations
+    options.AddPolicy("Permission:locations:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("locations:view")));
+    options.AddPolicy("Permission:locations:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("locations:add")));
+    options.AddPolicy("Permission:locations:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("locations:edit")));
+    options.AddPolicy("Permission:locations:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("locations:delete")));
     // Add more policies for other permissions as needed
 });
 
@@ -125,12 +156,23 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
+builder.Services.AddScoped<IMenuDetailService,MenuDetailService>();
+builder.Services.AddScoped<IRevenueService, RevenueService>();
+
+// Disease Category and Patient Dietary Services
+// TODO: Uncomment when service implementations are created
+// builder.Services.AddScoped<IDiseaseCategoryService, DiseaseCategoryService>();
+// builder.Services.AddScoped<IPatientDietaryService, PatientDietaryService>();    
+// builder.Services.AddScoped<IDietaryValidationService, DietaryValidationService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    // Configure multiple Swagger documents for different API versions
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "HOMMS API", Version = "v1" });
+    options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "HOMMS API", Version = "v2" });
+    
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -162,7 +204,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        // Configure Swagger UI for multiple API versions
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
+    });
     // Use CORS policy in development
     app.UseCors("DevCorsPolicy");
 }
