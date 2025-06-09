@@ -10,6 +10,27 @@
       "name": "Auth",
       "item": [
         {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@homms.com\",\n  \"password\": \"NewUser@123456\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"address\": \"123 Main St, City\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
           "name": "Login",
           "request": {
             "method": "POST",
@@ -24,9 +45,114 @@
               "raw": "{\n  \"email\": \"admin@homms.com\",\n  \"password\": \"Admin@123456\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "auth", "login" ]
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@homms.com\",\n  \"token\": \"confirmation_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/confirm-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "confirm-email"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@homms.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@homms.com\",\n  \"token\": \"reset_token_here\",\n  \"newPassword\": \"NewPassword@123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Select Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branchId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/select-branch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "select-branch"]
             }
           }
         }
@@ -51,8 +177,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/foods?branchId=1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foods" ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods"],
               "query": [
                 {
                   "key": "branchId",
@@ -78,8 +204,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/foods/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foods", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods", "1"]
             }
           }
         },
@@ -103,12 +229,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Bánh mì\",\n  \"categoryId\": 1,\n  \"description\": \"Bánh mì đặc biệt\",\n  \"priceForGuest\": 20000\n}"
+              "raw": "{\n  \"name\": \"Bánh mì\",\n  \"categoryId\": 1,\n  \"description\": \"Bánh mì đặc biệt\",\n  \"priceForGuest\": 20000,\n  \"priceForPatient\": 15000,\n  \"priceForStaff\": 12000,\n  \"imageUrl\": \"images/Foods/banh-mi.jpg\",\n  \"isSetDish\": false,\n  \"isAddOn\": false,\n  \"sort\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/foods",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foods" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods"]
             }
           }
         },
@@ -132,12 +258,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Bánh mì thịt\",\n  \"categoryId\": 1,\n  \"description\": \"Bánh mì thịt đặc biệt\",\n  \"priceForGuest\": 25000\n}"
+              "raw": "{\n  \"name\": \"Bánh mì thịt\",\n  \"categoryId\": 1,\n  \"description\": \"Bánh mì thịt đặc biệt\",\n  \"priceForGuest\": 25000,\n  \"priceForPatient\": 20000,\n  \"priceForStaff\": 18000,\n  \"imageUrl\": \"images/Foods/banh-mi-thit.jpg\",\n  \"isSetDish\": false,\n  \"isAddOn\": false,\n  \"sort\": 5\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/foods/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foods", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods", "1"]
             }
           }
         },
@@ -157,8 +283,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/foods/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foods", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foods", "1"]
             }
           }
         }
@@ -183,8 +309,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/foodcategories?branchId=1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foodcategories" ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories"],
               "query": [
                 {
                   "key": "branchId",
@@ -210,8 +336,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/foodcategories/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foodcategories", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories", "1"]
             }
           }
         },
@@ -239,8 +365,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/foodcategories",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foodcategories" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories"]
             }
           }
         },
@@ -268,8 +394,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/foodcategories/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foodcategories", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories", "1"]
             }
           }
         },
@@ -289,8 +415,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/foodcategories/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "foodcategories", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "foodcategories", "1"]
             }
           }
         }
@@ -312,8 +438,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/branches",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "branches" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches"]
             }
           }
         },
@@ -330,8 +456,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/branches/default",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "branches", "default" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "default"]
             }
           }
         },
@@ -348,8 +474,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/branches/set-current/{{branchId}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "branches", "set-current", "{{branchId}}" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "set-current", "{{branchId}}"]
             }
           }
         },
@@ -366,8 +492,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/branches/current",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "branches", "current" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "current"]
             }
           }
         },
@@ -383,8 +509,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/branches/secure-action",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "branches", "secure-action" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "secure-action"]
             }
           }
         },
@@ -400,8 +526,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/branches/admin-system-user?branchCode={{branchCode}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "branches", "admin-system-user" ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "admin-system-user"],
               "query": [
                 {
                   "key": "branchCode",
@@ -423,7 +549,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/branches/assign-admin-system/{{userId}}?branchCode={{branchCode}}",
-              "host": [ "{{baseUrl}}" ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "api",
                 "v1",
@@ -452,8 +578,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/branches/admin-system-users?branchCode={{branchCode}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "branches", "admin-system-users" ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "branches", "admin-system-users"],
               "query": [
                 {
                   "key": "branchCode",
@@ -473,9 +599,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/order/chef-order-list/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "order", "chef-order-list", "1" ]
+              "raw": "{{baseUrl}}/api/v1/order/chef/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "order", "chef", "1"]
             }
           }
         },
@@ -483,20 +609,55 @@
           "name": "Update Order Status By Chef",
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "\"Completed\""
-            },
             "url": {
-              "raw": "{{baseUrl}}/api/order/chef-update-order-status/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "order", "chef-update-order-status", "1" ]
+              "raw": "{{baseUrl}}/api/v1/order/chef/status/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "order", "chef", "status", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Orders By BranchId",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/order/branch/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "order", "branch", "1"]
+            }
+          }
+        },
+        {
+          "name": "Search Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/order/search?keyword=test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "order", "search"],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "test"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/order/filter?startOrderDate=2024-06-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "order", "filter"],
+              "query": [
+                {
+                  "key": "startOrderDate",
+                  "value": "2024-06-01"
+                }
+              ]
             }
           }
         }
@@ -510,9 +671,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/orderdetails/order/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "orderdetails", "order", "1" ]
+              "raw": "{{baseUrl}}/api/v1/orderdetails/order/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orderdetails", "order", "1"]
             }
           }
         }
@@ -527,8 +688,17 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/revenues/Branch/1/Day/2024-06-01",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "revenues", "Branch", "1", "Day", "2024-06-01" ]
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "revenues",
+                "Branch",
+                "1",
+                "Day",
+                "2024-06-01"
+              ]
             }
           }
         },
@@ -538,8 +708,17 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/revenues/Branch/1/Week/2024-06-01",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "revenues", "Branch", "1", "Week", "2024-06-01" ]
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "revenues",
+                "Branch",
+                "1",
+                "Week",
+                "2024-06-01"
+              ]
             }
           }
         },
@@ -549,8 +728,17 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/revenues/Branch/1/Month/2024-06-01",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "revenues", "Branch", "1", "Month", "2024-06-01" ]
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "revenues",
+                "Branch",
+                "1",
+                "Month",
+                "2024-06-01"
+              ]
             }
           }
         },
@@ -560,8 +748,17 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/revenues/Branch/1/Year/2024-06-01",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "revenues", "Branch", "1", "Year", "2024-06-01" ]
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "revenues",
+                "Branch",
+                "1",
+                "Year",
+                "2024-06-01"
+              ]
             }
           }
         }
@@ -577,8 +774,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/menus/menu-by-date?date=2025-05-29",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "menus", "menu-by-date" ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "public", "menus", "menu-by-date"],
               "query": [
                 {
                   "key": "date",
@@ -596,8 +793,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/menus/categories/by-date?date=2025-05-29",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "menus", "categories", "by-date" ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "public", "menus", "categories", "by-date"],
               "query": [
                 {
                   "key": "date",
@@ -615,7 +812,7 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/menus/categories/2/foods?date=2025-05-29",
-              "host": [ "{{baseUrl}}" ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "api",
                 "v1",
@@ -641,8 +838,8 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/menus/branch/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "menus", "branch", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "public", "menus", "branch", "1"]
             }
           }
         },
@@ -652,8 +849,8 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/menus/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "menus", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "public", "menus", "1"]
             }
           }
         },
@@ -663,8 +860,512 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/public/menus/1",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "api", "v1", "public", "menus", "1" ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "public", "menus", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Foods by Branch Date",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/menus/foods/by-branch-date?branchId=1&date=2025-05-29",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "menus",
+                "foods",
+                "by-branch-date"
+              ],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-05-29"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Categories by Branch Date",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/menus/categories/by-branch-date?branchId=1&date=2025-05-29",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "menus",
+                "categories",
+                "by-branch-date"
+              ],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-05-29"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Foods by Branch Category Date",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/menus/foods/by-branch-category-date?branchId=1&categoryId=2&date=2025-05-29",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "menus",
+                "foods",
+                "by-branch-category-date"
+              ],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": "1"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "2"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-05-29"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Foods",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/menus/search?searchTerm=bánh&branchId=1&date=2025-05-29",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "public", "menus", "search"],
+              "query": [
+                {
+                  "key": "searchTerm",
+                  "value": "bánh"
+                },
+                {
+                  "key": "branchId",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-05-29"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "MenuDetail",
+      "item": [
+        {
+          "name": "Get All Menu Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menudetail",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menudetail"]
+            }
+          }
+        },
+        {
+          "name": "Get Menu Detail By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menudetail/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menudetail", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Menu Detail",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"date\": \"2025-06-08T18:07:32.581Z\",\n  \"timeOfDay\": \"Sáng\",\n  \"isTime\": true,\n  \"timeFrom\": \"07:00:00\",\n  \"timeTo\": \"10:00:00\",\n  \"name\": \"Menu sáng cập nhật\",\n  \"branchId\": 1,\n  \"details\": [\n    {\n      \"id\": 1,\n      \"foodId\": 1,\n      \"qty\": 15,\n      \"priceForGuest\": 22000,\n      \"priceForPatient\": 17000,\n      \"priceForStaff\": 14000,\n      \"discountPrice\": 2000,\n      \"status\": true,\n      \"discountFrom\": \"2025-06-08T18:07:32.581Z\",\n      \"discountTo\": \"2025-06-08T20:07:32.581Z\",\n      \"isQty\": true\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menudetail/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menudetail", "1"]
+            }
+          }
+        },
+        {
+          "name": "Add Menu Detail",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 0,\n  \"date\": \"2025-06-08T18:07:32.581Z\",\n  \"timeOfDay\": \"string\",\n  \"isTime\": true,\n  \"timeFrom\": \"01:00:00\",\n  \"timeTo\": \"02:00:00\",\n  \"name\": \"string\",\n  \"branchId\": 1,\n  \"details\": [\n    {\n      \"id\": 0,\n      \"foodId\": 1,\n      \"qty\": 10,\n      \"priceForGuest\": 20000,\n      \"priceForPatient\": 15000,\n      \"priceForStaff\": 12000,\n      \"discountPrice\": 1000,\n      \"status\": true,\n      \"discountFrom\": \"2025-06-08T18:07:32.581Z\",\n      \"discountTo\": \"2025-06-08T19:07:32.581Z\",\n      \"isQty\": true\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menudetail",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menudetail"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Patients",
+      "item": [
+        {
+          "name": "Get All Patients",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "X-Branch-Id",
+                "value": "1"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/patients?branchId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "patients"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Patient By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/patients/{{patientId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "patients", "{{patientId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Branch-Id",
+                "value": "1"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"PAT001\",\n  \"medicalRecordNumber\": \"MRN001\",\n  \"fullName\": \"Nguyễn Văn A\",\n  \"dateOfBirth\": \"1990-01-15T00:00:00.000Z\",\n  \"gender\": \"Nam\",\n  \"roomNumber\": \"101\",\n  \"bedNumber\": \"A\",\n  \"admissionDate\": \"2025-01-20T08:00:00.000Z\",\n  \"attendingPhysician\": \"Dr. Nguyễn Văn B\",\n  \"requiresDietarySupervision\": true,\n  \"externalSystemId\": \"EXT001\",\n  \"notes\": \"Bệnh nhân cần chế độ ăn đặc biệt\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "patients"]
+            }
+          }
+        },
+        {
+          "name": "Update Patient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicalRecordNumber\": \"MRN001-Updated\",\n  \"fullName\": \"Nguyễn Văn A (Cập nhật)\",\n  \"dateOfBirth\": \"1990-01-15T00:00:00.000Z\",\n  \"gender\": \"Nam\",\n  \"roomNumber\": \"102\",\n  \"bedNumber\": \"B\",\n  \"admissionDate\": \"2025-01-20T08:00:00.000Z\",\n  \"dischargeDate\": null,\n  \"attendingPhysician\": \"Dr. Nguyễn Văn C\",\n  \"requiresDietarySupervision\": false,\n  \"isActive\": true,\n  \"notes\": \"Cập nhật thông tin bệnh nhân\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/patients/{{patientId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "patients", "{{patientId}}"]
+            }
+          }
+        },
+        {
+          "name": "Link Patient to User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"PAT001\",\n  \"userId\": \"{{userId}}\",\n  \"notes\": \"Liên kết tài khoản người dùng với hồ sơ bệnh nhân\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/patients/link-user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "patients", "link-user"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "UserWallet",
+      "item": [
+        {
+          "name": "Get Wallet Balance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallet/balance/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallet", "balance", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Add Money to Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"amount\": 500000,\n  \"description\": \"Nạp tiền vào ví từ admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallet/add-money",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallet", "add-money"]
+            }
+          }
+        },
+        {
+          "name": "Get Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallet/transactions/{{userId}}?pageNumber=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallet", "transactions", "{{userId}}"],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Customer Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Nguyễn\",\n  \"lastName\": \"Văn D\",\n  \"email\": \"customer@homms.com\",\n  \"phoneNumber\": \"0901234567\",\n  \"customerCode\": \"CUST001\",\n  \"address\": \"123 Đường ABC, Quận 1, TP.HCM\",\n  \"customerNotes\": \"Khách hàng VIP, có dị ứng hải sản\",\n  \"initialBalance\": 1000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallet/create-customer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallet", "create-customer"]
+            }
+          }
+        },
+        {
+          "name": "Wallet Adjustment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"amount\": -50000,\n  \"description\": \"Điều chỉnh ví do lỗi hệ thống\",\n  \"referenceNumber\": \"ADJ001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallet/adjustment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallet", "adjustment"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PatientOrder",
+      "item": [
+        {
+          "name": "Create Patient Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Branch-Id",
+                "value": "1"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"PAT001\",\n  \"receiveDate\": \"2025-01-21T12:00:00.000Z\",\n  \"receiveTime\": \"12:00\",\n  \"receiveType\": \"Delivery\",\n  \"paymentMethod\": 1,\n  \"walletAmountUsed\": 50000,\n  \"note\": \"Giao đúng giờ, bệnh nhân cần ăn đúng giờ\",\n  \"orderDetails\": [\n    {\n      \"foodId\": 1,\n      \"quantity\": 2,\n      \"note\": \"Không cay\"\n    },\n    {\n      \"foodId\": 2,\n      \"quantity\": 1,\n      \"note\": \"Ít đường\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/patient",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "patient"]
+            }
+          }
+        },
+        {
+          "name": "Validate Patient Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"PAT001\",\n  \"orderDetails\": [\n    {\n      \"foodId\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"foodId\": 2,\n      \"quantity\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/patient/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "patient", "validate"]
             }
           }
         }
@@ -672,4 +1373,3 @@
     }
   ]
 }
-         

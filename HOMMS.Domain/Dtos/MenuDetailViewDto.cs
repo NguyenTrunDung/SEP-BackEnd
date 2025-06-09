@@ -27,6 +27,7 @@ namespace HOMMS.Domain.Dtos
         public TimeSpan? TimeFrom { get; set; }
         public TimeSpan? TimeTo { get; set; }
         public string? Name { get; set; }
+        public int BranchId { get; set; } // ID của chi nhánh
 
         public List<MenuDetailsDto> Details { get; set; } = new(); // update toàn bộ danh sách
     }
@@ -39,6 +40,7 @@ namespace HOMMS.Domain.Dtos
         public TimeSpan? TimeFrom { get; set; }
         public TimeSpan? TimeTo { get; set; }
         public string? Name { get; set; }
+        public int BranchId { get; set; } // ID của chi nhánh
 
         public List<MenuDetailsDto> Details { get; set; } = new(); // update toàn bộ danh sách
     }
