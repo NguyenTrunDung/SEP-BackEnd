@@ -61,6 +61,8 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation($"Branch roles already exist for branchId {branchId}. Skipping branch role seeding.");
                 }
 
+
+
                 // Seed Food Categories if none exist
                 if (!await context.FoodCategories.AnyAsync())
                 {

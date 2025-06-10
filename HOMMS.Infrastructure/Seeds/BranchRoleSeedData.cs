@@ -1,5 +1,6 @@
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Repositories.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -130,6 +131,28 @@ namespace HOMMS.Infrastructure.Seeds
             {
                 new BranchRole
                 {
+                    Name = "Quản lý chi nhánh",
+                    BranchId = branchId,
+                    IsDefault = false,
+                    Permissions = string.Join(",", new[]
+                    {
+                        "overview:view",
+                        "foods:view", "foods:add", "foods:edit", "foods:delete",
+                        "foodcategories:view", "foodcategories:add", "foodcategories:edit", "foodcategories:delete",
+                        "orders:view", "orders:add", "orders:edit", "orders:delete", "orders:approve", "orders:cancel",
+                        "menus:view", "menus:add", "menus:edit", "menus:delete", "menus:publish",
+                        "kitchen:view", "kitchen:status", "kitchen:prepare", "kitchen:complete",
+                        "delivery:view", "delivery:assign", "delivery:status", "delivery:complete",
+                        "users:view", "users:add", "users:edit", "users:roles",
+                        "patients:view", "patients:add", "patients:edit", "patients:delete", "patients:dietary",
+                        "branches:view", "branches:edit", "branches:settings",
+                        "reports:view", "reports:revenue", "reports:orders", "reports:patients", "reports:export",
+                        "wallet:view", "wallet:transactions", "wallet:topup", "wallet:refund"
+                    }),
+                    CreatedAt = DateTime.UtcNow
+                },
+                new BranchRole
+                {
                     Name = "Quản lý",
                     BranchId = branchId,
                     IsDefault = true,
@@ -151,19 +174,34 @@ namespace HOMMS.Infrastructure.Seeds
                 },
                 new BranchRole
                 {
+                    Name = "Thu Ngân",
+                    BranchId = branchId,
+                    IsDefault = false,
+                    Permissions = string.Join(",", new[]
+                    {
+                        "overview:view",
+                        "orders:view", "orders:add", "orders:edit", "orders:approve",
+                        "foods:view",
+                        "menus:view",
+                        "patients:view", "patients:add", "patients:edit",
+                        "wallet:view", "wallet:transactions", "wallet:topup",
+                        "reports:view"
+                    }),
+                    CreatedAt = DateTime.UtcNow
+                },
+                new BranchRole
+                {
                     Name = "Nhân viên",
                     BranchId = branchId,
                     IsDefault = false,
                     Permissions = string.Join(",", new[]
                     {
                         "overview:view",
-                        "foods:view", "foods:add", "foods:edit",
+                        "foods:view",
                         "foodcategories:view",
                         "orders:view", "orders:add", "orders:edit",
-                        "menus:view", "menus:add", "menus:edit",
-                        "kitchen:view", "kitchen:status",
-                        "patients:view", "patients:add", "patients:edit",
-                        "reports:view"
+                        "menus:view",
+                        "patients:view", "patients:add", "patients:edit"
                     }),
                     CreatedAt = DateTime.UtcNow
                 },
@@ -184,20 +222,6 @@ namespace HOMMS.Infrastructure.Seeds
                 },
                 new BranchRole
                 {
-                    Name = "Giao hàng",
-                    BranchId = branchId,
-                    IsDefault = false,
-                    Permissions = string.Join(",", new[]
-                    {
-                        "overview:view",
-                        "orders:view",
-                        "delivery:view", "delivery:status", "delivery:complete",
-                        "patients:view"
-                    }),
-                    CreatedAt = DateTime.UtcNow
-                },
-                new BranchRole
-                {
                     Name = "Y tá",
                     BranchId = branchId,
                     IsDefault = false,
@@ -210,20 +234,6 @@ namespace HOMMS.Infrastructure.Seeds
                         "menus:view"
                     }),
                     CreatedAt = DateTime.UtcNow
-                },
-                new BranchRole
-                {
-                    Name = "Kế toán",
-                    BranchId = branchId,
-                    IsDefault = false,
-                    Permissions = string.Join(",", new[]
-                    {
-                        "overview:view",
-                        "orders:view",
-                        "reports:view", "reports:revenue", "reports:orders", "reports:export",
-                        "wallet:view", "wallet:transactions", "wallet:topup", "wallet:refund"
-                    }),
-                    CreatedAt = DateTime.UtcNow
                 }
             };
             foreach (var role in predefinedRoles)
@@ -233,5 +243,7 @@ namespace HOMMS.Infrastructure.Seeds
                     await branchRoleRepo.AddAsync(role);
             }
         }
+
+
     }
 } 
