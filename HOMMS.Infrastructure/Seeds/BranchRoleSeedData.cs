@@ -17,28 +17,97 @@ namespace HOMMS.Infrastructure.Seeds
 
             var allPermissions = new List<string>
             {
-                "overview:views",
+                // Dashboard & Overview
+                "overview:view",
+                
+                // Foods Management
+                "foods:view",
+                "foods:add",
+                "foods:edit",
+                "foods:delete",
+                
+                // Food Categories Management
+                "foodcategories:view",
+                "foodcategories:add", 
+                "foodcategories:edit",
+                "foodcategories:delete",
+                
+                // Orders Management
+                "orders:view",
                 "orders:add",
-                "orders:views",
                 "orders:edit",
                 "orders:delete",
-                "menu:views",
-                "menu:add",
-                "menu:edit",
-                "menu:delete",
-                "kitchen:views",
+                "orders:approve",
+                "orders:cancel",
+                
+                // Menu Management
+                "menus:view",
+                "menus:add",
+                "menus:edit",
+                "menus:delete",
+                "menus:publish",
+                
+                // Kitchen Operations
+                "kitchen:view",
                 "kitchen:status",
-                "delivery:views",
+                "kitchen:prepare",
+                "kitchen:complete",
+                
+                // Delivery Management
+                "delivery:view",
+                "delivery:assign",
                 "delivery:status",
+                "delivery:complete",
+                
+                // User Management
+                "users:view",
                 "users:add",
                 "users:edit",
                 "users:delete",
-                "users:views",
-                "userGroups:add",
-                "userGroups:edit",
-                "userGroups:delete",
-                "userGroups:views",
-                // Add all other permissions in your system here
+                "users:roles",
+                
+                // Patient Management
+                "patients:view",
+                "patients:add",
+                "patients:edit",
+                "patients:delete",
+                "patients:dietary",
+                
+                // Branch Management
+                "branches:view",
+                "branches:add",
+                "branches:edit",
+                "branches:delete",
+                "branches:settings",
+                
+                // Reports & Analytics
+                "reports:view",
+                "reports:revenue",
+                "reports:orders",
+                "reports:patients",
+                "reports:export",
+                
+                // Wallet & Financial
+                "wallet:view",
+                "wallet:transactions",
+                "wallet:topup",
+                "wallet:refund",
+                
+                // System Administration
+                "system:settings",
+                "system:backup",
+                "system:logs",
+                "system:maintenance",
+                
+                // Areas & Locations
+                "areas:view",
+                "areas:add",
+                "areas:edit",
+                "areas:delete",
+                "locations:view",
+                "locations:add",
+                "locations:edit",
+                "locations:delete"
             };
 
             // Ensure only one Admin System BranchRole exists
@@ -56,15 +125,28 @@ namespace HOMMS.Infrastructure.Seeds
                 await branchRoleRepo.AddAsync(adminSystemRole);
             }
 
-            // Seed other roles as usual
-            var otherRoles = new List<BranchRole>
+            // Seed predefined roles with appropriate permissions
+            var predefinedRoles = new List<BranchRole>
             {
                 new BranchRole
                 {
                     Name = "Quản lý",
                     BranchId = branchId,
                     IsDefault = true,
-                    Permissions = "overview:views,orders:add,orders:views,orders:edit,menu:views,menu:add,menu:edit",
+                    Permissions = string.Join(",", new[]
+                    {
+                        "overview:view",
+                        "foods:view", "foods:add", "foods:edit", "foods:delete",
+                        "foodcategories:view", "foodcategories:add", "foodcategories:edit", "foodcategories:delete",
+                        "orders:view", "orders:add", "orders:edit", "orders:delete", "orders:approve",
+                        "menus:view", "menus:add", "menus:edit", "menus:delete", "menus:publish",
+                        "kitchen:view", "kitchen:status",
+                        "delivery:view", "delivery:assign", "delivery:status",
+                        "users:view", "users:add", "users:edit", "users:roles",
+                        "patients:view", "patients:add", "patients:edit",
+                        "reports:view", "reports:revenue", "reports:orders",
+                        "wallet:view", "wallet:transactions"
+                    }),
                     CreatedAt = DateTime.UtcNow
                 },
                 new BranchRole
@@ -72,7 +154,17 @@ namespace HOMMS.Infrastructure.Seeds
                     Name = "Nhân viên",
                     BranchId = branchId,
                     IsDefault = false,
-                    Permissions = "overview:views,orders:views,orders:add,orders:edit,menu:views,menu:edit,menu:add,kitchen:views",
+                    Permissions = string.Join(",", new[]
+                    {
+                        "overview:view",
+                        "foods:view", "foods:add", "foods:edit",
+                        "foodcategories:view",
+                        "orders:view", "orders:add", "orders:edit",
+                        "menus:view", "menus:add", "menus:edit",
+                        "kitchen:view", "kitchen:status",
+                        "patients:view", "patients:add", "patients:edit",
+                        "reports:view"
+                    }),
                     CreatedAt = DateTime.UtcNow
                 },
                 new BranchRole
@@ -80,11 +172,61 @@ namespace HOMMS.Infrastructure.Seeds
                     Name = "Nhà bếp",
                     BranchId = branchId,
                     IsDefault = false,
-                    Permissions = "kitchen:views,kitchen:status",
+                    Permissions = string.Join(",", new[]
+                    {
+                        "overview:view",
+                        "orders:view",
+                        "kitchen:view", "kitchen:status", "kitchen:prepare", "kitchen:complete",
+                        "foods:view",
+                        "menus:view"
+                    }),
                     CreatedAt = DateTime.UtcNow
                 },
+                new BranchRole
+                {
+                    Name = "Giao hàng",
+                    BranchId = branchId,
+                    IsDefault = false,
+                    Permissions = string.Join(",", new[]
+                    {
+                        "overview:view",
+                        "orders:view",
+                        "delivery:view", "delivery:status", "delivery:complete",
+                        "patients:view"
+                    }),
+                    CreatedAt = DateTime.UtcNow
+                },
+                new BranchRole
+                {
+                    Name = "Y tá",
+                    BranchId = branchId,
+                    IsDefault = false,
+                    Permissions = string.Join(",", new[]
+                    {
+                        "overview:view",
+                        "orders:view", "orders:add",
+                        "patients:view", "patients:add", "patients:edit", "patients:dietary",
+                        "foods:view",
+                        "menus:view"
+                    }),
+                    CreatedAt = DateTime.UtcNow
+                },
+                new BranchRole
+                {
+                    Name = "Kế toán",
+                    BranchId = branchId,
+                    IsDefault = false,
+                    Permissions = string.Join(",", new[]
+                    {
+                        "overview:view",
+                        "orders:view",
+                        "reports:view", "reports:revenue", "reports:orders", "reports:export",
+                        "wallet:view", "wallet:transactions", "wallet:topup", "wallet:refund"
+                    }),
+                    CreatedAt = DateTime.UtcNow
+                }
             };
-            foreach (var role in otherRoles)
+            foreach (var role in predefinedRoles)
             {
                 var exists = (await branchRoleRepo.GetByAsync(r => r.Name == role.Name && r.BranchId == branchId)).Any();
                 if (!exists)

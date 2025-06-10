@@ -49,7 +49,41 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "auth", "login"]
             }
-          }
+          },
+          "response": [
+            {
+              "name": "Login Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@homms.com\",\n  \"password\": \"Admin@123456\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/login",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "auth", "login"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refreshToken\": \"base64-encoded-refresh-token\",\n    \"tokenExpiryTime\": \"2024-01-01T12:00:00Z\",\n    \"refreshTokenExpiryTime\": \"2024-01-08T11:00:00Z\",\n    \"user\": {\n      \"id\": \"user-uuid\",\n      \"email\": \"admin@homms.com\",\n      \"firstName\": \"Admin\",\n      \"lastName\": \"User\",\n      \"fullName\": \"Admin User\",\n      \"phoneNumber\": \"+84123456789\",\n      \"address\": \"123 Admin St\",\n      \"profilePictureUrl\": \"https://example.com/avatar.jpg\",\n      \"isActive\": true,\n      \"createdAt\": \"2024-01-01T00:00:00Z\",\n      \"roles\": [\"Admin\"]\n    },\n    \"permissions\": [\n      \"overview:view\",\n      \"orders:view\",\n      \"orders:add\",\n      \"orders:edit\",\n      \"foods:view\",\n      \"foods:add\",\n      \"foods:edit\",\n      \"users:view\",\n      \"users:edit\",\n      \"reports:view\"\n    ],\n    \"userBranches\": [\n      {\n        \"branchId\": 1,\n        \"branchName\": \"Can Tho Hospital\",\n        \"branchCode\": \"CT01\",\n        \"branchRoleId\": 1,\n        \"branchRoleName\": \"Admin System\",\n        \"branchPermissions\": [\"all:permissions\"],\n        \"isDefault\": true,\n        \"assignedAt\": \"2024-01-01T00:00:00Z\"\n      }\n    ],\n    \"defaultBranch\": {\n      \"id\": 1,\n      \"name\": \"Can Tho Hospital\",\n      \"code\": \"CT01\",\n      \"address\": \"123 Hospital St\",\n      \"phone\": \"+84123456789\",\n      \"email\": \"contact@cantho-hospital.com\",\n      \"isActive\": true,\n      \"createdAt\": \"2024-01-01T00:00:00Z\"\n    },\n    \"isSystemAdmin\": true\n  }\n}"
+            }
+          ]
         },
         {
           "name": "Confirm Email",
@@ -154,7 +188,147 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "auth", "select-branch"]
             }
-          }
+          },
+          "response": [
+            {
+              "name": "Select Branch Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"branchId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/select-branch",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "auth", "select-branch"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Branch selected successfully\",\n  \"data\": {\n    \"accessToken\": \"new-jwt-with-branch-context\",\n    \"selectedBranch\": {\n      \"id\": 1,\n      \"name\": \"Can Tho Hospital\",\n      \"code\": \"CT01\",\n      \"address\": \"123 Hospital St\",\n      \"phone\": \"+84123456789\",\n      \"email\": \"contact@cantho-hospital.com\",\n      \"isActive\": true,\n      \"createdAt\": \"2024-01-01T00:00:00Z\"\n    },\n    \"branchRole\": {\n      \"branchId\": 1,\n      \"branchName\": \"Can Tho Hospital\",\n      \"branchCode\": \"CT01\",\n      \"branchRoleId\": 2,\n      \"branchRoleName\": \"Nhân viên\",\n      \"branchPermissions\": [\"overview:view\", \"orders:view\", \"orders:add\", \"foods:view\"],\n      \"assignedAt\": \"2024-01-01T00:00:00Z\"\n    },\n    \"availablePermissions\": [\"overview:view\", \"orders:view\", \"orders:add\", \"foods:view\"]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessToken\": \"{{jwtToken}}\",\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh-token"]
+            }
+          },
+          "response": [
+            {
+              "name": "Refresh Token Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"accessToken\": \"{{jwtToken}}\",\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/refresh-token",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "auth", "refresh-token"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Token refreshed successfully\",\n  \"data\": {\n    \"accessToken\": \"new-jwt-token\",\n    \"refreshToken\": \"new-refresh-token\",\n    \"tokenExpiryTime\": \"2024-01-01T13:00:00Z\",\n    \"refreshTokenExpiryTime\": \"2024-01-08T12:00:00Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          },
+          "response": [
+            {
+              "name": "Logout Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/logout",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "auth", "logout"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Logout successful\",\n  \"data\": null\n}"
+            }
+          ]
         }
       ]
     },
