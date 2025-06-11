@@ -87,6 +87,39 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         public bool IsCustomerEnabled { get; set; } = true;
         
+        /// <summary>
+        /// Gets or sets the patient room number (for hospitalized patients)
+        /// </summary>
+        [StringLength(20)]
+        public string? RoomNumber { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the patient bed number (for hospitalized patients)
+        /// </summary>
+        [StringLength(10)]
+        public string? BedNumber { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the patient admission date (for hospitalized patients)
+        /// </summary>
+        public DateTime? AdmissionDate { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the patient discharge date (for discharged patients)
+        /// </summary>
+        public DateTime? DischargeDate { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the attending physician name
+        /// </summary>
+        [StringLength(100)]
+        public string? AttendingPhysician { get; set; }
+        
+        /// <summary>
+        /// Gets or sets whether the patient requires special dietary supervision
+        /// </summary>
+        public bool RequiresDietarySupervision { get; set; } = false;
+        
         #endregion
         
         /// <summary>
@@ -103,6 +136,17 @@ namespace HOMMS.Domain.Entities
         /// Gets or sets the orders placed by this user
         /// </summary>
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+        /// <summary>
+        /// Gets or sets the patient ID if this user is linked to a patient record (optional)
+        /// </summary>
+        [StringLength(450)]
+        public string? PatientId { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the patient record associated with this user (optional)
+        /// </summary>
+        public virtual Patient? Patient { get; set; }
 
         #region Audit Properties
         

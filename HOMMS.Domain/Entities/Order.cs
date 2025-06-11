@@ -17,6 +17,17 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         public string? UserId { get; set; }
         
+        /// <summary>
+        /// Gets or sets the patient ID if this order is for a patient
+        /// </summary>
+        [StringLength(450)]
+        public string? PatientId { get; set; }
+        
+        /// <summary>
+        /// Gets or sets whether this is a patient order (true) or regular customer order (false)
+        /// </summary>
+        public bool IsPatientOrder { get; set; } = false;
+        
         public DateTime OrderDate { get; set; }
         public DateTime? ReceiveDate { get; set; }
         [StringLength(10)]
@@ -88,6 +99,7 @@ namespace HOMMS.Domain.Entities
         public virtual Branch? Branch { get; set; }
         public virtual BranchUser? BranchUser { get; set; }
         public virtual ApplicationUser? User { get; set; }
+        public virtual Patient? Patient { get; set; }
         public virtual ICollection<OrderDetails> OrderDetails { get; set; } = new List<OrderDetails>();
         public virtual ICollection<UserWalletTransaction> WalletTransactions { get; set; } = new List<UserWalletTransaction>();
     }

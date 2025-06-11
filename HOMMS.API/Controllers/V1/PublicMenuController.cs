@@ -7,12 +7,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HOMMS.Common.Helpers;
+using Asp.Versioning;
 
 namespace HOMMS.API.Controllers.V1
 {
-    [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/public/menus")]
+    [Route("api/[controller]")]
+    [ApiController]
     public class PublicMenuController : ControllerBase
     {
         private readonly IPublicMenuService _publicMenuService;
