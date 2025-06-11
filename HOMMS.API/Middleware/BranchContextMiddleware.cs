@@ -21,7 +21,7 @@ namespace HOMMS.API.Middleware
         {
             bool branchSet = false;
             var user = context.User;
-            var isAdminSystem = user?.Identity?.IsAuthenticated == true && user.IsInRole("Admin");
+            var isAdminSystem = user?.Identity?.IsAuthenticated == true && user.IsInRole("SystemAdmin");
 
             // Admin System: always allow branch selection via header
             if (isAdminSystem && context.Request.Headers.TryGetValue("X-Branch-Id", out var adminBranchIdHeader) && int.TryParse(adminBranchIdHeader.FirstOrDefault(), out int adminBranchId))

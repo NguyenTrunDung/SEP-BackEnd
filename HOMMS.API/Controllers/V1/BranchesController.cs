@@ -15,7 +15,7 @@ namespace HOMMS.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    [Route("api/[controller]")]
+
     [ApiController]
     public class BranchesController : ControllerBase
     {
@@ -118,7 +118,7 @@ namespace HOMMS.API.Controllers.V1
                 if (!string.IsNullOrEmpty(userId))
                 {
                     // Check if user is Admin System
-                    if (User.IsInRole("Admin"))
+                    if (User.IsInRole("SystemAdmin"))
                     {
                         // Optionally, return a message for Admin System
                         _branchContext.SetCurrentBranchId(branchId);
