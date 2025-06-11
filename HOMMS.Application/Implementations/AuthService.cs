@@ -157,7 +157,7 @@ namespace HOMMS.Application.Implementations
             if (user != null)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                summary.IsSystemAdmin = roles.Contains("Admin");
+                summary.IsSystemAdmin = roles.Contains("SystemAdmin");
 
                 if (summary.IsSystemAdmin)
                 {
@@ -230,7 +230,7 @@ namespace HOMMS.Application.Implementations
             if (user != null)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Admin"))
+                if (roles.Contains("SystemAdmin"))
                 {
                     // Get all permissions from the branch's roles
                     var branchPermissions = await _context.BranchRoles

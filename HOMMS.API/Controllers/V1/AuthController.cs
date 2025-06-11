@@ -63,7 +63,7 @@ namespace HOMMS.API.Controllers.V1
                 return BadRequest(result.Errors);
 
             // Assign default role
-            await _userManager.AddToRoleAsync(user, "User");
+            await _userManager.AddToRoleAsync(user, "Staff");
 
             // Generate email confirmation token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -228,7 +228,7 @@ namespace HOMMS.API.Controllers.V1
                 return Unauthorized(ApiResponseBase<SelectBranchResponseDto>.Error("User not found"));
 
             // Check if user is Admin System (global or for any branch)
-            var isAdminSystem = await _userManager.IsInRoleAsync(user, "Admin");
+            var isAdminSystem = await _userManager.IsInRoleAsync(user, "SystemAdmin");
             if (isAdminSystem)
             {
                 return BadRequest(ApiResponseBase<SelectBranchResponseDto>.Error("Admin System should use the dashboard dropdown to switch branches. This endpoint is not required."));

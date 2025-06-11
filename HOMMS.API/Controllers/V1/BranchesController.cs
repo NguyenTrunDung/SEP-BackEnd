@@ -118,7 +118,7 @@ namespace HOMMS.API.Controllers.V1
                 if (!string.IsNullOrEmpty(userId))
                 {
                     // Check if user is Admin System
-                    if (User.IsInRole("Admin"))
+                    if (User.IsInRole("SystemAdmin"))
                     {
                         // Optionally, return a message for Admin System
                         _branchContext.SetCurrentBranchId(branchId);
