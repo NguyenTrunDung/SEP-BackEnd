@@ -12,15 +12,19 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public IMenuDetailRepository MenuDetailRepository { get; }
 
         public IOrderDetailsRepository OrderDetailsRepository { get; }//new ordertail
+
+        public IPatientRepository PatientRepository { get; }
+
         // Add other repositories as needed
 
-        public UnitOfWork(ApplicationDbContext context, IBranchRepository branchRepository, IOrderDetailsRepository orderDetailsRepository, IOrderRepository orderRepository, IMenuDetailRepository menuDetailRepository)//add order, orderdetail
+        public UnitOfWork(ApplicationDbContext context, IBranchRepository branchRepository, IOrderDetailsRepository orderDetailsRepository, IOrderRepository orderRepository, IMenuDetailRepository menuDetailRepository, IPatientRepository patientRepository)//add order, orderdetail
         {
             _context = context;
             BranchRepository = branchRepository;
             OrderRepository = orderRepository;//moi them 
             OrderDetailsRepository = orderDetailsRepository;//moi them 
             MenuDetailRepository = menuDetailRepository;
+            PatientRepository = patientRepository;
             // Initialize other repositories here
         }
 

@@ -41,5 +41,61 @@ namespace HOMMS.Common.Helpers
             Status = status;
             TotalCount = totalCount;
         }
+
+        /// <summary>
+        /// Creates a successful response with data and message
+        /// </summary>
+        /// <param name="data">The data to return</param>
+        /// <param name="message">Success message</param>
+        /// <param name="totalCount">Total count for pagination (optional)</param>
+        /// <returns>ApiResponseBase with success status</returns>
+        public static ApiResponseBase<T> Success(T? data, string? message = null, int? totalCount = null)
+        {
+            return new ApiResponseBase<T>(data, message, "success", totalCount);
+        }
+
+        /// <summary>
+        /// Creates an error response with message
+        /// </summary>
+        /// <param name="message">Error message</param>
+        /// <param name="errors">Additional error details (optional)</param>
+        /// <returns>ApiResponseBase with error status</returns>
+        public static ApiResponseBase<T> Error(string message, object? errors = null)
+        {
+            var response = new ApiResponseBase<T>(null, message, "error", null);
+            if (errors != null)
+            {
+                // If we need to include validation errors, we can add them as an additional property
+                // For now, we'll include the error message in the message field
+                response.Message = message;
+            }
+            return response;
+        }
+    }
+
+    /// <summary>
+    /// Non-generic version for error responses that don't need typed data
+    /// </summary>
+    public class ApiResponseBase : ApiResponseBase<object>
+    {
+        public ApiResponseBase() : base() { }
+        public ApiResponseBase(object? data, string? message = null, string status = "success", int? totalCount = null)
+            : base(data, message, status, totalCount) { }
+
+        /// <summary>
+        /// Creates a successful response with data and message
+        /// </summary>
+        public static new ApiResponseBase Success(object? data, string? message = null, int? totalCount = null)
+        {
+            return new ApiResponseBase(data, message, "success", totalCount);
+        }
+
+        /// <summary>
+        /// Creates an error response with message
+        /// </summary>
+        public static new ApiResponseBase Error(string message, object? errors = null)
+        {
+            return new ApiResponseBase(null, message, "error", null);
+        }
     }
 } 

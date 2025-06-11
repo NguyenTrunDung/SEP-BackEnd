@@ -19,6 +19,37 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             _context = context;
         }
 
+        /// <summary>
+        /// Retrieves a list of orders for a chef by a specific branch ID
+        /// Orders with status "Preparing" or "Completed", and sorted by OrderDate in descending order
+        /// </summary>
+        /// <param name="branchId">The branch ID</param>
+        /// <returns>A list of orders for a chef</returns>
+        public async Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId)
+        {
+            return await DbSet.Where(o => o.BranchId == branchId && (o.Status == "Preparing" || o.Status == "Completed"))
+                .Include(o => o.OrderDetails)
+                .OrderBy(o => o.Status == "Completed")      //Ensures "Preparing" orders come first
+                .ThenByDescending(o => o.OrderDate)         //Sorts by lastest date
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Allows a chef to update the status of an order
+        /// Ensures only "Preparing" orders can be updated to "Completed"
+        /// </summary>
+        /// <param name="orderId">The order ID</param>
+        /// <returns>True if the status update is successful, otherwise false</returns>
+        public async Task<bool> UpdateOrderStatusByChefAsync(int orderId)
+        {
+            var order = await DbSet.FindAsync(orderId);
+            if (order == null || order.Status != "Preparing") return false;     //Validate order exists and is in "Preparing" status
+
+            order.Status = "Completed";
+            await DbContext.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<List<Order>> GetOrdersByBranchIdAsync(int branchId)
         {
             return await _context.Orders
@@ -27,17 +58,17 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         }
 
         public async Task<List<Order>> FilterOrdersAsync(
-    DateTime? startOrderDate,
-    DateTime? endOrderDate,
-    DateTime? startReceiveDate,
-    DateTime? endReceiveDate,
-    string? receiveTime,
-    string? status,
-    string? customerName,
-    string? customerPhone,
-    int? minTotal,
-    int? maxTotal,
-    string? code)
+            DateTime? startOrderDate,
+            DateTime? endOrderDate,
+            DateTime? startReceiveDate,
+            DateTime? endReceiveDate,
+            string? receiveTime,
+            string? status,
+            string? customerName,
+            string? customerPhone,
+            int? minTotal,
+            int? maxTotal,
+            string? code)
         {
             var query = _context.Orders.AsQueryable();
 

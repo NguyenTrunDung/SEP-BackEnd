@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
@@ -9,9 +10,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace HOMMS.API.Controllers.V1
 {
 
-    [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/public/revenues")]
+    [Route("api/[controller]")]
+    [ApiController]
     public class RevenueController : ControllerBase
     {
 

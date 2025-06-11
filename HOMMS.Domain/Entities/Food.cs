@@ -95,6 +95,16 @@ namespace HOMMS.Domain.Entities
         public virtual ICollection<MenuDetail> MenuDetails { get; set; } = new List<MenuDetail>();
 
         /// <summary>
+        /// Gets or sets the disease category navigation property
+        /// </summary>
+        public virtual DiseaseCategory? DiseaseCategory { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the food restrictions for disease categories
+        /// </summary>
+        public virtual ICollection<DiseaseCategoryFoodRestriction> FoodRestrictions { get; set; } = new List<DiseaseCategoryFoodRestriction>();
+
+        /// <summary>
         /// Gets the current price based on user type
         /// </summary>
         [NotMapped]
