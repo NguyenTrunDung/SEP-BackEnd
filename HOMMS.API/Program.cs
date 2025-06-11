@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.AspNetCore.Authorization;
 using HOMMS.Application.Implementations;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -160,6 +162,30 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+
+
+
+
+
+// Configure Google Login//
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CallbackPath = "/google-response";
+});
+
+
+
+
+
 
 var app = builder.Build();
 
