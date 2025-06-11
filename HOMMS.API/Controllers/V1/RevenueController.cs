@@ -12,7 +12,7 @@ namespace HOMMS.API.Controllers.V1
 
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/public/revenues")]
-    [Route("api/[controller]")]
+
     [ApiController]
     public class RevenueController : ControllerBase
     {

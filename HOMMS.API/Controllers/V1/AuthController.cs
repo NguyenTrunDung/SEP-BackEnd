@@ -1,19 +1,15 @@
 ﻿using HOMMS.Domain.Entities;
 using Asp.Versioning;
-using HOMMS.Common.Constants;
+using HOMMS.Application.Interfaces;
+using HOMMS.Common.Helpers;
+using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using HOMMS.Infrastructure.Data;
 using HOMMS.Common.Constants;
@@ -23,6 +19,7 @@ namespace HOMMS.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -31,19 +28,22 @@ namespace HOMMS.API.Controllers.V1
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
+        private readonly IAuthService _authService;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<ApplicationRole> roleManager,
             IConfiguration configuration,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IAuthService authService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _context = context;
+            _authService = authService;
         }
 
         [HttpPost("register")]
@@ -67,7 +67,7 @@ namespace HOMMS.API.Controllers.V1
                 return BadRequest(result.Errors);
 
             // Assign default role
-            await _userManager.AddToRoleAsync(user, "User");
+            await _userManager.AddToRoleAsync(user, "Staff");
 
             // Generate email confirmation token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -78,55 +78,42 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<ActionResult<ApiResponseBase<LoginResponseDto>>> Login([FromBody] LoginModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(ApiResponseBase<LoginResponseDto>.Error("Invalid request data"));
 
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
-                return BadRequest("Invalid login attempt.");
+                return BadRequest(ApiResponseBase<LoginResponseDto>.Error("Invalid login attempt."));
 
             // Check if email is confirmed
             if (!await _userManager.IsEmailConfirmedAsync(user))
-                return BadRequest("Email not confirmed. Please confirm your email before logging in.");
+                return BadRequest(ApiResponseBase<LoginResponseDto>.Error("Email not confirmed. Please confirm your email before logging in."));
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded)
-                return BadRequest("Invalid login attempt.");
+                return BadRequest(ApiResponseBase<LoginResponseDto>.Error("Invalid login attempt."));
 
-            // --- Gather all permissions for the user ---
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var allPermissions = new HashSet<string>();
+            // Generate tokens (without embedded permissions)
+            var accessToken = await _authService.GenerateAccessTokenAsync(user);
+            var refreshToken = _authService.GenerateRefreshToken();
+            
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "60");
+            var refreshExpiryInDays = int.Parse(jwtSettings["RefreshExpiryInDays"] ?? "7");
+            
+            var tokenExpiryTime = DateTime.UtcNow.AddMinutes(expiryInMinutes);
+            var refreshTokenExpiryTime = DateTime.UtcNow.AddDays(refreshExpiryInDays);
 
-            if (userRoles.Contains("Admin"))
-            {
-                // Admin System: add ALL permissions in the system
-                allPermissions = new HashSet<string>(PermissionConstants.All);
-            }
-            else
-            {
-                var userBranchRoles = _context.BranchUserRoles
-                    .Where(bur => bur.UserId == user.Id)
-                    .Select(bur => bur.BranchRole)
-                    .ToList();
+            // Update user's refresh token in database
+            await _authService.UpdateUserRefreshTokenAsync(user, refreshToken, refreshTokenExpiryTime);
 
-                foreach (var role in userBranchRoles)
-                {
-                    if (!string.IsNullOrEmpty(role.Permissions))
-                    {
-                        foreach (var perm in role.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            allPermissions.Add(perm.Trim());
-                        }
-                    }
-                }
-            }
+            // Build complete login response with permissions from database
+            var loginResponse = await _authService.BuildLoginResponseAsync(
+                user, accessToken, refreshToken, tokenExpiryTime, refreshTokenExpiryTime);
 
-            // Generate JWT token with all permissions
-            var token = await GenerateJwtToken(user, null, null, null, string.Join(",", allPermissions));
-
-            return Ok(new { Token = token });
+            return Ok(ApiResponseBase<LoginResponseDto>.Success(loginResponse, "Login successful"));
         }
 
         [HttpPost("confirm-email")]
@@ -367,151 +354,100 @@ namespace HOMMS.API.Controllers.V1
             });
         }
 
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult<ApiResponseBase<RefreshTokenResponseDto>>> RefreshToken([FromBody] RefreshTokenRequestDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponseBase<RefreshTokenResponseDto>.Error("Invalid request data"));
+
+            var result = await _authService.RefreshTokenAsync(model);
+            if (result.Status == "error")
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<ActionResult<ApiResponseBase<object>>> Logout()
+        {
+            var userId = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest(ApiResponseBase<object>.Error("Invalid user"));
+
+            var success = await _authService.RevokeRefreshTokenAsync(userId);
+            if (!success)
+                return BadRequest(ApiResponseBase<object>.Error("Logout failed"));
+
+            return Ok(ApiResponseBase<object>.Success(null, "Logout successful"));
+        }
+
         [Authorize]
         [HttpPost("select-branch")]
-        public async Task<IActionResult> SelectBranch([FromBody] SelectBranchModel model)
+        public async Task<ActionResult<ApiResponseBase<SelectBranchResponseDto>>> SelectBranch([FromBody] SelectBranchModel model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Unauthorized();
+                return Unauthorized(ApiResponseBase<SelectBranchResponseDto>.Error("User not found"));
 
             // Check if user is Admin System (global or for any branch)
-            var isAdminSystem = await _userManager.IsInRoleAsync(user, "Admin");
+            var isAdminSystem = await _userManager.IsInRoleAsync(user, "SystemAdmin");
             if (isAdminSystem)
             {
-                return BadRequest("Admin System should use the dashboard dropdown to switch branches. This endpoint is not required.");
+                return BadRequest(ApiResponseBase<SelectBranchResponseDto>.Error("Admin System should use the dashboard dropdown to switch branches. This endpoint is not required."));
             }
-
-            string permissions = null;
-            string branchRoleName = null;
-            int? branchRoleId = null;
 
             // Check if user has a BranchUserRole for the selected branch
-            var branchUserRole = _context.BranchUserRoles
-                .Where(bur => bur.UserId == user.Id && bur.BranchId == model.BranchId)
-                .Select(bur => new
-                {
-                    bur.BranchId,
-                    bur.BranchRoleId,
-                    bur.BranchRole.Name,
-                    bur.BranchRole.Permissions
-                })
-                .FirstOrDefault();
+            var branchUserRole = await _context.BranchUserRoles
+                .Include(bur => bur.Branch)
+                .Include(bur => bur.BranchRole)
+                .Where(bur => bur.UserId == user.Id && 
+                             bur.BranchId == model.BranchId &&
+                             !bur.IsDeleted &&
+                             bur.Branch != null && bur.Branch.IsActive &&
+                             bur.BranchRole != null && !bur.BranchRole.IsDeleted)
+                .FirstOrDefaultAsync();
 
             if (branchUserRole == null)
-                return Forbid();
+                return Forbid("User does not have access to this branch");
 
-            branchRoleId = branchUserRole.BranchRoleId;
-            branchRoleName = branchUserRole.Name;
-            permissions = branchUserRole.Permissions;
+            // Generate new token with branch context
+            var accessToken = await _authService.GenerateAccessTokenAsync(user, model.BranchId, branchUserRole.BranchRoleId);
+            
+            // Get branch permissions
+            var branchPermissions = await _authService.GetUserBranchPermissionsAsync(user.Id, model.BranchId);
 
-            var token = await GenerateJwtToken(user, model.BranchId, branchRoleId, branchRoleName, permissions);
-            return Ok(new { Token = token });
-        }
-
-        private async Task<string> GenerateJwtToken(ApplicationUser user, int? branchId = null, int? branchRoleId = null, string branchRoleName = null, string permissions = null)
-        {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var secretKey = jwtSettings["SecretKey"];
-            var issuer = jwtSettings["Issuer"];
-            var audience = jwtSettings["Audience"];
-            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "60");
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var claims = new List<Claim>
+            var response = new SelectBranchResponseDto
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim("FirstName", user.FirstName),
-                new Claim("LastName", user.LastName)
+                AccessToken = accessToken,
+                SelectedBranch = new BranchDto
+                {
+                    Id = branchUserRole.Branch!.Id,
+                    Name = branchUserRole.Branch.Name,
+                    Code = branchUserRole.Branch.Code,
+                    Address = branchUserRole.Branch.Address,
+                    Phone = branchUserRole.Branch.Phone,
+                    Email = branchUserRole.Branch.Email,
+                    Description = branchUserRole.Branch.Description,
+                    IsActive = branchUserRole.Branch.IsActive,
+                    CreatedAt = branchUserRole.Branch.CreatedAt
+                },
+                BranchRole = new UserBranchRoleDto
+                {
+                    BranchId = branchUserRole.BranchId ?? 0,
+                    BranchName = branchUserRole.Branch.Name,
+                    BranchCode = branchUserRole.Branch.Code,
+                    BranchRoleId = branchUserRole.BranchRoleId,
+                    BranchRoleName = branchUserRole.BranchRole!.Name,
+                    BranchPermissions = branchPermissions,
+                    AssignedAt = branchUserRole.CreatedAt
+                },
+                AvailablePermissions = branchPermissions
             };
 
-            // Add roles as claims
-            foreach (var role in userRoles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            // Add branch and permission claims if provided
-            if (branchId.HasValue)
-                claims.Add(new Claim("branch_id", branchId.Value.ToString()));
-            if (branchRoleId.HasValue)
-                claims.Add(new Claim("branch_role_id", branchRoleId.Value.ToString()));
-            if (!string.IsNullOrEmpty(branchRoleName))
-                claims.Add(new Claim("branch_role_name", branchRoleName));
-            if (!string.IsNullOrEmpty(permissions))
-            {
-                var perms = permissions.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                foreach (var perm in perms)
-                {
-                    claims.Add(new Claim("permission", perm.Trim()));
-                }
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.UtcNow.AddMinutes(expiryInMinutes);
-
-            var token = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
-                claims: claims,
-                expires: expires,
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return Ok(ApiResponseBase<SelectBranchResponseDto>.Success(response, "Branch selected successfully"));
         }
-    }
 
-    public class RegisterModel
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string? Address { get; set; }
-    }
 
-    public class LoginModel
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
-
-    public class ConfirmEmailModel
-    {
-        public string Email { get; set; }
-        public string Token { get; set; }
-    }
-
-    public class ForgotPasswordModel
-    {
-        public string Email { get; set; }
-    }
-
-    public class ResetPasswordModel
-    {
-        public string Email { get; set; }
-        public string Token { get; set; }
-        public string NewPassword { get; set; }
-    }
-
-    public class UserProfileModel
-    {
-        public required string Email { get; set; }
-        public required string FirstName { get; set; }
-        public required string LastName { get; set; }
-        public string? Address { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? ProfilePictureUrl { get; set; }
-    }
-
-    public class SelectBranchModel
-    {
-        public int BranchId { get; set; }
     }
 } 
