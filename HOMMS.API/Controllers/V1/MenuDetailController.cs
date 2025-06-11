@@ -3,13 +3,13 @@ using AutoMapper;
 using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HOMMS.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    [Route("api/[controller]")]
     [ApiController]
     public class MenuDetailController : ControllerBase
     {
@@ -18,6 +18,14 @@ namespace HOMMS.API.Controllers.V1
         public MenuDetailController(IMenuDetailService menuDetailService)
         {
             _menuDetailService = menuDetailService;
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetMenuList()
+        {
+            return Ok();
+
         }
 
         [HttpGet("{id}")]

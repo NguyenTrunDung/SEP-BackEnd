@@ -7,38 +7,38 @@ namespace HOMMS.Domain.Dtos
     /// <summary>
     /// DTO for displaying branch information
     /// </summary>
-    public class BranchDto
-    {
-        /// <summary>
-        /// Gets or sets the branch ID
-        /// </summary>
-        public int Id { get; set; }
+    //public class BranchDto
+    //{
+    //    /// <summary>
+    //    /// Gets or sets the branch ID
+    //    /// </summary>
+    //    public int Id { get; set; }
         
-        /// <summary>
-        /// Gets or sets the branch name
-        /// </summary>
-        public string? Name { get; set; }
+    //    /// <summary>
+    //    /// Gets or sets the branch name
+    //    /// </summary>
+    //    public string? Name { get; set; }
         
-        /// <summary>
-        /// Gets or sets the branch code
-        /// </summary>
-        public string? Code { get; set; }
+    //    /// <summary>
+    //    /// Gets or sets the branch code
+    //    /// </summary>
+    //    public string? Code { get; set; }
         
-        /// <summary>
-        /// Gets or sets the branch address
-        /// </summary>
-        public string? Address { get; set; }
+    //    /// <summary>
+    //    /// Gets or sets the branch address
+    //    /// </summary>
+    //    public string? Address { get; set; }
         
-        /// <summary>
-        /// Gets or sets the branch phone
-        /// </summary>
-        public string? Phone { get; set; }
+    //    /// <summary>
+    //    /// Gets or sets the branch phone
+    //    /// </summary>
+    //    public string? Phone { get; set; }
         
-        /// <summary>
-        /// Gets or sets the branch email
-        /// </summary>
-        public string? Email { get; set; }
-    }
+    //    /// <summary>
+    //    /// Gets or sets the branch email
+    //    /// </summary>
+    //    public string? Email { get; set; }
+    //}
     
     /// <summary>
     /// DTO for displaying menu information

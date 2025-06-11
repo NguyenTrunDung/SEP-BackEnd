@@ -1,7 +1,9 @@
-﻿using HOMMS.Application.Interfaces;
+﻿using HOMMS.Application.BaseServices;
+using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Repositories.Interfaces;
+using HOMMS.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +12,12 @@ using System.Threading.Tasks;
 
 namespace HOMMS.Application.Implementations
 {
-    public class MenuDetailService : IMenuDetailService
+    public class MenuDetailService : BaseService, IMenuDetailService
     {
         private readonly IMenuDetailRepository _menuRepository;
 
-        public MenuDetailService(IMenuDetailRepository menuRepository)
+        public MenuDetailService(IMenuDetailRepository menuRepository, IBranchContext branchContext)
+            : base(branchContext)
         {
             _menuRepository = menuRepository;
         }
@@ -53,8 +56,10 @@ namespace HOMMS.Application.Implementations
 
         public async Task<bool> UpdateMenuWithDetailsAsync(UpdateMenuDto dto)
         {
+
             var menu = await _menuRepository.GetMenuWithDetailsAsync(dto.Id);
             if (menu == null) return false;
+            dto.BranchId = EnsureBranchId(dto.BranchId);
 
             // Update menu
             menu.Date = dto.Date;
@@ -111,14 +116,18 @@ namespace HOMMS.Application.Implementations
         }
         public async Task<bool> AddMenuWithDetailsAsync(CreateMenuDto dto)
         {
+            dto.BranchId = EnsureBranchId(dto.BranchId);
+
             var menu = new Menu
             {
+
                 Date = dto.Date,
                 TimeOfDay = dto.TimeOfDay,
                 IsTime = dto.IsTime,
                 TimeFrom = dto.TimeFrom,
                 TimeTo = dto.TimeTo,
                 Name = dto.Name,
+               // BranchId = dto.BranchId , // Assuming BranchId is part of CreateMenuDto
                 MenuDetails = dto.Details.Select(d => new MenuDetail
                 {
                     FoodId = d.FoodId,

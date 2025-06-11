@@ -39,6 +39,7 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<Menu> Menus { get; set; }
         public DbSet<MenuDetail> MenuDetails { get; set; }
         public DbSet<BranchRole> BranchRoles { get; set; }
+        public DbSet<BranchUser> BranchUsers { get; set; }
         public DbSet<BranchUserRole> BranchUserRoles { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
@@ -141,6 +142,7 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new MenuDetailConfiguration());
             builder.ApplyConfiguration(new BranchConfiguration());
             builder.ApplyConfiguration(new BranchRoleConfiguration());
+            builder.ApplyConfiguration(new BranchUserConfiguration());
             builder.ApplyConfiguration(new BranchUserRoleConfiguration());
             builder.ApplyConfiguration(new OrdersConfiguration());
             builder.ApplyConfiguration(new OrderDetailsConfiguration());
