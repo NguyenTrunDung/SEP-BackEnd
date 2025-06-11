@@ -27,23 +27,28 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddCustomServices();
 
-// Add CORS policy for development
-if (builder.Environment.IsDevelopment())
+// Add CORS policy for development and production
+builder.Services.AddCors(options =>
 {
-    builder.Services.AddCors(options =>
+    options.AddPolicy("DevCorsPolicy", policy =>
     {
-        options.AddPolicy("DevCorsPolicy", policy =>
-        {
-            policy.WithOrigins(
-                "http://localhost:3000", // React default
-                "http://localhost:4200", // Angular default
-                "http://localhost:5173"  // Vite default
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-        });
+        policy.WithOrigins(
+            "http://localhost:3000", // React default
+            "http://localhost:4200", // Angular default
+            "http://localhost:5173"  // Vite default
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
-}
+    options.AddPolicy("ProdCorsPolicy", policy =>
+    {
+        policy.WithOrigins(
+            "https://homms.cuahangkinhdoanh.com"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -158,6 +163,7 @@ builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
 builder.Services.AddScoped<IMenuDetailService,MenuDetailService>();
 builder.Services.AddScoped<IRevenueService, RevenueService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created
@@ -212,6 +218,11 @@ if (app.Environment.IsDevelopment())
     });
     // Use CORS policy in development
     app.UseCors("DevCorsPolicy");
+}
+else
+{
+    // Use CORS policy in production
+    app.UseCors("ProdCorsPolicy");
 }
 
 app.UseHttpsRedirection();

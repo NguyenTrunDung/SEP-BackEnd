@@ -13,17 +13,19 @@ namespace HOMMS.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    [Route("api/[controller]")]
+
     [ApiController]
     public class FoodsController : ControllerBase
     {
         private readonly IFoodService _foodService;
         private readonly IMapper _mapper;
+        private readonly IBranchContext _branchContext;
 
-        public FoodsController(IFoodService foodService, IMapper mapper)
+        public FoodsController(IFoodService foodService, IMapper mapper, IBranchContext branchContext)
         {
             _foodService = foodService;
             _mapper = mapper;
+            _branchContext = branchContext;
         }
 
         [HttpGet]

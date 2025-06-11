@@ -1,7 +1,9 @@
 using HOMMS.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HOMMS.Infrastructure.Data;
@@ -16,9 +18,6 @@ namespace HOMMS.Infrastructure.Seeds
             using var scope = serviceProvider.CreateScope();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var branchRoleRepo = scope.ServiceProvider.GetRequiredService<IRepository<BranchRole, int>>();
-            var branchUserRoleRepo = scope.ServiceProvider.GetRequiredService<IRepository<BranchUserRole, int>>();
 
             // Seed Roles
             await SeedRolesAsync(roleManager);
@@ -32,15 +31,14 @@ namespace HOMMS.Infrastructure.Seeds
 
         private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
         {
-            // Define all roles including medical staff roles
+            // Define minimal Identity roles - only for high-level user categorization
+            // Actual permissions are handled by BranchRole system
             var roles = new Dictionary<string, string>
             {
-                { "Admin", "System administrator with full access" },
-                { "Manager", "Hospital manager with administrative access" },
-                { "User", "Regular user account" },
-                { "Doctor", "Medical doctor with patient care responsibilities" },
-                { "Nurse", "Nursing staff with patient care responsibilities" },
-                { "Nutritionist", "Dietary specialist managing nutritional care" }
+                { "SystemAdmin", "System administrator - has access to all branches and system settings" },
+                { "Staff", "Hospital/canteen staff member - access determined by branch roles" },
+                { "Patient", "Hospital patient - limited access for ordering food" },
+                { "Guest", "Guest user - temporary access for visitors" }
             };
 
             foreach (var roleInfo in roles)
@@ -87,7 +85,7 @@ namespace HOMMS.Infrastructure.Seeds
                 if (result.Succeeded)
                 {
                     // Assign admin role
-                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    await userManager.AddToRoleAsync(adminUser, "SystemAdmin");
                 }
             }
             return adminUser;
@@ -95,26 +93,31 @@ namespace HOMMS.Infrastructure.Seeds
 
         private static async Task SeedHospitalStaffAsync(UserManager<ApplicationUser> userManager)
         {
-            // Define hospital staff accounts
-            var staffAccounts = new[]
+            // Define canteen staff accounts with branch roles
+            var canteenStaffAccounts = new[]
             {
-                // Nurses
-                new { Email = "nurse.tran@hospital.com", FirstName = "Trần", LastName = "Thị Hoa", Role = "Nurse", Password = "Nurse@123456" },
-                new { Email = "nurse.duc@hospital.com", FirstName = "Nguyễn", LastName = "Minh Đức", Role = "Nurse", Password = "Nurse@123456" },
-                new { Email = "nurse.thanh@hospital.com", FirstName = "Lê", LastName = "Văn Thành", Role = "Nurse", Password = "Nurse@123456" },
-                new { Email = "nurse.mai@hospital.com", FirstName = "Phạm", LastName = "Thị Mai", Role = "Nurse", Password = "Nurse@123456" },
+                // Branch management and operations
+                new { Email = "branch.manager@homms.com", FirstName = "Nguyễn", LastName = "Chi Nhánh", Role = "SystemAdmin", Password = "BranchManager@123", BranchRole = "Quản lý chi nhánh" },
+                new { Email = "manager@homms.com", FirstName = "Lê", LastName = "Quản Lý", Role = "SystemAdmin", Password = "Manager@123", BranchRole = "Quản lý" },
                 
-                // Doctors
-                // new { Email = "doctor.khai@hospital.com", FirstName = "Lương", LastName = "Văn Khải", Role = "Doctor", Password = "Doctor@123456" },
-                // new { Email = "doctor.linh@hospital.com", FirstName = "Nguyễn", LastName = "Thị Linh", Role = "Doctor", Password = "Doctor@123456" },
-                // new { Email = "doctor.hung@hospital.com", FirstName = "Trần", LastName = "Văn Hùng", Role = "Doctor", Password = "Doctor@123456" },
+                // Cashier and front operations
+                new { Email = "cashier@homms.com", FirstName = "Trần", LastName = "Thu Ngân", Role = "Staff", Password = "Cashier@123", BranchRole = "Thu Ngân" },
+                new { Email = "cashier2@homms.com", FirstName = "Phạm", LastName = "Thanh Toán", Role = "Staff", Password = "Cashier@123", BranchRole = "Thu Ngân" },
                 
-                // Nutritionists
-                // new { Email = "nutritionist.anh@hospital.com", FirstName = "Hoàng", LastName = "Thị Anh", Role = "Nutritionist", Password = "Nutritionist@123456" },
-                // new { Email = "nutritionist.minh@hospital.com", FirstName = "Võ", LastName = "Minh Tâm", Role = "Nutritionist", Password = "Nutritionist@123456" }
+                // General staff
+                new { Email = "staff@homms.com", FirstName = "Võ", LastName = "Nhân Viên", Role = "Staff", Password = "Staff@123", BranchRole = "Nhân viên" },
+                new { Email = "staff2@homms.com", FirstName = "Đặng", LastName = "Hỗ Trợ", Role = "Staff", Password = "Staff@123", BranchRole = "Nhân viên" },
+                
+                // Kitchen operations
+                new { Email = "kitchen@homms.com", FirstName = "Bùi", LastName = "Đầu Bếp", Role = "Staff", Password = "Kitchen@123", BranchRole = "Nhà bếp" },
+                new { Email = "kitchen2@homms.com", FirstName = "Lý", LastName = "Phụ Bếp", Role = "Staff", Password = "Kitchen@123", BranchRole = "Nhà bếp" },
+                
+                // Nursing staff for patient orders
+                new { Email = "nurse@homms.com", FirstName = "Hoàng", LastName = "Y Tá", Role = "Staff", Password = "Nurse@123", BranchRole = "Y tá" },
+                new { Email = "nurse2@homms.com", FirstName = "Cao", LastName = "Điều Dưỡng", Role = "Staff", Password = "Nurse@123", BranchRole = "Y tá" }
             };
 
-            foreach (var staffInfo in staffAccounts)
+            foreach (var staffInfo in canteenStaffAccounts)
             {
                 var existingUser = await userManager.FindByEmailAsync(staffInfo.Email);
                 if (existingUser == null)
@@ -125,7 +128,7 @@ namespace HOMMS.Infrastructure.Seeds
                         Email = staffInfo.Email,
                         FirstName = staffInfo.FirstName,
                         LastName = staffInfo.LastName,
-                        EmailConfirmed = true, // Auto-confirm email for staff
+                        EmailConfirmed = true,
                         PhoneNumberConfirmed = true,
                         CreatedAt = DateTime.UtcNow,
                         IsActive = true
@@ -134,11 +137,15 @@ namespace HOMMS.Infrastructure.Seeds
                     var result = await userManager.CreateAsync(user, staffInfo.Password);
                     if (result.Succeeded)
                     {
-                        // Assign appropriate role
+                        // Assign appropriate identity role
                         await userManager.AddToRoleAsync(user, staffInfo.Role);
+                        
+                        // Note: Branch role assignment will be handled separately after branch roles are seeded
                     }
                 }
             }
         }
+
+
     }
 } 
