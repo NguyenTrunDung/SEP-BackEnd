@@ -1,5 +1,6 @@
 ﻿using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
+using HOMMS.Common.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,14 +21,16 @@ namespace HOMMS.API.Controllers.V1
         public async Task<IActionResult> GetOrdersByBranchId(int branchId)
         {
             var orders = await _orderService.GetOrdersByBranchIdAsync(branchId);
-            return Ok(orders);
+            var totalCount = orders?.Count ?? 0;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
         // GET: api/order/search?keyword=abc
         [HttpGet("search")]
         public async Task<IActionResult> SearchOrders([FromQuery] string keyword)
         {
             var orders = await _orderService.SearchOrdersAsync(keyword);
-            return Ok(orders);
+            var totalCount = orders?.Count ?? 0;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
 
         [HttpGet("filter")]
@@ -57,8 +60,8 @@ namespace HOMMS.API.Controllers.V1
                 maxTotal,
                 code
             );
-
-            return Ok(orders);
+            var totalCount = orders?.Count ?? 0;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
 
     }

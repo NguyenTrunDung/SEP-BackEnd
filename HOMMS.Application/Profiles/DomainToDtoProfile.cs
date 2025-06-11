@@ -30,6 +30,10 @@ namespace HOMMS.Application.Profiles
 
             // Branch -> BranchDto
             CreateMap<Branch, BranchDto>();
+
+            // Order -> OrderDto
+            CreateMap<Order, OrderDto>();
+
         }
     }
 } 

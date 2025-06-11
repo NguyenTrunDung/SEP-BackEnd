@@ -1,4 +1,4 @@
-using HOMMS.Domain.Entities;
+﻿using HOMMS.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HOMMS.Infrastructure.Data;
 using HOMMS.Common.Constants;
+using Microsoft.AspNetCore.Authentication;
 
 namespace HOMMS.API.Controllers
 {
@@ -178,6 +179,165 @@ namespace HOMMS.API.Controllers
 
             return Ok("Password reset successful. You can now login with your new password.");
         }
+
+
+
+
+
+
+
+
+
+
+        //-------------------------------------------------------------//
+
+        //Login with google
+        [HttpGet("google-login")]
+        public IActionResult GoogleLogin()
+        {
+            var redirectUrl = Url.Action("GoogleResponse", "Auth");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, "Google");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("google-response")]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            // Authenticate bằng scheme "Google"
+            var result = await HttpContext.AuthenticateAsync("Google");
+            if (!result.Succeeded || result.Principal == null)
+                return Unauthorized("Google login failed");
+
+            var claims = result.Principal.Claims;
+            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var firstName = claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value ?? "";
+            var lastName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value ?? "";
+
+            if (string.IsNullOrEmpty(email))
+                return BadRequest("Unable to retrieve email from Google.");
+
+            // Tạo hoặc lấy user
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    EmailConfirmed = true
+                };
+                var createResult = await _userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                    return BadRequest("Failed to create user from Google login.");
+
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
+            if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+            }
+
+            // Tạo ClaimsIdentity & SignIn bằng cookie
+            var identity = new ClaimsIdentity("Cookies");
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
+            identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+            identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+            // (Thêm các claim khác nếu cần)
+
+            await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(identity));
+
+            // Lấy permission
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var allPermissions = new HashSet<string>();
+
+            if (userRoles.Contains("Admin"))
+            {
+                allPermissions = new HashSet<string>(PermissionConstants.All);
+            }
+            else
+            {
+                var userBranchRoles = _context.BranchUserRoles
+                    .Where(bur => bur.UserId == user.Id)
+                    .Select(bur => bur.BranchRole)
+                    .ToList();
+
+                foreach (var role in userBranchRoles)
+                {
+                    if (!string.IsNullOrEmpty(role.Permissions))
+                    {
+                        foreach (var perm in role.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            allPermissions.Add(perm.Trim());
+                        }
+                    }
+                }
+            }
+
+            // Gen token
+            var token = await GenerateJwtToken(user, null, null, null, string.Join(",", allPermissions));
+
+            return Ok(new { Token = token });
+        }
+
+        //edit profile
+        [Authorize]
+        [HttpPost("edit-profile")]
+        public async Task<IActionResult> EditProfile([FromBody] EditProfileModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return NotFound("User not found.");
+
+            if (!string.IsNullOrEmpty(model.FirstName))
+                user.FirstName = model.FirstName;
+
+            if (!string.IsNullOrEmpty(model.LastName))
+                user.LastName = model.LastName;
+
+            if (!string.IsNullOrEmpty(model.Address))
+                user.Address = model.Address;
+
+            if (!string.IsNullOrEmpty(model.PhoneNumber))
+                user.PhoneNumber = model.PhoneNumber;
+
+            if (!string.IsNullOrEmpty(model.ProfilePictureUrl))
+                user.ProfilePictureUrl = model.ProfilePictureUrl;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("Profile updated successfully.");
+        }
+
+        public class EditProfileModel
+        {
+            public string? FirstName { get; set; }
+            public string? LastName { get; set; }
+            public string? Address { get; set; }
+            public string? PhoneNumber { get; set; }
+            public string? ProfilePictureUrl { get; set; }
+        }
+
+        //-------------------------------------------------//
+
+
+
+
+
+
+
+
+
+
 
         [Authorize]
         [HttpGet("profile")]

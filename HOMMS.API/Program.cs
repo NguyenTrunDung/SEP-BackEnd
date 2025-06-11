@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.AspNetCore.Authorization;
 using HOMMS.Application.Implementations;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,7 +81,7 @@ builder.Services.AddScoped<IFoodCategoryRepository, FoodCategoryRepository>();
 builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IMenuDetailRepository, MenuDetailRepository>();
-
+builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
@@ -90,6 +92,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 // Register permission policies (add more as needed)
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("Permission:orders:view", policy =>
+       policy.Requirements.Add(new PermissionRequirement("orders:view")));
     options.AddPolicy("Permission:orders:add", policy =>
         policy.Requirements.Add(new PermissionRequirement("orders:add")));
     options.AddPolicy("Permission:orders:edit", policy =>
@@ -127,7 +131,7 @@ builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
 builder.Services.AddScoped<IMenuDetailService,MenuDetailService>();
-
+builder.Services.AddScoped<IRevenueService, RevenueService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -158,6 +162,30 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+
+
+
+
+
+// Configure Google Login//
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CallbackPath = "/google-response";
+});
+
+
+
+
+
 
 var app = builder.Build();
 
