@@ -21,5 +21,11 @@ namespace HOMMS.API.Controllers.V1
             _branchContext = branchContext;
             _mapper = mapper;
         }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok();
+        }
     }
 }

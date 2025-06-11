@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using HOMMS.Infrastructure.Data;
 using HOMMS.Common.Constants;
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -270,10 +272,21 @@ namespace HOMMS.API.Controllers.V1
                 }
             }
 
-            // Gen token
-            var token = await GenerateJwtToken(user, null, null, null, string.Join(",", allPermissions));
+            // Generate tokens (without embedded permissions)
+            var accessToken = await _authService.GenerateAccessTokenAsync(user);
+            var refreshToken = _authService.GenerateRefreshToken();
 
-            return Ok(new { Token = token });
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "60");
+            var refreshExpiryInDays = int.Parse(jwtSettings["RefreshExpiryInDays"] ?? "7");
+
+            var tokenExpiryTime = DateTime.UtcNow.AddMinutes(expiryInMinutes);
+            var refreshTokenExpiryTime = DateTime.UtcNow.AddDays(refreshExpiryInDays);
+
+            // Update user's refresh token in database
+            await _authService.UpdateUserRefreshTokenAsync(user, refreshToken, refreshTokenExpiryTime);
+
+            return Ok();
         }
 
         //edit profile
