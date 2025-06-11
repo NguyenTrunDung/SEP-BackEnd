@@ -93,6 +93,8 @@ builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
 
+
+builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
@@ -161,6 +163,8 @@ builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
 builder.Services.AddScoped<IMenuDetailService,MenuDetailService>();
 builder.Services.AddScoped<IRevenueService, RevenueService>();
 
+
+builder.Services.AddScoped<IWalletService, WalletService>();
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created
 // builder.Services.AddScoped<IDiseaseCategoryService, DiseaseCategoryService>();
