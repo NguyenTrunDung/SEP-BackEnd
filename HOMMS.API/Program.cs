@@ -32,22 +32,19 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCorsPolicy", policy =>
     {
-        policy.WithOrigins(
-            "http://localhost:3000", // React default
-            "http://localhost:4200", // Angular default
-            "http://localhost:5173"  // Vite default
+        policy.WithOrigins("*"
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
-    options.AddPolicy("ProdCorsPolicy", policy =>
-    {
-        policy.WithOrigins(
-            "https://homms.cuahangkinhdoanh.com"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod();
-    });
+    //options.AddPolicy("ProdCorsPolicy", policy =>
+    //{
+    //    policy.WithOrigins(
+    //        "https://homms.cuahangkinhdoanh.com"
+    //    )
+    //    .AllowAnyHeader()
+    //    .AllowAnyMethod();
+    //});
 });
 
 // Add DbContext
@@ -207,7 +204,24 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI(options =>
+//    {
+//        // Configure Swagger UI for multiple API versions
+//        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
+//        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
+//    });
+//    // Use CORS policy in development
+//    app.UseCors("DevCorsPolicy");
+//}
+//else
+//{
+//    // Use CORS policy in production
+//    app.UseCors("ProdCorsPolicy");
+//}
+
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -218,11 +232,6 @@ if (app.Environment.IsDevelopment())
     });
     // Use CORS policy in development
     app.UseCors("DevCorsPolicy");
-}
-else
-{
-    // Use CORS policy in production
-    app.UseCors("ProdCorsPolicy");
 }
 
 app.UseHttpsRedirection();
