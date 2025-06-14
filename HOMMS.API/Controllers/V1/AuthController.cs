@@ -198,7 +198,6 @@ namespace HOMMS.API.Controllers.V1
         [HttpGet("google-response")]
         public async Task<IActionResult> GoogleResponse()
         {
-            // Authenticate bằng scheme "Google"
             var result = await HttpContext.AuthenticateAsync("Google");
             if (!result.Succeeded || result.Principal == null)
                 return Unauthorized("Google login failed");
@@ -211,7 +210,6 @@ namespace HOMMS.API.Controllers.V1
             if (string.IsNullOrEmpty(email))
                 return BadRequest("Unable to retrieve email from Google.");
 
-            // Tạo hoặc lấy user
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
@@ -236,15 +234,6 @@ namespace HOMMS.API.Controllers.V1
                 await _userManager.UpdateAsync(user);
             }
 
-            // Tạo ClaimsIdentity & SignIn bằng cookie
-            var identity = new ClaimsIdentity("Cookies");
-            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
-            identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
-            identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
-            // (Thêm các claim khác nếu cần)
-
-            await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(identity));
-
             // Lấy permission
             var userRoles = await _userManager.GetRolesAsync(user);
             var allPermissions = new HashSet<string>();
@@ -255,16 +244,16 @@ namespace HOMMS.API.Controllers.V1
             }
             else
             {
-                var userBranchRoles = _context.BranchUserRoles
+                var userBranchRoles = await _context.BranchUserRoles
                     .Where(bur => bur.UserId == user.Id)
-                    .Select(bur => bur.BranchRole)
-                    .ToList();
+                    .Include(bur => bur.BranchRole)
+                    .ToListAsync();
 
                 foreach (var role in userBranchRoles)
                 {
-                    if (!string.IsNullOrEmpty(role.Permissions))
+                    if (!string.IsNullOrEmpty(role.BranchRole?.Permissions))
                     {
-                        foreach (var perm in role.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        foreach (var perm in role.BranchRole.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
                         {
                             allPermissions.Add(perm.Trim());
                         }
@@ -272,7 +261,7 @@ namespace HOMMS.API.Controllers.V1
                 }
             }
 
-            // Generate tokens (without embedded permissions)
+            // Tạo access token
             var accessToken = await _authService.GenerateAccessTokenAsync(user);
             var refreshToken = _authService.GenerateRefreshToken();
 
@@ -283,11 +272,16 @@ namespace HOMMS.API.Controllers.V1
             var tokenExpiryTime = DateTime.UtcNow.AddMinutes(expiryInMinutes);
             var refreshTokenExpiryTime = DateTime.UtcNow.AddDays(refreshExpiryInDays);
 
-            // Update user's refresh token in database
+            // Cập nhật refresh token
             await _authService.UpdateUserRefreshTokenAsync(user, refreshToken, refreshTokenExpiryTime);
 
-            return Ok();
+            // Xây dựng response giống login thường
+            var loginResponse = await _authService.BuildLoginResponseAsync(
+                user, accessToken, refreshToken, tokenExpiryTime, refreshTokenExpiryTime);
+
+            return Ok(ApiResponseBase<LoginResponseDto>.Success(loginResponse, "Login with Google successful"));
         }
+
 
         //edit profile
         [Authorize]
