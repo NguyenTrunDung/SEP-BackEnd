@@ -11,16 +11,11 @@ namespace HOMMS.API.Controllers.V1
     [ApiController]
     public class WalletController : ControllerBase
     {
-        private readonly IWalletRepository _walletRepository;
         private readonly IWalletService _walletService;
-        private readonly IBranchContext _branchContext;
-        private readonly IMapper _mapper;
 
-        public WalletController(IWalletRepository walletRepository, IBranchContext branchContext, IMapper mapper)
+        public WalletController(IWalletService walletService)
         {
-            _walletRepository = walletRepository;
-            _branchContext = branchContext;
-            _mapper = mapper;
+            _walletService = walletService;
         }
 
         [HttpPost("deposit")]
