@@ -11,7 +11,7 @@ namespace HOMMS.Application.Interfaces
     public interface ISystemLogService
     {
 
-        Task<IEnumerable<SystemLogDto>> GetSystemLogAll(int branchId, DateTime dateStart, DateTime dateEnd);
+        Task<IEnumerable<SystemLogDto>> GetSystemLogListByBranchId(int branchId, DateTime dateStart, DateTime dateEnd);
         Task<AddSystemLogDto> AddSystemLog(AddSystemLogDto systemLogDto);
 
     }

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
@@ -12,6 +13,7 @@ namespace HOMMS.API.Controllers.V2
 {
     [ApiVersion("2.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class FoodsController : ControllerBase
     {
@@ -28,9 +30,9 @@ namespace HOMMS.API.Controllers.V2
 
 
 
-        [MapToApiVersion("2.0")]
+       
         [HttpGet]
-        [Authorize(Policy = "Permission:foods:view")]
+      //  [Authorize(Policy = "Permission:foods:view")]
         public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoods([FromQuery] int branchId)
         {
             var foods = await _foodService.GetFoodsByBranchAsync(branchId);
@@ -46,9 +48,9 @@ namespace HOMMS.API.Controllers.V2
 
 
 
-        [MapToApiVersion("2.0")]
+         
         [HttpGet("{id}")]
-        [Authorize(Policy = "Permission:foods:view")]
+      //  [Authorize(Policy = "Permission:foods:view")]
         public async Task<ActionResult<ApiResponseBase<FoodDto>>> GetFood(int id)
         {
             var food = await _foodService.GetByIdAsync(id);
@@ -58,9 +60,9 @@ namespace HOMMS.API.Controllers.V2
         }
 
 
-        [MapToApiVersion("2.0")]
+        
         [HttpPost]
-        [Authorize(Policy = "Permission:foods:add")]
+      //  [Authorize(Policy = "Permission:foods:add")]
 
         public async Task<ActionResult<ApiResponseBase<FoodDtoV2>>> CreateFoodv2([FromBody] FoodDtoV2 dto)
         {
@@ -79,9 +81,9 @@ namespace HOMMS.API.Controllers.V2
             return CreatedAtAction(nameof(GetFood), new { id = created.Id }, new ApiResponseBase<FoodDtoV2>(created, "Food created successfully"));
         }
 
-        [MapToApiVersion("2.0")]
+         
         [HttpPut("{id}")]
-        [Authorize(Policy = "Permission:foods:edit")]
+      //  [Authorize(Policy = "Permission:foods:edit")]
         public async Task<ActionResult<ApiResponseBase<FoodDtoV2>>> UpdateFood(int id, [FromBody] FoodDtoV2_3 dto)
         {
 
@@ -110,9 +112,9 @@ namespace HOMMS.API.Controllers.V2
 
         }
 
-        [MapToApiVersion("2.0")]
+         
         [HttpDelete("{id}")]
-        [Authorize(Policy = "Permission:foods:delete")]
+      //  [Authorize(Policy = "Permission:foods:delete")]
         public async Task<ActionResult<ApiResponseBase<object>>> DeleteFood(int id)
         {
             try

@@ -1,4 +1,7 @@
+using Asp.Versioning;
+using Asp.Versioning.Conventions;
 using HOMMS.API.Middleware;
+using HOMMS.Application.Implementations;
 using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Data;
@@ -6,12 +9,10 @@ using HOMMS.Infrastructure.Extensions;
 using HOMMS.Infrastructure.Repositories.Implementations;
 using HOMMS.Infrastructure.Repositories.Interfaces;
 using HOMMS.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
 using Microsoft.AspNetCore.Authorization;
-using HOMMS.Application.Implementations;
-using Asp.Versioning;
-using Asp.Versioning.Conventions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,6 +111,8 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("orders:add")));
     options.AddPolicy("Permission:orders:edit", policy =>
         policy.Requirements.Add(new PermissionRequirement("orders:edit")));
+    options.AddPolicy("Permission:orders:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("orders:delete")));
     // Foods
     options.AddPolicy("Permission:foods:view", policy =>
         policy.Requirements.Add(new PermissionRequirement("foods:view")));
@@ -152,6 +155,16 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("systemlog:view")));
     options.AddPolicy("Permission:systemlog:add", policy =>
        policy.Requirements.Add(new PermissionRequirement("systemlog:add")));
+    //Patient
+    options.AddPolicy("Permission:Patient:view", policy =>
+      policy.Requirements.Add(new PermissionRequirement("Patient:view")));
+    options.AddPolicy("Permission:Patient:add", policy =>
+     policy.Requirements.Add(new PermissionRequirement("Patient:add")));
+    options.AddPolicy("Permission:Patient:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("Patient:edit")));
+    options.AddPolicy("Permission:Patient:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("Patient:delete")));
+
 });
 
 // Register PrintUrlsHostedService
@@ -168,6 +181,8 @@ builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
 builder.Services.AddScoped<IMenuDetailService,MenuDetailService>();
 builder.Services.AddScoped<IRevenueService, RevenueService>();
 builder.Services.AddScoped<ISystemLogService, SystemLogService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+
 
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created

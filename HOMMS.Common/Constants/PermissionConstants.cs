@@ -25,7 +25,11 @@ namespace HOMMS.Common.Constants
             "users:edit",
             "users:delete",
             "systemlog:view",
-            "systemlog:add"
+            "systemlog:add",
+            "Patient:view",
+            "Patient:add",
+            "Patient:edit",
+            "Patient:delete"
             // Add more as needed
         };
     }

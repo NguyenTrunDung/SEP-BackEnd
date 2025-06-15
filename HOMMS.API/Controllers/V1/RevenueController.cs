@@ -29,57 +29,63 @@ namespace HOMMS.API.Controllers.V1
 
         [HttpGet("Branch/{branchId}/Day/{date}")]
         //[Authorize(Policy = "Permission:orders:view")]
-        public async Task<IActionResult> GetRevenueByDayAsync(int branchId, DateTime date)//nhập theo kiểu YY-MM-DD
+        public async Task<ActionResult<ApiResponseBase<List<RevenueDto>>> >GetRevenueByDayAsync(int branchId, DateTime date)//nhập theo kiểu YY-MM-DD
         {
             var re = await _revenueService.GetRevenueByDayAsync(branchId, date);
             if (!re.Any())
             {
-                return NotFound(new ApiResponseBase<IEnumerable<RevenueDto>>(null, "Revenues not found", "error"));
+                return NotFound(new ApiResponseBase<List<RevenueDto>>(null, "Revenues not found", "error"));
             }
+            var ve = _mapper.Map<List<RevenueDto>>(re);
+            var count = ve.Count;
 
-            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues by day retrieved successfully"));
+            return Ok(new  ApiResponseBase<List<RevenueDto>>(ve, "Revenues by day retrieved successfully","success",count));
         }
 
 
         [HttpGet("Branch/{branchId}/Week/{date}")]
         //[Authorize(Policy = "Permission:orders:view")]
-        public async Task<IActionResult> GetRevenueByWeekAsync(int branchId, DateTime date)
+        public async Task<ActionResult<ApiResponseBase<List<RevenueDto>>>> GetRevenueByWeekAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByWeekAsync(branchId, date);
             if (!re.Any())
             {
-                return NotFound(new ApiResponseBase<IEnumerable<RevenueDto>>(null, "Revenues not found", "error"));
+                return NotFound(new ApiResponseBase<List<RevenueDto>>(null, "Revenues not found", "error"));
             }
+            var ve = _mapper.Map<List<RevenueDto>>(re);
+            var count = ve.Count;
 
-            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues by week retrieved successfully"));
+            return Ok(new ApiResponseBase<List<RevenueDto>>(ve, "Revenues by week retrieved successfully","success",count));
         }
 
 
         [HttpGet("Branch/{branchId}/Month/{date}")]
         //[Authorize(Policy = "Permission:orders:view")]
-        public async Task<IActionResult> GetRevenueByMonthAsync(int branchId, DateTime date)
+        public async Task<ActionResult<ApiResponseBase<List<RevenueDto>>>> GetRevenueByMonthAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByMonthAsync(branchId, date);
             if (!re.Any())
             {
-                return NotFound(new ApiResponseBase<IEnumerable<RevenueDto>>(null, "Revenues not found", "error"));
+                return NotFound(new ApiResponseBase<List<RevenueDto>>(null, "Revenues not found", "error"));
             }
-
-            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues by month retrieved successfully"));
+            var ve = _mapper.Map<List<RevenueDto>>(re);
+            var count = ve.Count;
+            return Ok(new ApiResponseBase<List<RevenueDto>>(ve, "Revenues by month retrieved successfully","success",count));
         }
 
 
         [HttpGet("Branch/{branchId}/Year/{date}")]
         ////[Authorize(Policy = "Permission:orders:view")]
-        public async Task<IActionResult> GetRevenueByYearAsync(int branchId, DateTime date)
+        public async Task<ActionResult<ApiResponseBase<List<RevenueDto>>>> GetRevenueByYearAsync(int branchId, DateTime date)
         {
             var re = await _revenueService.GetRevenueByYearAsync(branchId, date);
             if (!re.Any())
             {
-                return NotFound(new ApiResponseBase<IEnumerable<RevenueDto>>(null, "Revenues not found", "error"));
+                return NotFound(new ApiResponseBase<List<RevenueDto>>(null, "Revenues not found", "error"));
             }
-
-            return Ok(new ApiResponseBase<IEnumerable<RevenueDto>>(re, "Revenues by year retrieved successfully"));
+            var ve = _mapper.Map<List<RevenueDto>>(re);
+            var count = ve.Count;
+            return Ok(new ApiResponseBase<List<RevenueDto>>(ve, "Revenues by year retrieved successfully", "success", count));
         }
 
 

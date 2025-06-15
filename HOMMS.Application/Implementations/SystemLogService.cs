@@ -30,7 +30,7 @@ namespace HOMMS.Application.Implementations
             return _mapper.Map<AddSystemLogDto>(tem);
         }
 
-        public async Task<IEnumerable<SystemLogDto>> GetSystemLogAll(int branchId, DateTime dateStart, DateTime dateEnd)
+        public async Task<IEnumerable<SystemLogDto>> GetSystemLogListByBranchId(int branchId, DateTime dateStart, DateTime dateEnd)
         {
             var sys = await _systemLogRepository.GetSystemLogAll(branchId, dateStart, dateEnd);
 

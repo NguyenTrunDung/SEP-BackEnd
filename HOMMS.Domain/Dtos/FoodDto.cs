@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 
@@ -163,8 +164,7 @@ namespace HOMMS.Domain.Dtos
         public bool IsAvailable => Status == true && (Quantity == null || (Quantity > Sold));
     }
 
-
-
+ 
     public class FoodDtoV2
     {
 

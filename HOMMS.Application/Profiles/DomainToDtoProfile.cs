@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 
@@ -47,17 +47,40 @@ namespace HOMMS.Application.Profiles
 
             // Order -> OrderDto
             CreateMap<Order, OrderDto>();
+            CreateMap<Order, CreatePatientOrderDto>();
+           
+            CreateMap<CreatePatientOrderDto, Order>();
+            CreateMap<CreateOrderDetailDto, OrderDetails>();
+            CreateMap<UpdateOrderDto, Order>();
 
             // OrderDetail -> OrderDetailDto
             CreateMap<OrderDetails, OrderDetailsDto>()
                 .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Qty))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
                 .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total));
+
+
+
             // SystemLog ->  SystemLogDto
             CreateMap<SystemLog, SystemLogDto>();
             CreateMap<AddSystemLogDto, SystemLog>();
             CreateMap<SystemLog, AddSystemLogDto>()
              .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.LastModifiedAt.HasValue ? src.LastModifiedAt.Value : src.CreatedAt));
+
+
+
+            // Patient -> PatientDto
+            CreateMap<Patient, PatientDto>()
+                .ForMember(dest => dest.DiseaseCategories,
+                    opt => opt.MapFrom(src => src.PatientDiseaseCategories));
+            CreateMap<PatientDto, Patient>();
+            CreateMap<CreatePatientDto, Patient>();
+            CreateMap<UpdatePatientDto, Patient>();
+
+            CreateMap<PatientDiseaseCategory, PatientDiseaseCategoryDto>();
+
+
+
         }
     }
 } 

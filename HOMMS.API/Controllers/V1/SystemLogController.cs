@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using HOMMS.Application.Implementations;
 using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
@@ -12,9 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace HOMMS.API.Controllers.V1
 {
 
-    [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/public/SystemLog")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/[controller]")]
+    [ApiController]
     public class SystemLogController : ControllerBase
     {
 
@@ -32,17 +34,20 @@ namespace HOMMS.API.Controllers.V1
 
         [HttpGet("Branch/{branchId}")]
         //[Authorize(Policy = "Permission:systemlog:view")]
-        public async Task<IActionResult> GetSystemLog(int branchId, DateTime dateStart, DateTime dateEnd)//nhập theo kiểu YY-MM-DD
+        public async Task<ActionResult<ApiResponseBase<List<SystemLogDto>>> >GetSystemLogList([FromRoute] int branchId, [FromQuery] DateTime dateStart, [FromQuery] DateTime dateEnd)//nhập theo kiểu YY-MM-DD
         {
             try
             {
-                var re = await _systemLogService.GetSystemLogAll(branchId, dateStart, dateEnd);
+                var re = await _systemLogService.GetSystemLogListByBranchId(branchId, dateStart, dateEnd);
                 if (!re.Any())
                 {
-                    return NotFound(new ApiResponseBase<IEnumerable<SystemLogDto>>(null, "SystemLog not found", "error"));
+                    return NotFound(new ApiResponseBase<List<SystemLogDto>>(null, "SystemLog not found", "error"));
                 }
 
-                return Ok(new ApiResponseBase<IEnumerable<SystemLogDto>>(re, "SystemLog retrieved successfully"));
+                var sy = _mapper.Map<List<SystemLogDto>>(re);
+                var totalCount = sy.Count;
+
+                return Ok(new ApiResponseBase<List<SystemLogDto>>(sy, "SystemLog retrieved successfully","success" ,totalCount));
             }
             catch (Exception ex)
             {
@@ -53,7 +58,7 @@ namespace HOMMS.API.Controllers.V1
 
         [HttpPost]
         //[Authorize(Policy = "Permission:systemlog:view")]
-        public async Task<IActionResult> AddSystemLog([FromBody] AddSystemLogDto dto)
+        public async Task<IActionResult> AddSystemLog([FromForm] AddSystemLogDto dto)
         {
            var sys = await _systemLogService.AddSystemLog(dto);
             return Ok( new ApiResponseBase<AddSystemLogDto>(sys, "Log created successfully"));
