@@ -1,3 +1,4 @@
+﻿using HOMMS.Domain.Entities;
 using Asp.Versioning;
 using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
@@ -10,12 +11,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
+using HOMMS.Infrastructure.Data;
+using HOMMS.Common.Constants;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace HOMMS.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-  
+
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -168,6 +174,170 @@ namespace HOMMS.API.Controllers.V1
             return Ok("Password reset successful. You can now login with your new password.");
         }
 
+
+
+
+
+
+
+
+
+
+        //-------------------------------------------------------------//
+
+        //Login with google
+        [HttpGet("google-login")]
+        public IActionResult GoogleLogin()
+        {
+            var redirectUrl = Url.Action("GoogleResponse", "Auth");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, "Google");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("google-response")]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync("Google");
+            if (!result.Succeeded || result.Principal == null)
+                return Unauthorized("Google login failed");
+
+            var claims = result.Principal.Claims;
+            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var firstName = claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value ?? "";
+            var lastName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value ?? "";
+
+            if (string.IsNullOrEmpty(email))
+                return BadRequest("Unable to retrieve email from Google.");
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    EmailConfirmed = true
+                };
+                var createResult = await _userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                    return BadRequest("Failed to create user from Google login.");
+
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
+            if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+            }
+
+            // Lấy permission
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var allPermissions = new HashSet<string>();
+
+            if (userRoles.Contains("Admin"))
+            {
+                allPermissions = new HashSet<string>(PermissionConstants.All);
+            }
+            else
+            {
+                var userBranchRoles = await _context.BranchUserRoles
+                    .Where(bur => bur.UserId == user.Id)
+                    .Include(bur => bur.BranchRole)
+                    .ToListAsync();
+
+                foreach (var role in userBranchRoles)
+                {
+                    if (!string.IsNullOrEmpty(role.BranchRole?.Permissions))
+                    {
+                        foreach (var perm in role.BranchRole.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            allPermissions.Add(perm.Trim());
+                        }
+                    }
+                }
+            }
+
+            // Tạo access token
+            var accessToken = await _authService.GenerateAccessTokenAsync(user);
+            var refreshToken = _authService.GenerateRefreshToken();
+
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "60");
+            var refreshExpiryInDays = int.Parse(jwtSettings["RefreshExpiryInDays"] ?? "7");
+
+            var tokenExpiryTime = DateTime.UtcNow.AddMinutes(expiryInMinutes);
+            var refreshTokenExpiryTime = DateTime.UtcNow.AddDays(refreshExpiryInDays);
+
+            // Cập nhật refresh token
+            await _authService.UpdateUserRefreshTokenAsync(user, refreshToken, refreshTokenExpiryTime);
+
+            // Xây dựng response giống login thường
+            var loginResponse = await _authService.BuildLoginResponseAsync(
+                user, accessToken, refreshToken, tokenExpiryTime, refreshTokenExpiryTime);
+
+            return Ok(ApiResponseBase<LoginResponseDto>.Success(loginResponse, "Login with Google successful"));
+        }
+
+
+        //edit profile
+        [Authorize]
+        [HttpPost("edit-profile")]
+        public async Task<IActionResult> EditProfile([FromBody] EditProfileModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return NotFound("User not found.");
+
+            if (!string.IsNullOrEmpty(model.FirstName))
+                user.FirstName = model.FirstName;
+
+            if (!string.IsNullOrEmpty(model.LastName))
+                user.LastName = model.LastName;
+
+            if (!string.IsNullOrEmpty(model.Address))
+                user.Address = model.Address;
+
+            if (!string.IsNullOrEmpty(model.PhoneNumber))
+                user.PhoneNumber = model.PhoneNumber;
+
+            if (!string.IsNullOrEmpty(model.ProfilePictureUrl))
+                user.ProfilePictureUrl = model.ProfilePictureUrl;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("Profile updated successfully.");
+        }
+
+        public class EditProfileModel
+        {
+            public string? FirstName { get; set; }
+            public string? LastName { get; set; }
+            public string? Address { get; set; }
+            public string? PhoneNumber { get; set; }
+            public string? ProfilePictureUrl { get; set; }
+        }
+
+        //-------------------------------------------------//
+
+
+
+
+
+
+
+
+
+
+
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
@@ -190,6 +360,15 @@ namespace HOMMS.API.Controllers.V1
                 ProfilePictureUrl = user.ProfilePictureUrl // Nullable, no fix needed
             });
         }
+
+
+     
+
+
+
+
+
+
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult<ApiResponseBase<RefreshTokenResponseDto>>> RefreshToken([FromBody] RefreshTokenRequestDto model)
