@@ -90,13 +90,25 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpPost]
-       // [Authorize(Policy = "Permission:orders:add")]
+        // [Authorize(Policy = "Permission:orders:add")]
         public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddDishesforPatient([FromBody] CreatePatientOrderDto dto)
         {
             var or = await _orderService.AddPatientOrderAsync(dto);
             return Ok(new ApiResponseBase<OrderDto>(or, "Add dishes for patient successfully "));
 
         }
+
+
+        [HttpPost]
+        // [Authorize(Policy = "Permission:orders:add")]
+        public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddOrder([FromBody] OrderDto dto)
+        {
+            var or = await _orderService.AddAsync(dto);
+            return Ok(new ApiResponseBase<OrderDto>(or, "Add order successfully "));
+
+        }
+
+
 
         [HttpPut]
        // [Authorize(Policy = "Permission:orders:edit")]

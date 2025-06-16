@@ -35,7 +35,7 @@ namespace HOMMS.Application.Interfaces
 
         
         Task<OrderDto> AddPatientOrderAsync(CreatePatientOrderDto entity);
-
+        Task<OrderDto> AddAsync(OrderDto entity);
 
         Task<OrderDto> UpdateAsync(int id, UpdateOrderDto entity);
         Task<bool> DeleteAsync(int id);

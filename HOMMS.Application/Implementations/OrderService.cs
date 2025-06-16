@@ -118,13 +118,13 @@ namespace HOMMS.Application.Implementations
 
 
 
-        //public async Task<OrderDto> AddAsync(OrderDto entity)
-        //{
-        //    var or = _mapper.Map<Order>(entity);
-        //          or.IsPatientOrder = false;
-        //    var der = await _orderRepository.AddAsync(or);
-        //    return _mapper.Map<OrderDto>(der);
-        //}
+        public async Task<OrderDto> AddAsync(OrderDto entity)
+        {
+            var or = _mapper.Map<Order>(entity);
+           
+            var der = await _orderRepository.AddAsync(or);
+            return _mapper.Map<OrderDto>(der);
+        }
 
 
 
