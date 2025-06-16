@@ -57,7 +57,46 @@ namespace HOMMS.Domain.Dtos
             ? $"Phòng {PatientRoomNumber}" + (!string.IsNullOrEmpty(PatientBedNumber) ? $" - Giường {PatientBedNumber}" : "")
             : CustomerAddress ?? "";
     }
-    
+
+    /// <summary>
+    /// DTO for update patient orders
+    /// </summary>
+    public class UpdateOrderDto
+    {
+      
+        public bool IsPatientOrder { get; set; }
+
+        public DateTime OrderDate { get; set; }
+        public DateTime? ReceiveDate { get; set; }
+        public string? ReceiveTime { get; set; }
+        public string? ReceiveType { get; set; }
+        public string? Type { get; set; }
+        public string? Status { get; set; }
+
+        // Customer information
+        public string? CustomerName { get; set; }
+        public string? CustomerPhone { get; set; }
+        public string? CustomerAddress { get; set; }
+
+        // Pricing
+        public int? Total { get; set; }
+        public int? ShippingFee { get; set; }
+        public int? FoodToolFee { get; set; }
+        public OrderPaymentMethod PaymentMethod { get; set; }
+        public bool IsPaid { get; set; }
+        public long? WalletAmountUsed { get; set; }
+
+        public string? Code { get; set; }
+        public string? Note { get; set; }
+
+     
+      
+        
+
+    }
+
+
+
     /// <summary>
     /// DTO for creating patient orders
     /// </summary>

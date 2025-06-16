@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
+using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Repositories.Implementations;
 using HOMMS.Infrastructure.Repositories.Interfaces;
+using Microsoft.Graph.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +18,14 @@ namespace HOMMS.Application.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
+        private readonly IPatientRepository _patientRepository;
 
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderRepository orderRepository)
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderRepository orderRepository, IPatientRepository patientRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _orderRepository = orderRepository;
+            _patientRepository = patientRepository;
         }
 
         public async Task<IEnumerable<OrderDto>> GetOrderListByChefAsync(int branchId)
@@ -112,5 +116,41 @@ namespace HOMMS.Application.Implementations
             }).ToList();
         }
 
+
+
+        public async Task<OrderDto> AddAsync(OrderDto entity)
+        {
+            var or = _mapper.Map<Order>(entity);
+           
+            var der = await _orderRepository.AddAsync(or);
+            return _mapper.Map<OrderDto>(der);
+        }
+
+
+
+        public async Task<OrderDto> AddPatientOrderAsync(CreatePatientOrderDto entity)
+        {
+            var or = _mapper.Map<Order>(entity);
+            var pa = await _patientRepository.GetByIdAsync(entity.PatientId);
+            var saved = await _orderRepository.AddAsync(or);        
+            return _mapper.Map<OrderDto>(or);
+        }
+
+        public async Task<OrderDto> UpdateAsync(int id, UpdateOrderDto entity)
+        {
+            var or = await _orderRepository.GetByIdAsync(id);
+            if (or == null) return null;
+            _mapper.Map(entity, or);
+            await _orderRepository.UpdateAsync(or);
+            return _mapper.Map<OrderDto>(or);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var or = await _orderRepository.GetByIdAsync(id);
+            if (or == null) return false;
+            await _orderRepository.DeleteAsync(or);
+            return true;
+        }
     }
 }

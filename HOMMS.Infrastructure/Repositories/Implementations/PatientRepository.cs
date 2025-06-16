@@ -1,5 +1,7 @@
 ﻿using HOMMS.Domain.Entities;
+using HOMMS.Infrastructure.Data;
 using HOMMS.Infrastructure.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,116 +11,138 @@ using System.Threading.Tasks;
 
 namespace HOMMS.Infrastructure.Repositories.Implementations
 {
-    public class PatientRepository : IPatientRepository
+    public class PatientRepository : Repository<Patient, string>, IPatientRepository
     {
-        public Task<Patient> AddAsync(Patient entity)
+
+        private readonly ApplicationDbContext _context;
+
+        public PatientRepository(ApplicationDbContext context) : base(context)
         {
-            throw new NotImplementedException();
+
+            _context = context;
         }
 
-        public Task<bool> AnyAsync(Expression<Func<Patient, bool>> predicate)
+
+        public async Task<IEnumerable<Patient>> GetPatientsByBranchAsync(int branchId)
         {
-            throw new NotImplementedException();
+            return await DbSet
+                .Where(p => p.BranchId == branchId)
+                .OrderByDescending(p => p.AdmissionDate)
+                .ToListAsync();
         }
 
-        public Task<int> BulkUpdateLastSyncAsync(IEnumerable<string> patientIds, DateTime syncTime)
+        public async Task<IEnumerable<Patient>> GetActivePatientsByBranchAsync(int branchId)
         {
-            throw new NotImplementedException();
+            return await DbSet
+                .Where(p => p.BranchId == branchId && p.IsActive)
+                .OrderByDescending(p => p.AdmissionDate)
+                .ToListAsync();
+
         }
 
-        public Task<int> CountAsync()
+
+        public async Task<Patient?> GetPatientByExternalIdAsync(string externalSystemId)
         {
-            throw new NotImplementedException();
+            return await DbSet
+              .Where(p => p.ExternalSystemId == externalSystemId)
+              .FirstOrDefaultAsync();
         }
 
-        public Task<bool> DeleteAsync(string id)
+        public async Task<Patient?> GetPatientByMedicalRecordNumberAsync(int branchId, string medicalRecordNumber)
         {
-            throw new NotImplementedException();
+            return await DbSet
+                .Where(p => p.BranchId == branchId && p.MedicalRecordNumber == medicalRecordNumber)
+                .FirstOrDefaultAsync();
+
         }
 
-        public Task<bool> DeleteAsync(Patient entity)
+        public async Task<IEnumerable<Patient>> GetPatientsByPhysicianAsync(int branchId, string physicianName)
         {
-            throw new NotImplementedException();
+            return await DbSet
+               .Where(p => p.BranchId == branchId && p.AttendingPhysician == physicianName)
+               .OrderByDescending(p => p.IsActive)
+               .ThenByDescending(p => p.AdmissionDate)
+               .ToListAsync();
         }
 
-        public Task<IEnumerable<Patient>> GetActivePatientsByBranchAsync(int branchId)
+        public async Task<IEnumerable<Patient>> GetPatientsByRoomAsync(int branchId, string roomNumber)
         {
-            throw new NotImplementedException();
+            return await DbSet
+                .Where(p => p.BranchId == branchId && p.RoomNumber == roomNumber)
+                .OrderByDescending(p => p.IsActive)
+                .ThenByDescending(p => p.RoomNumber)
+                .ToListAsync();
         }
 
-        public Task<IEnumerable<Patient>> GetAllAsync()
+        public async Task<IEnumerable<Patient>> GetPatientsNeedingSyncAsync(int branchId, DateTime lastSyncThreshold)
         {
-            throw new NotImplementedException();
+            return await DbSet
+                .Where(p => p.BranchId == branchId && p.LastSyncAt.Value.Date == lastSyncThreshold.Date)
+                .OrderByDescending(p => p.IsActive)
+                .ThenByDescending(p => p.LastSyncAt)
+                .ToListAsync();
         }
 
-        public Task<IEnumerable<Patient>> GetByAsync(Expression<Func<Patient, bool>> predicate)
+        public async Task<IEnumerable<Patient>> GetPatientsRequiringDietarySupervisionAsync(int branchId)
         {
-            throw new NotImplementedException();
+            return await DbSet
+               .Where(p => p.BranchId == branchId && p.RequiresDietarySupervision)
+               .OrderByDescending(p => p.IsActive)
+               .ThenByDescending(p => p.AdmissionDate)
+               .ToListAsync();
         }
 
-        public Task<Patient> GetByIdAsync(string id)
+        public async Task<IEnumerable<Patient>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId)
         {
-            throw new NotImplementedException();
+            return await DbSet
+               .Include(c => c.PatientDiseaseCategories)
+               .ThenInclude(c => c.DiseaseCategory)
+               .Where(p => p.BranchId == branchId)
+               .OrderByDescending(p => p.IsActive)
+               .ThenByDescending(p => p.AdmissionDate)
+               .ToListAsync();
         }
 
-        public Task<Patient?> GetPatientByExternalIdAsync(string externalSystemId)
+        public async Task<Patient?> GetPatientWithDiseaseCategoriesAsync(string patientId)
         {
-            throw new NotImplementedException();
+            return await DbSet
+               .Include(c => c.PatientDiseaseCategories)
+               .ThenInclude(c => c.DiseaseCategory)
+               .Where(c => c.Id == patientId)
+               .FirstOrDefaultAsync();
         }
 
-        public Task<Patient?> GetPatientByMedicalRecordNumberAsync(int branchId, string medicalRecordNumber)
+        public async Task<IEnumerable<Patient>> GetRecentlyDischargedPatientsAsync(int branchId, DateTime fromDate)
         {
-            throw new NotImplementedException();
+            return await DbSet
+                .Where(p => p.BranchId == branchId && p.DischargeDate.Value.Date == fromDate.Date)
+                .OrderByDescending(p => p.DischargeDate)
+                .ToListAsync();
         }
 
-        public Task<IEnumerable<Patient>> GetPatientsByBranchAsync(int branchId)
+        public async Task<IEnumerable<Patient>> SearchPatientsAsync(int branchId, string searchTerm)
         {
-            throw new NotImplementedException();
+            return await DbSet
+                .Where(p => p.BranchId == branchId && (p.FullName.Contains(searchTerm) || p.Id.Contains(searchTerm) || p.MedicalRecordNumber.Contains(searchTerm)))
+                .ToListAsync();
         }
 
-        public Task<IEnumerable<Patient>> GetPatientsByPhysicianAsync(int branchId, string physicianName)
+
+        public async Task<int> BulkUpdateLastSyncAsync(IEnumerable<string> patientIds, DateTime syncTime)
         {
-            throw new NotImplementedException();
+            var patients = await DbSet
+                        .Where(p => patientIds.Contains(p.Id))
+                        .ToListAsync();
+
+            foreach (var patient in patients)
+            {
+                patient.LastSyncAt = syncTime;
+            }
+
+            return await _context.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<Patient>> GetPatientsByRoomAsync(int branchId, string roomNumber)
-        {
-            throw new NotImplementedException();
-        }
+         
 
-        public Task<IEnumerable<Patient>> GetPatientsNeedingSyncAsync(int branchId, DateTime lastSyncThreshold)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Patient>> GetPatientsRequiringDietarySupervisionAsync(int branchId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Patient>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Patient?> GetPatientWithDiseaseCategoriesAsync(string patientId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Patient>> GetRecentlyDischargedPatientsAsync(int branchId, DateTime fromDate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Patient>> SearchPatientsAsync(int branchId, string searchTerm)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Patient> UpdateAsync(Patient entity)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

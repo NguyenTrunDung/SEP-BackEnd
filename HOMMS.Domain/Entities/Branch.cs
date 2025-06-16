@@ -89,6 +89,12 @@ namespace HOMMS.Domain.Entities
         /// Gets or sets the navigation property for branch roles
         /// </summary>
         public virtual ICollection<BranchRole> BranchRoles { get; set; } = new HashSet<BranchRole>();
+
+
+
+
+        public virtual ICollection<SystemLog> SystemLogs { get; set; } = new HashSet<SystemLog>();
+
         
         /// <summary>
         /// Gets or sets the navigation property for disease categories belonging to this branch
@@ -99,5 +105,6 @@ namespace HOMMS.Domain.Entities
         /// Gets or sets the navigation property for patients belonging to this branch
         /// </summary>
         public virtual ICollection<Patient> Patients { get; set; } = new HashSet<Patient>();
+
     }
 } 

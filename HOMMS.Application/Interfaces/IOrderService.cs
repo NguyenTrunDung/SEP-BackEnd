@@ -33,5 +33,12 @@ namespace HOMMS.Application.Interfaces
         Task<IEnumerable<OrderDto>> GetOrderListByChefAsync(int branchId);
         Task<bool> UpdateOrderStatusByChefAsync(int orderId);
 
+        
+        Task<OrderDto> AddPatientOrderAsync(CreatePatientOrderDto entity);
+        Task<OrderDto> AddAsync(OrderDto entity);
+
+        Task<OrderDto> UpdateAsync(int id, UpdateOrderDto entity);
+        Task<bool> DeleteAsync(int id);
+
     }
 }

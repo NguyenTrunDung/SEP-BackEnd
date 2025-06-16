@@ -43,7 +43,7 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<BranchUserRole> BranchUserRoles { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
-
+        public DbSet<SystemLog> SystemLogs { get; set; }
         public DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
         
         // Disease Category Management DbSets
@@ -147,6 +147,9 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new OrdersConfiguration());
             builder.ApplyConfiguration(new OrderDetailsConfiguration());
             builder.ApplyConfiguration(new UserWalletTransactionConfiguration());
+
+            builder.ApplyConfiguration(new SystemLogsConfigurations());
+
             
             // Disease Category configurations
             builder.ApplyConfiguration(new DiseaseCategoryConfiguration());
@@ -159,6 +162,7 @@ namespace HOMMS.Infrastructure.Data
             // Area and Location configurations
             builder.ApplyConfiguration(new AreaConfiguration());
             builder.ApplyConfiguration(new LocationConfiguration());
+
         }
 
         private void CustomizeIdentityModel(ModelBuilder builder)

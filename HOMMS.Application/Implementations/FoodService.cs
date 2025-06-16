@@ -84,5 +84,32 @@ namespace HOMMS.Application.Implementations
             var foods = await _foodRepository.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, date);
             return _mapper.Map<IEnumerable<FoodDto>>(foods);
         }
+
+
+        //////////////////////
+        public async Task<FoodDtoV2> CreateAsyncV2(FoodDtoV2 dto)
+        {
+            var food = _mapper.Map<Food>(dto);
+            var created = await _foodRepository.AddAsync(food);
+            return _mapper.Map<FoodDtoV2>(created); throw new NotImplementedException();
+        }
+
+        public async Task<FoodDtoV2_3> UpdateAsyncV2(int id, FoodDtoV2_3 dto)
+        {
+            var food = await _foodRepository.GetByIdAsync(id);
+            if (food == null) return null;
+            _mapper.Map(dto, food);
+            await _foodRepository.UpdateAsync(food);
+            return _mapper.Map<FoodDtoV2_3>(food);
+        }
+
+        public async Task<FoodDtoV2> GetByIdAsyncV2(int id)
+        {
+
+            var food = await _foodRepository.GetFoodWithCategoryAsync(id);
+            return _mapper.Map<FoodDtoV2>(food);
+        }
+
+        
     }
-} 
+}

@@ -1,5 +1,7 @@
+
 using Asp.Versioning;
 using AutoMapper;
+
 using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
@@ -54,8 +56,8 @@ namespace HOMMS.API.Controllers.V1
         [Authorize(Policy = "Permission:foods:add")]
         public async Task<ActionResult<ApiResponseBase<FoodDto>>> CreateFood([FromBody] FoodDto dto)
         {
-            var created = await _foodService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetFood), new { id = created.Id }, new ApiResponseBase<FoodDto>(created, "Food created successfully"));
+                var created = await _foodService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetFood), new { id = created.Id }, new ApiResponseBase<FoodDto>(created, "Food created successfully"));
         }
 
         [HttpPut("{id}")]
@@ -78,4 +80,4 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<object>(null, "Food deleted successfully"));
         }
     }
-} 
+}
