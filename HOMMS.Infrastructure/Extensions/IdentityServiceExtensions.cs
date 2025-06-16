@@ -69,9 +69,15 @@ namespace HOMMS.Infrastructure.Extensions
             // Configure Authorization Policies
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
-                options.AddPolicy("RequireManagerRole", policy => policy.RequireRole("Manager"));
-                options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User"));
+                options.AddPolicy("RequireSystemAdminRole", policy => policy.RequireRole("SystemAdmin"));
+                options.AddPolicy("RequireStaffRole", policy => policy.RequireRole("Staff"));
+                options.AddPolicy("RequirePatientRole", policy => policy.RequireRole("Patient"));
+                options.AddPolicy("RequireGuestRole", policy => policy.RequireRole("Guest"));
+                
+                // Combined policies for flexibility
+                options.AddPolicy("RequireStaffOrAdmin", policy => policy.RequireRole("Staff", "SystemAdmin"));
+                options.AddPolicy("RequireAnyUser", policy => policy.RequireRole("SystemAdmin", "Staff", "Patient", "Guest"));
+                
                 // Add more policies as needed
             });
 

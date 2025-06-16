@@ -5,15 +5,19 @@ using HOMMS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HOMMS.Application.BaseServices;
 
 namespace HOMMS.Application.Implementations
 {
-    public class FoodService : IFoodService
+ 
+
+    public class FoodService : BaseService, IFoodService
     {
         private readonly IFoodRepository _foodRepository;
         private readonly IMapper _mapper;
 
-        public FoodService(IFoodRepository foodRepository, IMapper mapper)
+        public FoodService(IFoodRepository foodRepository, IMapper mapper, IBranchContext branchContext)
+            : base(branchContext)
         {
             _foodRepository = foodRepository;
             _mapper = mapper;
@@ -33,6 +37,7 @@ namespace HOMMS.Application.Implementations
 
         public async Task<FoodDto> CreateAsync(FoodDto dto)
         {
+            dto.BranchId = EnsureBranchId(dto.BranchId);
             var food = _mapper.Map<Food>(dto);
             var created = await _foodRepository.AddAsync(food);
             return _mapper.Map<FoodDto>(created);
@@ -40,6 +45,7 @@ namespace HOMMS.Application.Implementations
 
         public async Task<FoodDto> UpdateAsync(int id, FoodDto dto)
         {
+            dto.BranchId = EnsureBranchId(dto.BranchId);
             var food = await _foodRepository.GetByIdAsync(id);
             if (food == null) return null;
             _mapper.Map(dto, food);
@@ -61,19 +67,19 @@ namespace HOMMS.Application.Implementations
             return _mapper.Map<IEnumerable<FoodDto>>(foods);
         }
 
-        public async Task<IEnumerable<FoodDto>> GetFoodsByBranchAndDateAsync(int branchId, DateTime date)
+        public async Task<IEnumerable<FoodDto>> GetFoodsByBranchAndDateAsync(int branchId, System.DateTime date)
         {
             var foods = await _foodRepository.GetFoodsByBranchAndDateAsync(branchId, date);
             return _mapper.Map<IEnumerable<FoodDto>>(foods);
         }
 
-        public async Task<IEnumerable<FoodCategoryDto>> GetCategoriesByBranchAndDateAsync(int branchId, DateTime date)
+        public async Task<IEnumerable<FoodCategoryDto>> GetCategoriesByBranchAndDateAsync(int branchId, System.DateTime date)
         {
             var categories = await _foodRepository.GetCategoriesByBranchAndDateAsync(branchId, date);
             return _mapper.Map<IEnumerable<FoodCategoryDto>>(categories);
         }
 
-        public async Task<IEnumerable<FoodDto>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date)
+        public async Task<IEnumerable<FoodDto>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, System.DateTime date)
         {
             var foods = await _foodRepository.GetFoodsByBranchCategoryAndDateAsync(branchId, categoryId, date);
             return _mapper.Map<IEnumerable<FoodDto>>(foods);

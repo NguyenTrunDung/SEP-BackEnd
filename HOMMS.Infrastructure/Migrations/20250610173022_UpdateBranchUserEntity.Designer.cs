@@ -4,6 +4,7 @@ using HOMMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HOMMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610173022_UpdateBranchUserEntity")]
+    partial class UpdateBranchUserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1484,52 +1487,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("PatientDiseaseCategories", (string)null);
                 });
 
-            modelBuilder.Entity("HOMMS.Domain.Entities.SystemLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
-
-                    b.ToTable("SystemLogs", (string)null);
-                });
-
             modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
                 {
                     b.Property<int>("Id")
@@ -2012,17 +1969,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("HOMMS.Domain.Entities.SystemLog", b =>
-                {
-                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
-                        .WithMany("SystemLogs")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-                });
-
             modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -2129,8 +2075,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Menus");
 
                     b.Navigation("Patients");
-
-                    b.Navigation("SystemLogs");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.BranchRole", b =>

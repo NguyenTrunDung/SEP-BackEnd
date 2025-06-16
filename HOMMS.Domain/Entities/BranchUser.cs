@@ -5,7 +5,7 @@ namespace HOMMS.Domain.Entities
     /// <summary>
     /// Junction entity to manage many-to-many relationship between branches and users
     /// </summary>
-    public class BranchUser : BaseEntity<int>
+    public class BranchUser : BaseAuditableEntity<int>
     {
         /// <summary>
         /// Gets or sets the branch ID

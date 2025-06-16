@@ -96,6 +96,11 @@ namespace HOMMS.Domain.Dtos
         /// Gets or sets the sort order for this food
         /// </summary>
         public int? Sort { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the branch ID this food belongs to
+        /// </summary>
+        public int BranchId { get; set; }
     }
 
     /// <summary>

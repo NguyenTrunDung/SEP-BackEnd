@@ -64,7 +64,7 @@ namespace HOMMS.Infrastructure.Configurations
             builder.HasOne(o => o.BranchUser)
                    .WithMany()
                    .HasForeignKey(o => o.BranchUserId)
-                   .OnDelete(DeleteBehavior.SetNull);
+                   .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(o => o.User)
                    .WithMany(u => u.Orders)
