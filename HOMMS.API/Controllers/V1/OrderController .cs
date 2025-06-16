@@ -90,7 +90,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpPost("AddDishesforPatient")]
-        // [Authorize(Policy = "Permission:orders:add")]
+        [Authorize(Policy = "Permission:orders:add")]
         public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddDishesforPatient([FromBody] CreatePatientOrderDto dto)
         {
             var or = await _orderService.AddPatientOrderAsync(dto);
@@ -100,7 +100,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpPost("AddOrder")]
-        // [Authorize(Policy = "Permission:orders:add")]
+        [Authorize(Policy = "Permission:orders:add")]
         public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddOrder([FromBody] OrderDto dto)
         {
             var or = await _orderService.AddAsync(dto);
@@ -111,7 +111,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpPut]
-       // [Authorize(Policy = "Permission:orders:edit")]
+        [Authorize(Policy = "Permission:orders:edit")]
        public async Task<ActionResult<ApiResponseBase<OrderDto>>>UpdateOrder(int id, [FromBody] UpdateOrderDto dto)
         {
             var or = await _orderService.UpdateAsync(id, dto);
@@ -122,7 +122,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpDelete]
-        // [Authorize(Policy = "Permission:orders:delete")]
+        [Authorize(Policy = "Permission:orders:delete")]
         public async Task<ActionResult<ApiResponseBase<object>>>DeleteOrder(int id)
         {
             var or = await _orderService.DeleteAsync(id);
