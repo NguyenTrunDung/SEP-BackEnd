@@ -103,6 +103,8 @@ builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
 builder.Services.AddScoped<ISystemLogRepository, SystemLogRepository>();
 
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IAreaRepository, AreaRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 
 
 
@@ -199,6 +201,8 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAreaService, AreaService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 
 
