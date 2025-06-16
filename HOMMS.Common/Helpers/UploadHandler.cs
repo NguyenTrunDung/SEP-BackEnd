@@ -18,29 +18,18 @@ namespace HOMMS.Common.Helpers
         {
 
             //check file type
-
             string extention = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!validExtentions.Contains(extention)) return $"Extention is not valid ({string.Join(", ", validExtentions)})";
-
-
-
             //check file size
             if (file.Length > size) return "Maximum file size is 50MB";
-
-
             string fileName = Guid.NewGuid().ToString() + extention;
             string path = Path.Combine(Directory.GetCurrentDirectory(), "UploadImg");
-
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-
             using FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create);
-
             file.CopyToAsync(stream);
-
-
             return fileName;
-}
+        }
 
 
     }

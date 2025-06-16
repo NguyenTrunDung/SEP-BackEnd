@@ -89,7 +89,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
 
-        [HttpPost]
+        [HttpPost("AddDishesforPatient")]
         // [Authorize(Policy = "Permission:orders:add")]
         public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddDishesforPatient([FromBody] CreatePatientOrderDto dto)
         {
@@ -99,7 +99,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
 
-        [HttpPost]
+        [HttpPost("AddOrder")]
         // [Authorize(Policy = "Permission:orders:add")]
         public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddOrder([FromBody] OrderDto dto)
         {
