@@ -14,6 +14,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
 
+using Microsoft.AspNetCore.Authorization;
+using HOMMS.Application.Implementations;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Asp.Versioning;
+using Asp.Versioning.Conventions;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
@@ -97,6 +105,9 @@ builder.Services.AddScoped<ISystemLogRepository, SystemLogRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
 
+
+builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>();
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
@@ -190,6 +201,10 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 
+
+builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
+
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created
 // builder.Services.AddScoped<IDiseaseCategoryService, DiseaseCategoryService>();
@@ -228,6 +243,30 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+
+
+
+
+
+// Configure Google Login//
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CallbackPath = "/google-response";
+});
+
+
+
+
+
 
 var app = builder.Build();
 
