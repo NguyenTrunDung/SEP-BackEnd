@@ -190,6 +190,8 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 
+builder.Services.AddScoped<IEmailVerifyService, EmailVerifyService>();
+
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created
 // builder.Services.AddScoped<IDiseaseCategoryService, DiseaseCategoryService>();

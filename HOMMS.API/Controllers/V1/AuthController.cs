@@ -7,8 +7,10 @@ using HOMMS.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Graph.Models;
 using System.Threading.Tasks;
 
 namespace HOMMS.API.Controllers.V1
@@ -25,6 +27,7 @@ namespace HOMMS.API.Controllers.V1
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
         private readonly IAuthService _authService;
+        private readonly IEmailVerifyService _emailVerifyService;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
@@ -32,7 +35,7 @@ namespace HOMMS.API.Controllers.V1
             RoleManager<ApplicationRole> roleManager,
             IConfiguration configuration,
             ApplicationDbContext context,
-            IAuthService authService)
+            IAuthService authService,IEmailVerifyService emailVerifyService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -40,6 +43,7 @@ namespace HOMMS.API.Controllers.V1
             _configuration = configuration;
             _context = context;
             _authService = authService;
+            _emailVerifyService = emailVerifyService;
         }
 
         [HttpPost("register")]
@@ -67,6 +71,15 @@ namespace HOMMS.API.Controllers.V1
 
             // Generate email confirmation token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+             
+            //Send Email
+            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Auth", new { token, email = user.Email }, Request.Scheme);
+            var message = new MessageDto(  user.Email , "Confirmation email link", $"<h2>Xác nhận tài khoản</h2><p>Nhấn vào link dưới đây để xác nhận:</p><a href='{confirmationLink}'>Xác nhận email</a>");
+
+            await _emailVerifyService.SendEmailAsync(message);
+
+
 
             // In a real application, send email with confirmation link
             // For demo purposes, we'll just return the token
@@ -112,8 +125,8 @@ namespace HOMMS.API.Controllers.V1
             return Ok(ApiResponseBase<LoginResponseDto>.Success(loginResponse, "Login successful"));
         }
 
-        [HttpPost("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailModel model)
+        [HttpGet("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
