@@ -81,6 +81,16 @@ namespace HOMMS.Application.Profiles
 
 
 
+            // Area mappings
+            CreateMap<Area, AreaDto>();
+            CreateMap<CreateAreaDto, Area>();
+            CreateMap<UpdateAreaDto, Area>();
+
+            // Location mappings
+            CreateMap<Location, LocationDto>();
+            CreateMap<CreateLocationDto, Location>();
+            CreateMap<UpdateLocationDto, Location>();
+
         }
     }
 } 

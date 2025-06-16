@@ -198,6 +198,29 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation("Patient disease categories already exist. Skipping patient disease category seeding.");
                 }
 
+                // Seed Areas if none exist
+                if (!await context.Areas.AnyAsync())
+                {
+                    logger.LogInformation("Seeding areas...");
+                    await AreaSeedData.AreaSeedDataAsync(services);
+                    logger.LogInformation("Areas seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Areas already exist. Skipping area seeding.");
+                }
+                //Seed Locations if none exist
+                if (!await context.Locations.AnyAsync())
+                {
+                    logger.LogInformation("Seeding locations...");
+                    await LocationSeedData.LocationSeedDataAsync(services);
+                    logger.LogInformation("Locations seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Locations already exist. Skipping location seeding.");
+                }
+
                 // Add other seed methods here if needed
                 // logger.LogInformation("Seeding additional data...");
                 // await ProductSeedData.SeedAsync(context);

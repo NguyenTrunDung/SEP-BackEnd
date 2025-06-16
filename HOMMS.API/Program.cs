@@ -14,6 +14,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
 
+using Microsoft.AspNetCore.Authorization;
+using HOMMS.Application.Implementations;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Asp.Versioning;
+using Asp.Versioning.Conventions;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
@@ -95,14 +103,19 @@ builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
 builder.Services.AddScoped<ISystemLogRepository, SystemLogRepository>();
 
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IAreaRepository, AreaRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 
 
+
+builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>();
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
 // Register custom permission authorization handler
-builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 // Register permission policies (add more as needed)
 builder.Services.AddAuthorization(options =>
@@ -188,9 +201,17 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAreaService, AreaService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+
+
 
 
 builder.Services.AddScoped<IEmailVerifyService, EmailVerifyService>();
+
+builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
+
 
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created
@@ -230,6 +251,30 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+
+
+
+
+
+// Configure Google Login//
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CallbackPath = "/google-response";
+});
+
+
+
+
+
 
 var app = builder.Build();
 
@@ -316,10 +361,35 @@ public class PermissionRequirement : IAuthorizationRequirement
 
 public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
 {
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    private readonly IAuthService _authService;
+    private readonly IBranchContext _branchContext;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public PermissionHandler(IAuthService authService, IBranchContext branchContext, IHttpContextAccessor httpContextAccessor)
     {
-        if (context.User.HasClaim("permission", requirement.Permission))
+        _authService = authService;
+        _branchContext = branchContext;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null || !context.User.Identity?.IsAuthenticated == true)
+            return;
+
+        var userId = context.User.FindFirst("UserId")?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return;
+
+        // Get current branchId from branch context
+        int branchId = _branchContext.GetCurrentBranchId();
+
+        // Get permissions for this user and branch
+        var permissions = await _authService.GetUserBranchPermissionsAsync(userId, branchId);
+        if (permissions.Contains(requirement.Permission))
+        {
             context.Succeed(requirement);
-        return Task.CompletedTask;
+        }
     }
 }
