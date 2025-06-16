@@ -227,7 +227,7 @@ namespace HOMMS.API.Controllers.V1
                 if (!createResult.Succeeded)
                     return BadRequest("Failed to create user from Google login.");
 
-                await _userManager.AddToRoleAsync(user, "User");
+                await _userManager.AddToRoleAsync(user, "Customer");
             }
 
             if (!user.EmailConfirmed)
@@ -240,7 +240,7 @@ namespace HOMMS.API.Controllers.V1
             var userRoles = await _userManager.GetRolesAsync(user);
             var allPermissions = new HashSet<string>();
 
-            if (userRoles.Contains("Admin"))
+            if (userRoles.Contains("Manager"))
             {
                 allPermissions = new HashSet<string>(PermissionConstants.All);
             }
