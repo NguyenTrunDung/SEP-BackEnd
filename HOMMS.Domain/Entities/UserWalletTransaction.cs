@@ -69,5 +69,7 @@ namespace HOMMS.Domain.Entities
         /// Gets or sets the order navigation property (if applicable)
         /// </summary>
         public virtual Order? Order { get; set; }
+        public bool IsDeleted { get; set; } = false; 
+
     }
 } 
