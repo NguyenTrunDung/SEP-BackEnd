@@ -333,6 +333,114 @@
       ]
     },
     {
+      "name": "SystemAdmin Debug & Fix",
+      "item": [
+        {
+          "name": "Debug User Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/systemadminseed/debug-user-roles?email=admin@homms.com",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "systemadminseed", "debug-user-roles"],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "admin@homms.com"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Force Assign SystemAdmin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/systemadminseed/force-assign-system-admin?email=admin@homms.com",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "systemadminseed",
+                "force-assign-system-admin"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "admin@homms.com"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Debug Current User (Authenticated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/systemadminseed/debug-current-user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "systemadminseed", "debug-current-user"]
+            }
+          }
+        },
+        {
+          "name": "Reseed Admin User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/systemadminseed/reseed-admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "systemadminseed", "reseed-admin"]
+            }
+          }
+        },
+        {
+          "name": "Rebuild Identity System",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/systemadminseed/rebuild-identity",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "systemadminseed", "rebuild-identity"]
+            }
+          }
+        },
+        {
+          "name": "Test Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@homms.com\",\n  \"password\": \"Admin@123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/systemadminseed/test-admin-login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "systemadminseed", "test-admin-login"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Foods",
       "item": [
         {
