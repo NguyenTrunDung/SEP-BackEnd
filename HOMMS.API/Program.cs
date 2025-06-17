@@ -327,7 +327,8 @@ try
     Log.Information("Starting web host");
 
     // Seed the database
-    await app.SeedDatabaseAsync();
+    // Commented out to avoid seeding in production, running api seeding for the first time
+    //await app.SeedDatabaseAsync();
 
     // Print listening URLs to the terminal and log with Serilog
     var addresses = app.Urls;

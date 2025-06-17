@@ -73,8 +73,6 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation($"Branch user roles already exist for branchId {branchId}. Skipping branch user role seeding.");
                 }
 
-
-
                 // Seed Food Categories if none exist
                 if (!await context.FoodCategories.AnyAsync())
                 {
@@ -123,7 +121,6 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation("Menus detail already exist. Skipping menu seeding.");
                 }
 
-
                 ///Seed System Log if none exist
                 if (!await context.SystemLogs.AnyAsync())
                 {
@@ -135,8 +132,6 @@ namespace HOMMS.Infrastructure.Extensions
                 {
                     logger.LogInformation("System Log already exist. Skipping menu seeding.");
                 }
-
-
 
                 ///Seed Order if none exist
                 if (!await context.Orders.AnyAsync())
@@ -232,5 +227,97 @@ namespace HOMMS.Infrastructure.Extensions
                 throw;
             }
         }
+
+        public static async Task ClearAllDataAsync(this ApplicationDbContext context)
+        {
+            // Remove all data from all tables except __EFMigrationsHistory and Branches
+            // Order matters due to FK constraints, so delete child tables first
+            // Adjust the order below as needed for your schema
+
+            // Remove child/relationship tables first
+            await context.UserWalletTransactions.ExecuteDeleteAsync();
+            await context.OrderDetails.ExecuteDeleteAsync();
+            await context.Orders.ExecuteDeleteAsync();
+            await context.MenuDetails.ExecuteDeleteAsync();
+            await context.Menus.ExecuteDeleteAsync();
+            await context.Foods.ExecuteDeleteAsync();
+            await context.FoodCategories.ExecuteDeleteAsync();
+            await context.PatientDiseaseCategories.ExecuteDeleteAsync();
+            await context.DiseaseCategoryFoodRestrictions.ExecuteDeleteAsync();
+            await context.DiseaseCategories.ExecuteDeleteAsync();
+            await context.Patients.ExecuteDeleteAsync();
+            await context.BranchUserRoles.ExecuteDeleteAsync();
+            await context.BranchUsers.ExecuteDeleteAsync();
+            await context.BranchRoles.ExecuteDeleteAsync();
+            await context.SystemLogs.ExecuteDeleteAsync();
+            // Delete Locations before Areas to avoid FK constraint violation
+            await context.Locations.ExecuteDeleteAsync();
+            await context.Areas.ExecuteDeleteAsync();
+            // Identity tables
+            await context.Users.ExecuteDeleteAsync();
+            await context.Roles.ExecuteDeleteAsync();
+            await context.Set<Microsoft.AspNetCore.Identity.IdentityUserRole<string>>().ExecuteDeleteAsync();
+            await context.Set<Microsoft.AspNetCore.Identity.IdentityUserClaim<string>>().ExecuteDeleteAsync();
+            await context.Set<Microsoft.AspNetCore.Identity.IdentityUserLogin<string>>().ExecuteDeleteAsync();
+            await context.Set<Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>>().ExecuteDeleteAsync();
+            await context.Set<Microsoft.AspNetCore.Identity.IdentityUserToken<string>>().ExecuteDeleteAsync();
+            // Do NOT delete Branches to keep seed data consistent
+            // await context.Branches.ExecuteDeleteAsync();
+
+            await context.SaveChangesAsync();
+
+            // Reseed identity columns for all tables with int PKs (except Branches)
+            var tablesToReseed = new[]
+            {
+                "Areas",
+                "BranchRoles",
+                "BranchUserRoles",
+                "BranchUsers",
+                "DiseaseCategories",
+                "DiseaseCategoryFoodRestrictions",
+                "Food_Categories",
+                "Foods",
+                "Locations",
+                "Menu_Details",
+                "Menus",
+                "OrderDetails",
+                "Orders",
+                "PatientDiseaseCategories",
+                "SystemLogs",
+                "UserWalletTransactions"
+            };
+
+            foreach (var table in tablesToReseed)
+            {
+                await context.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('[dbo].[{table}]', RESEED, 0);");
+            }
+        }
+
+        //public static async Task SeedDatabaseWithClearAsync(this Microsoft.AspNetCore.Builder.WebApplication app)
+        //{
+        //    using var scope = app.Services.CreateScope();
+        //    var services = scope.ServiceProvider;
+        //    var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseSeeding");
+        //    try
+        //    {
+        //        logger.LogInformation("Applying database migrations...");
+        //        var context = services.GetRequiredService<ApplicationDbContext>();
+        //        await context.Database.MigrateAsync();
+        //        logger.LogInformation("Database migrations applied successfully.");
+
+        //        // Clear all data before seeding
+        //        logger.LogInformation("Clearing all data from all tables...");
+        //        await context.ClearAllDataAsync();
+        //        logger.LogInformation("All data cleared.");
+
+        //        // Now seed as usual
+        //        await app.SeedDatabaseAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError(ex, "An error occurred while clearing and seeding the database.");
+        //        throw;
+        //    }
+        //}
     }
-} 
+}

@@ -16,6 +16,10 @@ namespace HOMMS.Infrastructure.Seeds
             using var scope = serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+            // Get all Areas for mapping
+            var areas = dbContext.Areas.ToList();
+            var areaMap = areas.ToDictionary(a => a.Name.ToLower(), a => a.Id);
+
             var locations = new List<Location>
             {
                 new Location
@@ -23,21 +27,21 @@ namespace HOMMS.Infrastructure.Seeds
                     Name = "Phòng khám A",
                     Sort = 1,
                     IsActive = true,
-                    AreaId = 1
+                    AreaId = areaMap.ContainsKey("khu hành chính") ? areaMap["khu hành chính"] : areas.First().Id
                 },
                 new Location
                 {
                     Name = "Phòng khám B",
                     Sort = 2,
                     IsActive = false,
-                    AreaId = 1
+                    AreaId = areaMap.ContainsKey("khu hành chính") ? areaMap["khu hành chính"] : areas.First().Id
                 },
                 new Location
                 {
                     Name = "Phòng khám C",
                     Sort = 3,
                     IsActive = true,
-                    AreaId = 2
+                    AreaId = areaMap.ContainsKey("khoa nội") ? areaMap["khoa nội"] : areas.First().Id
                 },
             };
 
