@@ -172,6 +172,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
+
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created
 // builder.Services.AddScoped<IDiseaseCategoryService, DiseaseCategoryService>();

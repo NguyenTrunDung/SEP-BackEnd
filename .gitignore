@@ -367,3 +367,4 @@ FodyWeavers.xsd
 HOMMS.Infrastructure/Data/HOMMS.sql
 /HOMMS.API/appsettings.Development.json
 /HOMMS.API/appsettings.json
+HOMMS.API/appsettings.Development.json
