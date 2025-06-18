@@ -15,7 +15,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="branchId">Branch ID</param>
         /// <returns>Foods for the branch</returns>
         Task<IEnumerable<Food>> GetFoodsByBranchAsync(int branchId);
-        
+
         /// <summary>
         /// Gets foods for a specific branch and category
         /// </summary>

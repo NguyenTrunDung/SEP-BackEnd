@@ -1,11 +1,15 @@
+using AutoMapper;
+using HOMMS.Application.BaseServices;
 using HOMMS.Application.Interfaces;
+using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
+using HOMMS.Infrastructure.Data;
 using HOMMS.Infrastructure.Repositories.Interfaces;
-using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HOMMS.Application.BaseServices;
 
 namespace HOMMS.Application.Implementations
 {
@@ -15,7 +19,7 @@ namespace HOMMS.Application.Implementations
     {
         private readonly IFoodRepository _foodRepository;
         private readonly IMapper _mapper;
-
+        private readonly ApplicationDbContext _dbContext;
         public FoodService(IFoodRepository foodRepository, IMapper mapper, IBranchContext branchContext)
             : base(branchContext)
         {
@@ -110,6 +114,48 @@ namespace HOMMS.Application.Implementations
             return _mapper.Map<FoodDtoV2>(food);
         }
 
-        
+        //update url image and save image to root folder
+        public async Task<FoodDto> CreateFoodAsync(FoodDto dto, IFormFile image, string webRootPath)
+        {
+            string? imagePath = null;
+            if (image != null)
+            {
+                imagePath = await UploadHandler.SaveImageAsync(image, webRootPath);
+            }
+            var food = new Food
+            {
+                Name = dto.Name!,
+                Description = dto.Description,
+                CategoryId = dto.CategoryId,
+                IsAddOn = dto.IsAddOn,
+                IsSetDish = dto.IsSetDish,
+                ForPatient = true,
+                PriceForGuest = dto.PriceForGuest,
+                PriceForPatient = dto.PriceForPatient,
+                PriceForStaff = dto.PriceForStaff,
+                Sort = dto.Sort,
+                BranchId = dto.BranchId,
+                Image = imagePath
+            };
+
+            await _foodRepository.AddAsync(food);
+            await _dbContext.SaveChangesAsync(); 
+
+            return new FoodDto
+            {
+                Id = food.Id,
+                Name = food.Name,
+                Description = food.Description,
+                CategoryId = food.CategoryId,
+                IsAddOn = food.IsAddOn,
+                IsSetDish = food.IsSetDish,
+                PriceForGuest = food.PriceForGuest,
+                PriceForPatient = food.PriceForPatient,
+                PriceForStaff = food.PriceForStaff,
+                Sort = food.Sort,
+                BranchId = food.BranchId,
+                ImageUrl = food.Image
+            };
+        }
     }
 }

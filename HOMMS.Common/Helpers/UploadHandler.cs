@@ -1,36 +1,47 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace HOMMS.Common.Helpers
 {
-    public class UploadHandler
+    public static class UploadHandler
     {
-        private readonly List<string> validExtentions = new List<string>() { ".jpg", ".jpeg", ".png", ".gif" };
-
-        private const long size = 50 * 1024 * 1024;
-
-
-        public async Task<string> Upload(IFormFile file)
+        private static readonly List<string> ValidExtensions = new()
         {
+            ".jpg", ".jpeg", ".png", ".gif"
+        };
 
-            //check file type
-            string extention = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (!validExtentions.Contains(extention)) return $"Extention is not valid ({string.Join(", ", validExtentions)})";
-            //check file size
-            if (file.Length > size) return "Maximum file size is 50MB";
-            string fileName = Guid.NewGuid().ToString() + extention;
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "UploadImg");
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-            using FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create);
-            file.CopyToAsync(stream);
-            return fileName;
+        private const long MaxSize = 50 * 1024 * 1024; // 50MB
+
+        public static async Task<string> SaveImageAsync(IFormFile file, string webRootPath, string folderName = "uploads")
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("File is empty or not selected.");
+
+            string extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!ValidExtensions.Contains(extension))
+                throw new ArgumentException($"File extension '{extension}' is not allowed. Allowed: {string.Join(", ", ValidExtensions)}");
+
+            if (file.Length > MaxSize)
+                throw new ArgumentException("Maximum file size exceeded (50MB).");
+
+            string fileName = $"{Guid.NewGuid()}{extension}";
+            string folderPath = Path.Combine(webRootPath, folderName);
+
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            string fullPath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/{folderName}/{fileName}";
         }
-
-
     }
 }

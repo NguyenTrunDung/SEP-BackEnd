@@ -35,4 +35,8 @@
     <ProjectReference Include="..\HOMMS.Infrastructure\HOMMS.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwRoot\" />
+  </ItemGroup>
+
 </Project>
