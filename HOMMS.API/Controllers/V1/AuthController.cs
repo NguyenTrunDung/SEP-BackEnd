@@ -1,5 +1,6 @@
-﻿using HOMMS.Domain.Entities;
+using HOMMS.Domain.Entities;
 using Asp.Versioning;
+
 using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
@@ -16,6 +17,8 @@ using HOMMS.Common.Constants;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using HOMMS.Infrastructure.Seeds;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -174,15 +177,6 @@ namespace HOMMS.API.Controllers.V1
             return Ok("Password reset successful. You can now login with your new password.");
         }
 
-
-
-
-
-
-
-
-
-
         //-------------------------------------------------------------//
 
         //Login with google
@@ -225,7 +219,7 @@ namespace HOMMS.API.Controllers.V1
                 if (!createResult.Succeeded)
                     return BadRequest("Failed to create user from Google login.");
 
-                await _userManager.AddToRoleAsync(user, "User");
+                await _userManager.AddToRoleAsync(user, "Customer");
             }
 
             if (!user.EmailConfirmed)
@@ -238,7 +232,7 @@ namespace HOMMS.API.Controllers.V1
             var userRoles = await _userManager.GetRolesAsync(user);
             var allPermissions = new HashSet<string>();
 
-            if (userRoles.Contains("Admin"))
+            if (userRoles.Contains("Manager"))
             {
                 allPermissions = new HashSet<string>(PermissionConstants.All);
             }
@@ -281,7 +275,6 @@ namespace HOMMS.API.Controllers.V1
 
             return Ok(ApiResponseBase<LoginResponseDto>.Success(loginResponse, "Login with Google successful"));
         }
-
 
         //edit profile
         [Authorize]
@@ -328,16 +321,6 @@ namespace HOMMS.API.Controllers.V1
 
         //-------------------------------------------------//
 
-
-
-
-
-
-
-
-
-
-
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
@@ -360,15 +343,6 @@ namespace HOMMS.API.Controllers.V1
                 ProfilePictureUrl = user.ProfilePictureUrl // Nullable, no fix needed
             });
         }
-
-
-     
-
-
-
-
-
-
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult<ApiResponseBase<RefreshTokenResponseDto>>> RefreshToken([FromBody] RefreshTokenRequestDto model)
@@ -463,7 +437,5 @@ namespace HOMMS.API.Controllers.V1
 
             return Ok(ApiResponseBase<SelectBranchResponseDto>.Success(response, "Branch selected successfully"));
         }
-
-
     }
-} 
+}

@@ -36,9 +36,10 @@ namespace HOMMS.Infrastructure.Seeds
             var roles = new Dictionary<string, string>
             {
                 { "SystemAdmin", "System administrator - has access to all branches and system settings" },
+                { "Manager", "Branch Manager (Admin for each branch) - management their own branch" },
                 { "Staff", "Hospital/canteen staff member - access determined by branch roles" },
                 { "Patient", "Hospital patient - limited access for ordering food" },
-                { "Guest", "Guest user - temporary access for visitors" }
+                { "Customer", "Guest user - wanna be a Customer will register account" }
             };
 
             foreach (var roleInfo in roles)

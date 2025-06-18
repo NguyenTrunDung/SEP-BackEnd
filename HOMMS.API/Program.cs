@@ -1,4 +1,7 @@
+using Asp.Versioning;
+using Asp.Versioning.Conventions;
 using HOMMS.API.Middleware;
+using HOMMS.Application.Implementations;
 using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Data;
@@ -6,14 +9,18 @@ using HOMMS.Infrastructure.Extensions;
 using HOMMS.Infrastructure.Repositories.Implementations;
 using HOMMS.Infrastructure.Repositories.Interfaces;
 using HOMMS.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Serilog;
+
 using Microsoft.AspNetCore.Authorization;
 using HOMMS.Application.Implementations;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Asp.Versioning;
 using Asp.Versioning.Conventions;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,22 +41,19 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCorsPolicy", policy =>
     {
-        policy.WithOrigins(
-            "http://localhost:3000", // React default
-            "http://localhost:4200", // Angular default
-            "http://localhost:5173"  // Vite default
+        policy.WithOrigins("*"
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
-    options.AddPolicy("ProdCorsPolicy", policy =>
-    {
-        policy.WithOrigins(
-            "https://homms.cuahangkinhdoanh.com"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod();
-    });
+    //options.AddPolicy("ProdCorsPolicy", policy =>
+    //{
+    //    policy.WithOrigins(
+    //        "https://homms.cuahangkinhdoanh.com"
+    //    )
+    //    .AllowAnyHeader()
+    //    .AllowAnyMethod();
+    //});
 });
 
 // Add DbContext
@@ -95,16 +99,23 @@ builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IMenuDetailRepository, MenuDetailRepository>();
 builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
+
+builder.Services.AddScoped<ISystemLogRepository, SystemLogRepository>();
+
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IAreaRepository, AreaRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+
 
 
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>();
+
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
 // Register custom permission authorization handler
-builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 // Register permission policies (add more as needed)
 builder.Services.AddAuthorization(options =>
@@ -115,6 +126,8 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("orders:add")));
     options.AddPolicy("Permission:orders:edit", policy =>
         policy.Requirements.Add(new PermissionRequirement("orders:edit")));
+    options.AddPolicy("Permission:orders:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("orders:delete")));
     // Foods
     options.AddPolicy("Permission:foods:view", policy =>
         policy.Requirements.Add(new PermissionRequirement("foods:view")));
@@ -152,6 +165,21 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Permission:locations:delete", policy =>
         policy.Requirements.Add(new PermissionRequirement("locations:delete")));
     // Add more policies for other permissions as needed
+    //SystemLog
+    options.AddPolicy("Permission:systemlog:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("systemlog:view")));
+    options.AddPolicy("Permission:systemlog:add", policy =>
+       policy.Requirements.Add(new PermissionRequirement("systemlog:add")));
+    //Patient
+    options.AddPolicy("Permission:Patient:view", policy =>
+      policy.Requirements.Add(new PermissionRequirement("Patient:view")));
+    options.AddPolicy("Permission:Patient:add", policy =>
+     policy.Requirements.Add(new PermissionRequirement("Patient:add")));
+    options.AddPolicy("Permission:Patient:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("Patient:edit")));
+    options.AddPolicy("Permission:Patient:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("Patient:delete")));
+
 });
 
 // Register PrintUrlsHostedService
@@ -167,12 +195,21 @@ builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
 builder.Services.AddScoped<IPublicMenuService, PublicMenuService>();
 builder.Services.AddScoped<IMenuDetailService,MenuDetailService>();
 builder.Services.AddScoped<IRevenueService, RevenueService>();
+
+builder.Services.AddScoped<ISystemLogService, SystemLogService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+
+
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAreaService, AreaService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+
 
 
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+
 
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created
@@ -240,7 +277,24 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI(options =>
+//    {
+//        // Configure Swagger UI for multiple API versions
+//        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
+//        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
+//    });
+//    // Use CORS policy in development
+//    app.UseCors("DevCorsPolicy");
+//}
+//else
+//{
+//    // Use CORS policy in production
+//    app.UseCors("ProdCorsPolicy");
+//}
+
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -251,11 +305,6 @@ if (app.Environment.IsDevelopment())
     });
     // Use CORS policy in development
     app.UseCors("DevCorsPolicy");
-}
-else
-{
-    // Use CORS policy in production
-    app.UseCors("ProdCorsPolicy");
 }
 
 app.UseHttpsRedirection();
@@ -280,7 +329,8 @@ try
     Log.Information("Starting web host");
 
     // Seed the database
-    await app.SeedDatabaseAsync();
+    // Commented out to avoid seeding in production, running api seeding for the first time
+    //await app.SeedDatabaseAsync();
 
     // Print listening URLs to the terminal and log with Serilog
     var addresses = app.Urls;
@@ -310,10 +360,35 @@ public class PermissionRequirement : IAuthorizationRequirement
 
 public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
 {
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    private readonly IAuthService _authService;
+    private readonly IBranchContext _branchContext;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public PermissionHandler(IAuthService authService, IBranchContext branchContext, IHttpContextAccessor httpContextAccessor)
     {
-        if (context.User.HasClaim("permission", requirement.Permission))
+        _authService = authService;
+        _branchContext = branchContext;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null || !context.User.Identity?.IsAuthenticated == true)
+            return;
+
+        var userId = context.User.FindFirst("UserId")?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return;
+
+        // Get current branchId from branch context
+        int branchId = _branchContext.GetCurrentBranchId();
+
+        // Get permissions for this user and branch
+        var permissions = await _authService.GetUserBranchPermissionsAsync(userId, branchId);
+        if (permissions.Contains(requirement.Permission))
+        {
             context.Succeed(requirement);
-        return Task.CompletedTask;
+        }
     }
 }

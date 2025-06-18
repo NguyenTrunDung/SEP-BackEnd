@@ -88,5 +88,50 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
 
+
+        [HttpPost("AddDishesforPatient")]
+        [Authorize(Policy = "Permission:orders:add")]
+        public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddDishesforPatient([FromBody] CreatePatientOrderDto dto)
+        {
+            var or = await _orderService.AddPatientOrderAsync(dto);
+            return Ok(new ApiResponseBase<OrderDto>(or, "Add dishes for patient successfully "));
+
+        }
+
+
+        [HttpPost("AddOrder")]
+        [Authorize(Policy = "Permission:orders:add")]
+        public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddOrder([FromBody] OrderDto dto)
+        {
+            var or = await _orderService.AddAsync(dto);
+            return Ok(new ApiResponseBase<OrderDto>(or, "Add order successfully "));
+
+        }
+
+
+
+        [HttpPut]
+        [Authorize(Policy = "Permission:orders:edit")]
+       public async Task<ActionResult<ApiResponseBase<OrderDto>>>UpdateOrder(int id, [FromBody] UpdateOrderDto dto)
+        {
+            var or = await _orderService.UpdateAsync(id, dto);
+            if (or == null)return NotFound(new ApiResponseBase<OrderDto>(null,"Order not found","error"));
+            return Ok(new ApiResponseBase<OrderDto>(or, "Order updated successfully"));
+
+        }
+
+
+        [HttpDelete]
+        [Authorize(Policy = "Permission:orders:delete")]
+        public async Task<ActionResult<ApiResponseBase<object>>>DeleteOrder(int id)
+        {
+            var or = await _orderService.DeleteAsync(id);
+            if(!or) return NotFound(new ApiResponseBase<object>(null, "Order not found", "error"));
+            return Ok(new ApiResponseBase<object>(null, "Order deleted successfully"));
+
+        }
+
+
+
     }
 }
