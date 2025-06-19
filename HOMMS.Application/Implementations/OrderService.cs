@@ -152,5 +152,11 @@ namespace HOMMS.Application.Implementations
             await _orderRepository.DeleteAsync(or);
             return true;
         }
+
+        public async Task<OrderDto> GetByIdAsync(int id)
+        {
+            var or = await _orderRepository.GetByIdAsync(id);
+            return _mapper.Map<OrderDto>(or);
+        }
     }
 }

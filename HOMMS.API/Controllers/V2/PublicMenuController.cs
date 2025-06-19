@@ -1,17 +1,21 @@
+﻿using Asp.Versioning;
+using AutoMapper;
+using HOMMS.Application.Implementations;
 using HOMMS.Application.Interfaces;
+using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
+using HOMMS.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper;
-using HOMMS.Common.Helpers;
-using Asp.Versioning;
 
-namespace HOMMS.API.Controllers.V1
+namespace HOMMS.API.Controllers.V2
 {
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     [Route("api/v{version:apiVersion}/public/menus")]
 
     [ApiController]
@@ -23,18 +27,24 @@ namespace HOMMS.API.Controllers.V1
         private readonly IBranchContext _branchContext;
         private readonly IMapper _mapper;
 
+        private readonly ISystemLogService _systemLogService;
+        private readonly UserManager<ApplicationUser> _userManager;
+
         public PublicMenuController(
             IPublicMenuService publicMenuService,
             IFoodService foodService,
             IFoodCategoryService foodCategoryService,
             IBranchContext branchContext,
-            IMapper mapper)
+            IMapper mapper, ISystemLogService systemLogService, UserManager<ApplicationUser> userManager)
         {
             _publicMenuService = publicMenuService;
             _foodService = foodService;
             _foodCategoryService = foodCategoryService;
             _branchContext = branchContext;
             _mapper = mapper;
+
+            _systemLogService = systemLogService;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -78,6 +88,14 @@ namespace HOMMS.API.Controllers.V1
         [HttpDelete("{menuId}")]
         public async Task<IActionResult> DeleteMenu(int menuId)
         {
+
+            var food = await _publicMenuService.GetMenuWithDetailsAsync(menuId);
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var user = await _userManager.FindByIdAsync(userId);
+            await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã xóa menu {food.Name}", DateTime.UtcNow);
+
+
             var result = await _publicMenuService.DeleteMenu(menuId);
             if (!result)
             {

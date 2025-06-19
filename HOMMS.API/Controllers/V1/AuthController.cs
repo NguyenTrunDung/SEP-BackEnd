@@ -149,7 +149,7 @@ namespace HOMMS.API.Controllers.V1
 
             if (!result.Succeeded)
                 return BadRequest("Email confirmation failed.");
-
+             
             return Ok("Email confirmed successfully. You can now login.");
         }
 

@@ -1492,7 +1492,7 @@ namespace HOMMS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -1520,8 +1520,9 @@ namespace HOMMS.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
@@ -2017,8 +2018,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
                         .WithMany("SystemLogs")
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Branch");
                 });

@@ -14,5 +14,8 @@ namespace HOMMS.Application.Interfaces
         Task<IEnumerable<SystemLogDto>> GetSystemLogListByBranchId(int branchId, DateTime dateStart, DateTime dateEnd);
         Task<AddSystemLogDto> AddSystemLog(AddSystemLogDto systemLogDto);
 
+        Task LogAsync(int? branchId,string? userId, string? note, DateTime? date);
+
+
     }
 }

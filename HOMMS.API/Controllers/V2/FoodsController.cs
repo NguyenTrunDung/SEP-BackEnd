@@ -5,8 +5,11 @@ using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Graph.Models;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace HOMMS.API.Controllers.V2
@@ -19,20 +22,23 @@ namespace HOMMS.API.Controllers.V2
     {
         private readonly IFoodService _foodService;
         private readonly IMapper _mapper;
-        private readonly ISystemLogService _systemLogService;
 
-        public FoodsController(IFoodService foodService, IMapper mapper, ISystemLogService systemLogService)
+        private readonly ISystemLogService _systemLogService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        public FoodsController(IFoodService foodService, IMapper mapper, ISystemLogService systemLogService, UserManager<ApplicationUser> userManager)
         {
             _foodService = foodService;
             _mapper = mapper;
+
             _systemLogService = systemLogService;
+            _userManager = userManager;
         }
 
 
 
-       
+
         [HttpGet]
-      //  [Authorize(Policy = "Permission:foods:view")]
+        //  [Authorize(Policy = "Permission:foods:view")]
         public async Task<ActionResult<ApiResponseBase<List<FoodDto>>>> GetFoods([FromQuery] int branchId)
         {
             var foods = await _foodService.GetFoodsByBranchAsync(branchId);
@@ -48,9 +54,9 @@ namespace HOMMS.API.Controllers.V2
 
 
 
-         
+
         [HttpGet("{id}")]
-      //  [Authorize(Policy = "Permission:foods:view")]
+        //  [Authorize(Policy = "Permission:foods:view")]
         public async Task<ActionResult<ApiResponseBase<FoodDto>>> GetFood(int id)
         {
             var food = await _foodService.GetByIdAsync(id);
@@ -60,49 +66,42 @@ namespace HOMMS.API.Controllers.V2
         }
 
 
-        
+
         [HttpPost]
-      //  [Authorize(Policy = "Permission:foods:add")]
+        //  [Authorize(Policy = "Permission:foods:add")]
 
-        public async Task<ActionResult<ApiResponseBase<FoodDtoV2>>> CreateFoodv2([FromBody] FoodDtoV2 dto)
+        public async Task<ActionResult<ApiResponseBase<FoodDto>>> CreateFoodv2([FromBody] FoodDto dto)
         {
-
-            await _systemLogService.AddSystemLog(new AddSystemLogDto
-            {
-                BranchId = dto.BranchId,
-                UserId = 1,
-                Note = "Đã thêm món ăn " + dto.Name,
-                Date = dto.Date
-            });
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var user = await _userManager.FindByIdAsync(userId);
+            await _systemLogService.LogAsync(dto.BranchId, user.FullName, $"đã thêm món {dto.Name}", DateTime.UtcNow);
 
 
-            var created = await _foodService.CreateAsyncV2(dto);
+            var created = await _foodService.CreateAsync(dto);
 
-            return CreatedAtAction(nameof(GetFood), new { id = created.Id }, new ApiResponseBase<FoodDtoV2>(created, "Food created successfully"));
+            return CreatedAtAction(nameof(GetFood), new { id = created.Id }, new ApiResponseBase<FoodDto>(created, "Food created successfully"));
         }
 
-         
+
         [HttpPut("{id}")]
-      //  [Authorize(Policy = "Permission:foods:edit")]
-        public async Task<ActionResult<ApiResponseBase<FoodDtoV2>>> UpdateFood(int id, [FromBody] FoodDtoV2_3 dto)
+        //  [Authorize(Policy = "Permission:foods:edit")]
+        public async Task<ActionResult<ApiResponseBase<FoodDto>>> UpdateFood(int id, [FromBody] FoodDto dto)
         {
 
             try
             {
-                var food = await _foodService.GetByIdAsyncV2(id);
-                await _systemLogService.AddSystemLog(new AddSystemLogDto
-                {
-                    BranchId = food.BranchId,
-                    UserId = 1,
-                    Note = "đã cập nhật món ăn " + food.Name,
-                    Date = food.Date
-                });
+                var food = await _foodService.GetByIdAsync(id);
+
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                var user = await _userManager.FindByIdAsync(userId);
+                await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã cập nhật món {food.Name}", DateTime.UtcNow);
 
 
-                var updated = await _foodService.UpdateAsyncV2(id, dto);
+
+                var updated = await _foodService.UpdateAsync(id, dto);
                 if (updated == null)
-                    return NotFound(new ApiResponseBase<FoodDtoV2_3>(null, "Food not found", "error"));
-                return Ok(new ApiResponseBase<FoodDtoV2_3>(updated, "Food updated successfully"));
+                    return NotFound(new ApiResponseBase<FoodDto>(null, "Food not found", "error"));
+                return Ok(new ApiResponseBase<FoodDto>(updated, "Food updated successfully"));
 
             }
             catch (Exception ex)
@@ -112,28 +111,25 @@ namespace HOMMS.API.Controllers.V2
 
         }
 
-         
+
         [HttpDelete("{id}")]
-      //  [Authorize(Policy = "Permission:foods:delete")]
+        //  [Authorize(Policy = "Permission:foods:delete")]
         public async Task<ActionResult<ApiResponseBase<object>>> DeleteFood(int id)
         {
             try
             {
+                var food = await _foodService.GetByIdAsync(id);
+
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                var user = await _userManager.FindByIdAsync(userId);               
+                await _systemLogService.LogAsync(food.BranchId,user.FullName, $"đã xóa món {food.Name}", DateTime.UtcNow);
 
 
-                var food = await _foodService.GetByIdAsyncV2(id);
-                await _systemLogService.AddSystemLog(new AddSystemLogDto
-                {
-                    BranchId = food.BranchId,
-                    UserId = 1,
-                    Note = "đã xóa món ăn " + food.Name,
-                    Date = food.Date
-                });
+
+
                 var deleted = await _foodService.DeleteAsync(id);
                 if (!deleted)
                     return NotFound(new ApiResponseBase<object>(null, "Food not found", "error"));
-
-
 
                 return Ok(new ApiResponseBase<object>(null, "Food deleted successfully"));
             }

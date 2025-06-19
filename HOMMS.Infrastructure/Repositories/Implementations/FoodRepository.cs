@@ -13,11 +13,11 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
     /// </summary>
     public class FoodRepository : Repository<Food, int>, IFoodRepository
     {
-        public FoodRepository(ApplicationDbContext dbContext) 
+        public FoodRepository(ApplicationDbContext dbContext)
             : base(dbContext)
         {
         }
-        
+
         /// <inheritdoc/>
         public async Task<IEnumerable<Food>> GetFoodsByBranchAsync(int branchId)
         {
@@ -26,7 +26,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .OrderBy(f => f.Sort)
                 .ToListAsync();
         }
-        
+
         /// <inheritdoc/>
         public async Task<IEnumerable<Food>> GetFoodsByBranchAndCategoryAsync(int branchId, int categoryId)
         {
@@ -35,7 +35,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .OrderBy(f => f.Sort)
                 .ToListAsync();
         }
-        
+
         /// <inheritdoc/>
         public async Task<Food> GetFoodWithCategoryAsync(int foodId)
         {
@@ -43,7 +43,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .Include(f => f.Category)
                 .FirstOrDefaultAsync(f => f.Id == foodId);
         }
-        
+
         /// <inheritdoc/>
         public async Task<IEnumerable<Food>> GetFoodsWithCategoriesByBranchAsync(int branchId)
         {
@@ -112,5 +112,21 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
 
             return foods;
         }
+
+        public async Task<IEnumerable<Food>> GetFoodWithDiseaseCategoryFoodRestrictionAsync(int branchId, int categoryId)
+        {
+            var foods = await DbContext.Set<DiseaseCategoryFoodRestriction>()
+                .Where(fo => fo.DiseaseCategoryId == categoryId && fo.IsActive&& fo.BranchId == branchId)
+                .Select(r => r.Food)
+                .Where(f => !f.IsDeleted)
+                .Distinct()
+                .ToListAsync();
+
+
+
+            return foods;
+        }
+
+
     }
-} 
+}

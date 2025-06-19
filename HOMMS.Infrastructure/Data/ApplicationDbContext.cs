@@ -147,9 +147,7 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new OrdersConfiguration());
             builder.ApplyConfiguration(new OrderDetailsConfiguration());
             builder.ApplyConfiguration(new UserWalletTransactionConfiguration());
-
             builder.ApplyConfiguration(new SystemLogsConfigurations());
-
             
             // Disease Category configurations
             builder.ApplyConfiguration(new DiseaseCategoryConfiguration());
