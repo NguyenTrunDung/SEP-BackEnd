@@ -120,5 +120,36 @@ namespace HOMMS.API.Controllers.V1
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+
+        [HttpPut("update/{id}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateFood(int id, [FromForm] FoodCreateRequest request)
+        {
+            try
+            {
+                var dto = new FoodDto
+                {
+                    Name = request.Name,
+                    Description = request.Description,
+                    CategoryId = request.CategoryId,
+                    IsAddOn = request.IsAddOn,
+                    IsSetDish = request.IsSetDish,
+                    PriceForGuest = request.PriceForGuest,
+                    PriceForPatient = request.PriceForPatient,
+                    PriceForStaff = request.PriceForStaff,
+                    Sort = request.Sort,
+                    BranchId = request.BranchId
+                };
+
+                var result = await _foodService.UpdateFoodAsync(id, dto, request.Image, _env.WebRootPath);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
     }
 }

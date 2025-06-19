@@ -138,8 +138,8 @@ namespace HOMMS.Application.Implementations
                 Image = imagePath
             };
 
-            await _foodRepository.AddAsync(food);
-            await _dbContext.SaveChangesAsync(); 
+            await _foodRepository.AddAndSaveAsync(food);
+
 
             return new FoodDto
             {
@@ -157,5 +157,54 @@ namespace HOMMS.Application.Implementations
                 ImageUrl = food.Image
             };
         }
+        public async Task<FoodDto> UpdateFoodAsync(int id, FoodDto dto, IFormFile? image, string webRootPath)
+        {
+            // 1. Tìm món ?n hi?n có
+            var existingFood = await _foodRepository.FindByIdAsync(id);
+            if (existingFood == null)
+            {
+                throw new Exception("Food not found.");
+            }
+
+            // 2. C?p nh?t thông tin c? b?n
+            existingFood.Name = dto.Name!;
+            existingFood.Description = dto.Description;
+            existingFood.CategoryId = dto.CategoryId;
+            existingFood.IsAddOn = dto.IsAddOn;
+            existingFood.IsSetDish = dto.IsSetDish;
+            existingFood.PriceForGuest = dto.PriceForGuest;
+            existingFood.PriceForPatient = dto.PriceForPatient;
+            existingFood.PriceForStaff = dto.PriceForStaff;
+            existingFood.Sort = dto.Sort;
+            existingFood.BranchId = dto.BranchId;
+
+            // 3. N?u có ?nh m?i, l?u ?nh và c?p nh?t ???ng d?n
+            if (image != null)
+            {
+                var newImagePath = await UploadHandler.SaveImageAsync(image, webRootPath);
+                existingFood.Image = newImagePath;
+            }
+
+            // 4. L?u thay ??i
+            await _foodRepository.UpdateAndSaveAsync(existingFood);
+
+            // 5. Tr? v? DTO
+            return new FoodDto
+            {
+                Id = existingFood.Id,
+                Name = existingFood.Name,
+                Description = existingFood.Description,
+                CategoryId = existingFood.CategoryId,
+                IsAddOn = existingFood.IsAddOn,
+                IsSetDish = existingFood.IsSetDish,
+                PriceForGuest = existingFood.PriceForGuest,
+                PriceForPatient = existingFood.PriceForPatient,
+                PriceForStaff = existingFood.PriceForStaff,
+                Sort = existingFood.Sort,
+                BranchId = existingFood.BranchId,
+                ImageUrl = existingFood.Image
+            };
+        }
+
     }
 }

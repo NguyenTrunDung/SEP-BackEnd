@@ -26,6 +26,7 @@ namespace HOMMS.Application.Interfaces
 
         //update url image and save image to root folder
         Task<FoodDto> CreateFoodAsync(FoodDto dto, IFormFile image, string webRootPath);
+        Task<FoodDto> UpdateFoodAsync(int id, FoodDto dto, IFormFile? image, string webRootPath);
 
 
     }
