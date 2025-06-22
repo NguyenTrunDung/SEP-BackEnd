@@ -120,5 +120,43 @@ namespace HOMMS.API.Controllers.V1
                 return BadRequest(new ApiResponseBase<FoodCategoryDto>(null, ex.Message, "error"));
             }
         }
+
+        // Debug/Test endpoint to verify audit functionality
+        [HttpPost("test-audit")]
+        [Authorize(Policy = "Permission:foodcategories:add")]
+        public async Task<IActionResult> TestAuditFunctionality([FromBody] FoodCategoryDto dto)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"[TEST] Creating test category for audit verification");
+                System.Diagnostics.Debug.WriteLine($"[TEST] Current user: {User?.Identity?.Name ?? "Unknown"}");
+                System.Diagnostics.Debug.WriteLine($"[TEST] User authenticated: {User?.Identity?.IsAuthenticated}");
+                
+                // Create a test category
+                dto.Name = $"TEST_AUDIT_{DateTime.Now:yyyyMMdd_HHmmss}";
+                dto.Sort = 999;
+                
+                var result = await _foodCategoryService.CreateAsync(dto);
+                
+                System.Diagnostics.Debug.WriteLine($"[TEST] Created category with ID: {result.Id}");
+                
+                // Get the category back to check audit fields
+                var retrievedCategory = await _foodCategoryService.GetByIdAsync(result.Id);
+                
+                return Ok(new ApiResponseBase<object>(new 
+                {
+                    CreatedCategory = result,
+                    RetrievedCategory = retrievedCategory,
+                    TestMessage = "Check the API console/debug output for audit information",
+                    UserId = User?.Identity?.Name,
+                    IsAuthenticated = User?.Identity?.IsAuthenticated
+                }, "Test audit category created successfully"));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TEST] Exception: {ex.Message}");
+                return BadRequest(new ApiResponseBase<object>(null, ex.Message, "error"));
+            }
+        }
     }
 } 
