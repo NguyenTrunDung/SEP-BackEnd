@@ -1,5 +1,4 @@
-
-﻿using HOMMS.Domain.Entities;
+using HOMMS.Domain.Entities;
 using Asp.Versioning;
 
 using HOMMS.Application.Interfaces;
@@ -20,6 +19,8 @@ using HOMMS.Common.Constants;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using HOMMS.Infrastructure.Seeds;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -117,7 +118,7 @@ namespace HOMMS.API.Controllers.V1
             var refreshToken = _authService.GenerateRefreshToken();
             
             var jwtSettings = _configuration.GetSection("JwtSettings");
-            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "60");
+            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "1440");
             var refreshExpiryInDays = int.Parse(jwtSettings["RefreshExpiryInDays"] ?? "7");
             
             var tokenExpiryTime = DateTime.UtcNow.AddMinutes(expiryInMinutes);
@@ -188,15 +189,6 @@ namespace HOMMS.API.Controllers.V1
 
             return Ok("Password reset successful. You can now login with your new password.");
         }
-
-
-
-
-
-
-
-
-
 
         //-------------------------------------------------------------//
 
@@ -297,7 +289,6 @@ namespace HOMMS.API.Controllers.V1
             return Ok(ApiResponseBase<LoginResponseDto>.Success(loginResponse, "Login with Google successful"));
         }
 
-
         //edit profile
         [Authorize]
         [HttpPost("edit-profile")]
@@ -343,16 +334,6 @@ namespace HOMMS.API.Controllers.V1
 
         //-------------------------------------------------//
 
-
-
-
-
-
-
-
-
-
-
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
@@ -375,15 +356,6 @@ namespace HOMMS.API.Controllers.V1
                 ProfilePictureUrl = user.ProfilePictureUrl // Nullable, no fix needed
             });
         }
-
-
-     
-
-
-
-
-
-
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult<ApiResponseBase<RefreshTokenResponseDto>>> RefreshToken([FromBody] RefreshTokenRequestDto model)
@@ -478,7 +450,5 @@ namespace HOMMS.API.Controllers.V1
 
             return Ok(ApiResponseBase<SelectBranchResponseDto>.Success(response, "Branch selected successfully"));
         }
-
-
     }
-} 
+}

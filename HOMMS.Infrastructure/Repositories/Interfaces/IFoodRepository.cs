@@ -15,7 +15,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="branchId">Branch ID</param>
         /// <returns>Foods for the branch</returns>
         Task<IEnumerable<Food>> GetFoodsByBranchAsync(int branchId);
-        
+
         /// <summary>
         /// Gets foods for a specific branch and category
         /// </summary>
@@ -62,5 +62,10 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="date">Date</param>
         /// <returns>Foods for the branch, category, and date</returns>
         Task<IEnumerable<Food>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date);
+        Task AddAndSaveAsync(Food food);
+        Task<Food?> FindByIdAsync(int id);
+        Task UpdateAndSaveAsync(Food food);
+
+
     }
 } 
