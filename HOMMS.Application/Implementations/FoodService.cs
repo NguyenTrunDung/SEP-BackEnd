@@ -19,7 +19,7 @@ namespace HOMMS.Application.Implementations
     {
         private readonly IFoodRepository _foodRepository;
         private readonly IMapper _mapper;
-        private readonly ApplicationDbContext _dbContext;
+        
         public FoodService(IFoodRepository foodRepository, IMapper mapper, IBranchContext branchContext)
             : base(branchContext)
         {
@@ -120,7 +120,7 @@ namespace HOMMS.Application.Implementations
             string? imagePath = null;
             if (image != null)
             {
-                imagePath = await UploadHandler.SaveImageAsync(image, webRootPath);
+                imagePath = await UploadHandler.SaveImageAsync(image, webRootPath, "uploads");
             }
             var food = new Food
             {
@@ -140,7 +140,6 @@ namespace HOMMS.Application.Implementations
 
             await _foodRepository.AddAndSaveAsync(food);
 
-
             return new FoodDto
             {
                 Id = food.Id,
@@ -159,14 +158,14 @@ namespace HOMMS.Application.Implementations
         }
         public async Task<FoodDto> UpdateFoodAsync(int id, FoodDto dto, IFormFile? image, string webRootPath)
         {
-            // 1. T�m m�n ?n hi?n c�
+            // 1. Tìm món ăn hiện có
             var existingFood = await _foodRepository.FindByIdAsync(id);
             if (existingFood == null)
             {
                 throw new Exception("Food not found.");
             }
 
-            // 2. C?p nh?t th�ng tin c? b?n
+            // 2. Cập nhật thông tin cơ bản
             existingFood.Name = dto.Name!;
             existingFood.Description = dto.Description;
             existingFood.CategoryId = dto.CategoryId;
@@ -178,17 +177,18 @@ namespace HOMMS.Application.Implementations
             existingFood.Sort = dto.Sort;
             existingFood.BranchId = dto.BranchId;
 
-            // 3. N?u c� ?nh m?i, l?u ?nh v� c?p nh?t ???ng d?n
+            // 3. If there's a new image, save it and update the path with automatic cleanup
             if (image != null)
             {
-                var newImagePath = await UploadHandler.SaveImageAsync(image, webRootPath);
+                // Pass existing image path for automatic cleanup of old file
+                var newImagePath = await UploadHandler.SaveImageAsync(image, webRootPath, "uploads", existingFood.Image);
                 existingFood.Image = newImagePath;
             }
 
-            // 4. L?u thay ??i
+            // 4. Lưu thay đổi
             await _foodRepository.UpdateAndSaveAsync(existingFood);
 
-            // 5. Tr? v? DTO
+            // 5. Trả về DTO
             return new FoodDto
             {
                 Id = existingFood.Id,

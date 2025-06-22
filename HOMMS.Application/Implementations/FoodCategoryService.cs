@@ -74,7 +74,7 @@ namespace HOMMS.Application.Implementations
             string? imagePath = null;
             if (image != null)
             {
-                imagePath = await UploadHandler.SaveImageAsync(image, webRootPath);
+                imagePath = await UploadHandler.SaveImageAsync(image, webRootPath, "uploads");
             }
 
             var category = new FoodCategory
@@ -86,22 +86,22 @@ namespace HOMMS.Application.Implementations
                 Active = true // Set as active by default
             };
 
-            var created = await _foodCategoryRepository.AddAsync(category);
+            await _foodCategoryRepository.AddAndSaveAsync(category);
 
             return new FoodCategoryDto
             {
-                Id = created.Id,
-                Name = created.Name,
-                ImageUrl = created.Image,
-                Sort = created.Sort ?? 0,
-                BranchId = created.BranchId
+                Id = category.Id,
+                Name = category.Name,
+                ImageUrl = category.Image,
+                Sort = category.Sort ?? 0,
+                BranchId = category.BranchId
             };
         }
 
         public async Task<FoodCategoryDto> UpdateCategoryAsync(int id, FoodCategoryDto dto, IFormFile? image, string webRootPath)
         {
             // Find existing category
-            var existingCategory = await _foodCategoryRepository.GetByIdAsync(id);
+            var existingCategory = await _foodCategoryRepository.FindByIdAsync(id);
             if (existingCategory == null)
             {
                 throw new Exception("Food category not found.");
@@ -112,10 +112,11 @@ namespace HOMMS.Application.Implementations
             existingCategory.Sort = dto.Sort;
             existingCategory.BranchId = EnsureBranchId(dto.BranchId);
 
-            // If there's a new image, save it and update the path
+            // If there's a new image, save it and update the path with automatic cleanup
             if (image != null)
             {
-                var newImagePath = await UploadHandler.SaveImageAsync(image, webRootPath);
+                // Pass existing image path for automatic cleanup of old file
+                var newImagePath = await UploadHandler.SaveImageAsync(image, webRootPath, "uploads", existingCategory.Image);
                 existingCategory.Image = newImagePath;
             }
             else if (!string.IsNullOrEmpty(dto.ImageUrl))
@@ -125,7 +126,7 @@ namespace HOMMS.Application.Implementations
             }
 
             // Save changes
-            await _foodCategoryRepository.UpdateAsync(existingCategory);
+            await _foodCategoryRepository.UpdateAndSaveAsync(existingCategory);
 
             // Return DTO
             return new FoodCategoryDto
