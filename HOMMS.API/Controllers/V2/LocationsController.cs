@@ -130,9 +130,9 @@ namespace HOMMS.API.Controllers.V2
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
-                await _systemLogService.LogAsync(dto.BranchId, user.FullName, $"đã thêm {dto.Name}", DateTime.UtcNow);
+                await _systemLogService.LogAsync(dto.BranchId, user?.FullName ?? "Unknown", $"đã thêm {dto.Name}", DateTime.UtcNow);
 
                 var created = await _locationService.CreateAsync(dto);
                 return CreatedAtAction(nameof(GetLocation), new { id = created.Id }, new ApiResponseBase<LocationDto>(created, "Location created successfully"));
@@ -157,9 +157,9 @@ namespace HOMMS.API.Controllers.V2
             {
                 var food = await _locationService.GetByIdAsync(id);
 
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
-                await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã cập nhật {food.Name}", DateTime.UtcNow);
+                await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã cập nhật {food.Name}", DateTime.UtcNow);
 
                 var updated = await _locationService.UpdateAsync(id, dto);
                 if (updated == null)
@@ -184,9 +184,9 @@ namespace HOMMS.API.Controllers.V2
 
             var food = await _locationService.GetByIdAsync(id);
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
-            await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã xóa {food.Name}", DateTime.UtcNow);
+            await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa {food.Name}", DateTime.UtcNow);
 
             var deleted = await _locationService.DeleteAsync(id);
             if (!deleted)

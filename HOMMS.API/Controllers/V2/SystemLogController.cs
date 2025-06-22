@@ -65,9 +65,9 @@ namespace HOMMS.API.Controllers.V2
         public async Task<IActionResult> AddSystemLog([FromForm] AddSystemLogDto dto)
         {
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
-            await _systemLogService.LogAsync(dto.BranchId, user.FullName, dto.Note, dto.Date);
+            await _systemLogService.LogAsync(dto.BranchId, user?.FullName ?? "Unknown", dto.Note, dto.Date);
 
             var sys = await _systemLogService.AddSystemLog(dto);
             return Ok( new ApiResponseBase<AddSystemLogDto>(sys, "Log created successfully"));

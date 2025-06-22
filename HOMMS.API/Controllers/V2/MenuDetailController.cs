@@ -52,9 +52,9 @@ namespace HOMMS.API.Controllers.V2
 
             var food = await _menuDetailService.GetByIdAsync(id);
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
-            await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã cập nhật chi tiết menu {food.Name}", DateTime.UtcNow);
+            await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã cập nhật chi tiết menu {food.Name}", DateTime.UtcNow);
 
             if (id != dto.Id) return BadRequest("Mismatched ID");
 
@@ -69,9 +69,9 @@ namespace HOMMS.API.Controllers.V2
             if (dto == null) return BadRequest();
 
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
-            await _systemLogService.LogAsync(dto.BranchId, user.FullName, $"đã thêm chi tiết menu {dto.Name}", DateTime.UtcNow);
+            await _systemLogService.LogAsync(dto.BranchId, user?.FullName ?? "Unknown", $"đã thêm chi tiết menu {dto.Name}", DateTime.UtcNow);
 
 
             var success = await _menuDetailService.AddMenuWithDetailsAsync(dto);

@@ -116,9 +116,9 @@ namespace HOMMS.API.Controllers.V2
             try
             {
 
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
-                await _systemLogService.LogAsync(dto.BranchId, user.FullName, $"đã tạo {dto.Name}", DateTime.UtcNow);
+                await _systemLogService.LogAsync(dto.BranchId, user?.FullName ?? "unknown", $"đã tạo {dto.Name}", DateTime.UtcNow);
 
 
                 var created = await _areaService.CreateAsync(dto);
@@ -145,9 +145,9 @@ namespace HOMMS.API.Controllers.V2
 
                 var food = await _areaService.GetByIdAsync(id);
 
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
-                await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã cập nhật {food.Name}", DateTime.UtcNow);
+                await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã cập nhật {food.Name}", DateTime.UtcNow);
 
                 var updated = await _areaService.UpdateAsync(id, dto);
                 if (updated == null)
@@ -172,9 +172,9 @@ namespace HOMMS.API.Controllers.V2
 
             var food = await _areaService.GetByIdAsync(id);
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
-            await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã xóa {food.Name}", DateTime.UtcNow);
+            await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa {food.Name}", DateTime.UtcNow);
 
 
             var deleted = await _areaService.DeleteAsync(id);

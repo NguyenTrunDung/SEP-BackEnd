@@ -91,9 +91,9 @@ namespace HOMMS.API.Controllers.V2
 
             var food = await _publicMenuService.GetMenuWithDetailsAsync(menuId);
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
-            await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã xóa menu {food.Name}", DateTime.UtcNow);
+            await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa menu {food.Name}", DateTime.UtcNow);
 
 
             var result = await _publicMenuService.DeleteMenu(menuId);

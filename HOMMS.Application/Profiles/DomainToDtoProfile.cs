@@ -25,13 +25,16 @@ namespace HOMMS.Application.Profiles
             CreateMap<FoodCategory, FoodCategoryDto>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
                 .ForMember(dest => dest.Sort, opt => opt.MapFrom(src => src.Sort ?? 0));
+            CreateMap<FoodCategoryDto, FoodCategory>();
 
             // Menu -> MenuDto
             CreateMap<Menu, MenuDto>();
-
+            // Add this inside DomainToDtoProfile's constructor
+            CreateMap<Menu, UpdateMenuDto>();
             // MenuDetail -> MenuDetailDto
             CreateMap<MenuDetail, MenuDetailDto>()
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Qty));
+       
 
             // Branch -> BranchDto
             CreateMap<Branch, BranchDto>();

@@ -72,9 +72,9 @@ namespace HOMMS.API.Controllers.V2
 
         public async Task<ActionResult<ApiResponseBase<FoodDto>>> CreateFoodv2([FromBody] FoodDto dto)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
-            await _systemLogService.LogAsync(dto.BranchId, user.FullName, $"đã thêm món {dto.Name}", DateTime.UtcNow);
+            await _systemLogService.LogAsync(dto.BranchId, user?.FullName ?? "Unknown", $"đã thêm món {dto.Name}", DateTime.UtcNow);
 
 
             var created = await _foodService.CreateAsync(dto);
@@ -92,9 +92,9 @@ namespace HOMMS.API.Controllers.V2
             {
                 var food = await _foodService.GetByIdAsync(id);
 
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
-                await _systemLogService.LogAsync(food.BranchId, user.FullName, $"đã cập nhật món {food.Name}", DateTime.UtcNow);
+                await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã cập nhật món {food.Name}", DateTime.UtcNow);
 
 
 
@@ -118,11 +118,12 @@ namespace HOMMS.API.Controllers.V2
         {
             try
             {
+                
                 var food = await _foodService.GetByIdAsync(id);
 
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";                
                 var user = await _userManager.FindByIdAsync(userId);               
-                await _systemLogService.LogAsync(food.BranchId,user.FullName, $"đã xóa món {food.Name}", DateTime.UtcNow);
+                await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa món {food.Name}", DateTime.UtcNow);
 
 
 
