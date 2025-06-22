@@ -41,5 +41,9 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
             int? maxTotal,
             string? code
         );
+
+        //add order with location
+        Task<Order> AddOrderV2Async(Order order);
+
     }
 }

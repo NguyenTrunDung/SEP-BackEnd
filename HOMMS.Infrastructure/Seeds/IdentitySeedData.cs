@@ -98,8 +98,8 @@ namespace HOMMS.Infrastructure.Seeds
             var canteenStaffAccounts = new[]
             {
                 // Branch management and operations
-                new { Email = "branch.manager@homms.com", FirstName = "Nguyễn", LastName = "Chi Nhánh", Role = "SystemAdmin", Password = "BranchManager@123", BranchRole = "Quản lý chi nhánh" },
-                new { Email = "manager@homms.com", FirstName = "Lê", LastName = "Quản Lý", Role = "SystemAdmin", Password = "Manager@123", BranchRole = "Quản lý" },
+                new { Email = "branch.manager@homms.com", FirstName = "Nguyễn", LastName = "Chi Nhánh", Role = "Manager", Password = "BranchManager@123", BranchRole = "Quản lý chi nhánh" },
+                new { Email = "manager@homms.com", FirstName = "Lê", LastName = "Quản Lý", Role = "Staff", Password = "Manager@123", BranchRole = "Quản lý" },
                 
                 // Cashier and front operations
                 new { Email = "cashier@homms.com", FirstName = "Trần", LastName = "Thu Ngân", Role = "Staff", Password = "Cashier@123", BranchRole = "Thu Ngân" },

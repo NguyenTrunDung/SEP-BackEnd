@@ -131,6 +131,14 @@ namespace HOMMS.API.Controllers.V1
 
         }
 
+        //add order with location
+        [HttpPost("AddOrderV2")]
+        //[Authorize(Policy = "Permission:orders:add")]
+        public async Task<ActionResult<ApiResponseBase<OrderDto>>> AddOrderV2([FromBody] OrderDtoV2 dto)
+        {
+            var or = await _orderService.AddOrderV2Async(dto);
+            return Ok(new ApiResponseBase<OrderDto>(or, "Add order v2 successfully"));
+        }
 
 
     }

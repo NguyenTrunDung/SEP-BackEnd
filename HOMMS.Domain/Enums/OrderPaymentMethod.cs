@@ -18,6 +18,11 @@ namespace HOMMS.Domain.Enums
         /// <summary>
         /// Free order (promotional, staff meal, etc.)
         /// </summary>
-        Free = 3
+        Free = 3,
+
+        /// <summary>
+        /// Online payment via VNPay gateway
+        /// </summary>
+        Vnpay = 4
     }
 } 

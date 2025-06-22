@@ -22,12 +22,14 @@ namespace HOMMS.API.Controllers.V1
         private readonly IFoodService _foodService;
         private readonly IMapper _mapper;
         private readonly IBranchContext _branchContext;
+        private readonly IWebHostEnvironment _env;
 
-        public FoodsController(IFoodService foodService, IMapper mapper, IBranchContext branchContext)
+        public FoodsController(IFoodService foodService, IMapper mapper, IBranchContext branchContext, IWebHostEnvironment env)
         {
             _foodService = foodService;
             _mapper = mapper;
             _branchContext = branchContext;
+            _env = env;
         }
 
         [HttpGet]
@@ -79,5 +81,75 @@ namespace HOMMS.API.Controllers.V1
                 return NotFound(new ApiResponseBase<object>(null, "Food not found", "error"));
             return Ok(new ApiResponseBase<object>(null, "Food deleted successfully"));
         }
+
+
+        //update url image and save image to root folder
+
+        [HttpGet("branch/{branchId}")]
+        public async Task<IActionResult> GetFoodsByBranch(int branchId)
+        {
+            var foods = await _foodService.GetFoodsByBranchAsync(branchId);
+            return Ok(foods);
+        }
+
+        [HttpPost("create")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateFood([FromForm] FoodCreateRequest request)
+        {
+            try
+            {
+                var foodDto = new FoodDto
+                {
+                    Name = request.Name,
+                    Description = request.Description,
+                    CategoryId = request.CategoryId,
+                    IsAddOn = request.IsAddOn,
+                    IsSetDish = request.IsSetDish,
+                    PriceForGuest = request.PriceForGuest,
+                    PriceForPatient = request.PriceForPatient,
+                    PriceForStaff = request.PriceForStaff,
+                    Sort = request.Sort,
+                    BranchId = request.BranchId
+                };
+
+                var result = await _foodService.CreateFoodAsync(foodDto, request.Image, _env.WebRootPath);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+        [HttpPut("update/{id}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateFood(int id, [FromForm] FoodCreateRequest request)
+        {
+            try
+            {
+                var dto = new FoodDto
+                {
+                    Name = request.Name,
+                    Description = request.Description,
+                    CategoryId = request.CategoryId,
+                    IsAddOn = request.IsAddOn,
+                    IsSetDish = request.IsSetDish,
+                    PriceForGuest = request.PriceForGuest,
+                    PriceForPatient = request.PriceForPatient,
+                    PriceForStaff = request.PriceForStaff,
+                    Sort = request.Sort,
+                    BranchId = request.BranchId
+                };
+
+                var result = await _foodService.UpdateFoodAsync(id, dto, request.Image, _env.WebRootPath);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
     }
 }

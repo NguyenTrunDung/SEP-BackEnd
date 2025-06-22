@@ -64,8 +64,13 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<IEnumerable<Food>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date);
 
 
+
         Task<IEnumerable<Food>> GetFoodWithDiseaseCategoryFoodRestrictionAsync(int branchId, int categoryId);
 
+
+        Task AddAndSaveAsync(Food food);
+        Task<Food?> FindByIdAsync(int id);
+        Task UpdateAndSaveAsync(Food food);
 
 
     }

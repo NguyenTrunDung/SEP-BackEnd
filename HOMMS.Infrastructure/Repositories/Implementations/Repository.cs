@@ -72,17 +72,19 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         }
         
         /// <inheritdoc/>
+        /// <summary>
+        /// Deletes an entity. For entities implementing ISoftDeletable, this will be converted
+        /// to a soft delete automatically by ApplicationDbContext with proper audit trail.
+        /// For regular entities, this performs a hard delete.
+        /// </summary>
+        /// <param name="entity">The entity to delete</param>
+        /// <returns>True if deletion was successful</returns>
         public virtual async Task<bool> DeleteAsync(TEntity entity)
         {
-            if (entity is ISoftDeletable softDeletable)
-            {
-                softDeletable.IsDeleted = true;
-                DbContext.Entry(entity).State = EntityState.Modified;
-            }
-            else
-            {
-                DbSet.Remove(entity);
-            }
+            // Mark entity for deletion - ApplicationDbContext will handle soft delete conversion
+            // and audit trail automatically in SaveChangesAsync
+            DbSet.Remove(entity);
+            
             var result = await DbContext.SaveChangesAsync();
             return result > 0;
         }

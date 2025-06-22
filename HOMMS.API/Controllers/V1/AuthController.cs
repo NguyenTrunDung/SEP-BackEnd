@@ -118,7 +118,7 @@ namespace HOMMS.API.Controllers.V1
             var refreshToken = _authService.GenerateRefreshToken();
             
             var jwtSettings = _configuration.GetSection("JwtSettings");
-            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "60");
+            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "1440");
             var refreshExpiryInDays = int.Parse(jwtSettings["RefreshExpiryInDays"] ?? "7");
             
             var tokenExpiryTime = DateTime.UtcNow.AddMinutes(expiryInMinutes);
