@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HOMMS.Common.Helpers;
 using Asp.Versioning;
+using System;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -16,10 +17,12 @@ namespace HOMMS.API.Controllers.V1
     public class FoodCategoriesController : ControllerBase
     {
         private readonly IFoodCategoryService _foodCategoryService;
+        private readonly IWebHostEnvironment _env;
 
-        public FoodCategoriesController(IFoodCategoryService foodCategoryService)
+        public FoodCategoriesController(IFoodCategoryService foodCategoryService, IWebHostEnvironment env)
         {
             _foodCategoryService = foodCategoryService;
+            _env = env;
         }
 
         [HttpGet]
@@ -67,6 +70,55 @@ namespace HOMMS.API.Controllers.V1
             if (!deleted)
                 return NotFound(new ApiResponseBase<object>(null, "Category not found", "error"));
             return Ok(new ApiResponseBase<object>(null, "Category deleted successfully"));
+        }
+
+        // Image upload endpoints following the same pattern as FoodsController
+        [HttpPost("create")]
+        [Consumes("multipart/form-data")]
+        [Authorize(Policy = "Permission:foodcategories:add")]
+        public async Task<IActionResult> CreateCategoryWithImage([FromForm] FoodCategoryCreateRequest request)
+        {
+            try
+            {
+                var categoryDto = new FoodCategoryDto
+                {
+                    Name = request.Name,
+                    ImageUrl = request.ImageUrl,
+                    Sort = request.Sort,
+                    BranchId = request.BranchId
+                };
+
+                var result = await _foodCategoryService.CreateCategoryAsync(categoryDto, request.Image, _env.WebRootPath);
+                return Ok(new ApiResponseBase<FoodCategoryDto>(result, "Category created successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponseBase<FoodCategoryDto>(null, ex.Message, "error"));
+            }
+        }
+
+        [HttpPut("update/{id}")]
+        [Consumes("multipart/form-data")]
+        [Authorize(Policy = "Permission:foodcategories:edit")]
+        public async Task<IActionResult> UpdateCategoryWithImage(int id, [FromForm] FoodCategoryCreateRequest request)
+        {
+            try
+            {
+                var dto = new FoodCategoryDto
+                {
+                    Name = request.Name,
+                    ImageUrl = request.ImageUrl,
+                    Sort = request.Sort,
+                    BranchId = request.BranchId
+                };
+
+                var result = await _foodCategoryService.UpdateCategoryAsync(id, dto, request.Image, _env.WebRootPath);
+                return Ok(new ApiResponseBase<FoodCategoryDto>(result, "Category updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponseBase<FoodCategoryDto>(null, ex.Message, "error"));
+            }
         }
     }
 } 

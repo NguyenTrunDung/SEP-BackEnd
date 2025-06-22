@@ -112,5 +112,21 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
 
             return foods;
         }
+        public async Task AddAndSaveAsync(Food food)
+        {
+            await DbSet.AddAsync(food);
+            await DbContext.SaveChangesAsync();
+        }
+        public async Task<Food?> FindByIdAsync(int id)
+        {
+            return await DbSet.FirstOrDefaultAsync(f => f.Id == id);
+        }
+
+        public async Task UpdateAndSaveAsync(Food food)
+        {
+            DbSet.Update(food);
+            await DbContext.SaveChangesAsync();
+        }
+
     }
 } 

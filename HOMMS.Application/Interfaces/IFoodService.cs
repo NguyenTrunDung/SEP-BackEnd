@@ -1,5 +1,6 @@
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -22,6 +23,11 @@ namespace HOMMS.Application.Interfaces
         Task<FoodDtoV2> CreateAsyncV2(FoodDtoV2 dto);
         Task<FoodDtoV2_3> UpdateAsyncV2(int id, FoodDtoV2_3 dto);
         Task<FoodDtoV2> GetByIdAsyncV2(int id);
+
+        //update url image and save image to root folder
+        Task<FoodDto> CreateFoodAsync(FoodDto dto, IFormFile image, string webRootPath);
+        Task<FoodDto> UpdateFoodAsync(int id, FoodDto dto, IFormFile? image, string webRootPath);
+
 
     }
 } 
