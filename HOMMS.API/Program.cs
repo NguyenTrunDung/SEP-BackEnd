@@ -210,7 +210,7 @@ builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 
-builder.Services.AddScoped<IImageService, ImageService>();
+//builder.Services.AddScoped<IImageService, ImageService>();
 
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created
@@ -310,6 +310,17 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
+// Configure static files to serve uploaded images
+app.UseStaticFiles();
+
+// Configure static files for uploads folder specifically
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.WebRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
+
 // Add Serilog request logging
 app.UseSerilogRequestLogging();
 
@@ -381,6 +392,13 @@ public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
         var userId = context.User.FindFirst("UserId")?.Value;
         if (string.IsNullOrEmpty(userId))
             return;
+
+        // SystemAdmin has access to all permissions across all branches
+        if (context.User.IsInRole("SystemAdmin"))
+        {
+            context.Succeed(requirement);
+            return;
+        }
 
         // Get current branchId from branch context
         int branchId = _branchContext.GetCurrentBranchId();
