@@ -25,21 +25,33 @@ namespace HOMMS.Application.Profiles
             CreateMap<FoodCategory, FoodCategoryDto>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
                 .ForMember(dest => dest.Sort, opt => opt.MapFrom(src => src.Sort ?? 0));
-<<<<<<< HEAD
-            CreateMap<FoodCategoryDto, FoodCategory>();
-=======
             
             // FoodCategoryDto -> FoodCategory (reverse mapping)
             CreateMap<FoodCategoryDto, FoodCategory>()
                 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageUrl))
                 .ForMember(dest => dest.Sort, opt => opt.MapFrom(src => src.Sort));
->>>>>>> 6f07400fa64e4c665edee817c1975cd1bb26ca21
 
             // Menu -> MenuDto
             CreateMap<Menu, MenuDto>();
-            // Add this inside DomainToDtoProfile's constructor
-            CreateMap<Menu, UpdateMenuDto>();
-            // MenuDetail -> MenuDetailDto
+
+            // TODO: Not used right now, using manual mapping in service
+            // Menu -> MenuDetailViewDto (for the new GetMenuList API)
+            CreateMap<Menu, MenuDetailViewDto>()
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.LastModifiedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.LastModifiedBy))
+                .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.MenuDetails));
+
+            // TODO: Not used right now, using manual mapping in service
+            // MenuDetail -> MenuDetailsDto (enhanced mapping)
+            CreateMap<MenuDetail, MenuDetailsDto>()
+                .ForMember(dest => dest.FoodName, opt => opt.MapFrom(src => src.Food!.Name))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.LastModifiedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.LastModifiedBy))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.Food, opt => opt.MapFrom(src => src.Food));
+
+            // MenuDetail -> MenuDetailDto (existing mapping)
             CreateMap<MenuDetail, MenuDetailDto>()
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Qty));
        

@@ -317,12 +317,22 @@ app.UseHttpsRedirection();
 // Configure static files to serve uploaded images
 app.UseStaticFiles();
 
-// Configure static files for uploads folder specifically
+// Configure static files for uploads folder specifically with CORS support
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(builder.Environment.WebRootPath, "uploads")),
-    RequestPath = "/uploads"
+    RequestPath = "/uploads",
+    OnPrepareResponse = context =>
+    {
+        // Add CORS headers for all uploaded files
+        context.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        context.Context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+        context.Context.Response.Headers.Add("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
+        
+        // Cache uploaded images for better performance
+        context.Context.Response.Headers.Add("Cache-Control", "public, max-age=3600");
+    }
 });
 
 // Add Serilog request logging

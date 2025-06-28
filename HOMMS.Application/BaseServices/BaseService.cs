@@ -14,9 +14,15 @@ namespace HOMMS.Application.BaseServices
         {
             BranchContext = branchContext;
         }
-        protected int EnsureBranchId(int branchId)
+        protected int EnsureBranchId(int? branchId)
         {
-            return branchId == 0 ? BranchContext.GetCurrentBranchId() : branchId;
+            return branchId.HasValue && branchId.Value != 0
+                ? branchId.Value
+                : BranchContext.GetCurrentBranchId();
+        }
+        protected int EnsureBranchId2()
+        {
+            return  BranchContext.GetCurrentBranchId();
         }
     }
 }

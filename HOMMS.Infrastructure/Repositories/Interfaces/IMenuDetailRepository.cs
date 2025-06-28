@@ -13,6 +13,6 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<Menu?> GetMenuWithDetailsAsync(int id);
         Task<bool> UpdateMenuWithDetailsAsync(Menu menu);
         Task<bool> AddMenuWithDetailsAsync(Menu menu);
-
+        Task<List<Menu>> GetAllMenusWithDetailsAsync(int branchId);
     }
 }

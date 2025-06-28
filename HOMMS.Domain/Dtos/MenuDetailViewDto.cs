@@ -9,11 +9,16 @@ namespace HOMMS.Domain.Dtos
     public class MenuDetailViewDto
     {
         public int Id { get; set; }
-        public DateTime Date { get; set; }
-        public string? TimeOfDay { get; set; }
         public bool IsTime { get; set; }
         public TimeSpan? TimeFrom { get; set; }
         public TimeSpan? TimeTo { get; set; }
+        public DateTime Date { get; set; }
+        public int BranchId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
+        public string? TimeOfDay { get; set; }
         public string? Name { get; set; }
 
         public List<MenuDetailsDto> Details { get; set; } = new();

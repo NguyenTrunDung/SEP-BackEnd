@@ -53,7 +53,7 @@ namespace HOMMS.Domain.Dtos
         /// <summary>
         /// Gets or sets the food name
         /// </summary>
-        public string? Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the food description
@@ -109,6 +109,46 @@ namespace HOMMS.Domain.Dtos
         /// Gets or sets the branch ID this food belongs to
         /// </summary>
         public int BranchId { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether this food is for a patient
+        /// </summary>
+        public bool ForPatient { get; set; }
+
+        /// <summary>
+        /// Gets or sets the disease category ID
+        /// </summary>
+        public int? DiseaseCategoryId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the created date
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the updated date
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the created by
+        /// </summary>
+        public string? CreatedBy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the updated by
+        /// </summary>
+        public string? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the image
+        /// </summary>
+        public string? Image { get; set; }
+
+        /// <summary>
+        /// Gets or sets the set dish details
+        /// </summary>
+        public object? SetDishDetails { get; set; }
     }
 
     /// <summary>

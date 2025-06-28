@@ -6,6 +6,7 @@ using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Repositories.Implementations;
 using HOMMS.Infrastructure.Repositories.Interfaces;
 using HOMMS.Infrastructure.Services;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,21 +32,33 @@ namespace HOMMS.Application.Implementations
             var menu = await _menuRepository.GetMenuWithDetailsAsync(menuId);
             if (menu == null) return null;
 
+            // Use AutoMapper for consistent mapping
+            // return _mapper.Map<MenuDetailViewDto>(menu);
+
+            // Manual mapping (reverted for testing)
             return new MenuDetailViewDto
             {
                 Id = menu.Id,
-                Date = menu.Date,
-                TimeOfDay = menu.TimeOfDay,
                 IsTime = menu.IsTime,
                 TimeFrom = menu.TimeFrom,
                 TimeTo = menu.TimeTo,
+                Date = menu.Date,
+                BranchId = menu.BranchId,
+                CreatedAt = menu.CreatedAt,
+                UpdatedAt = menu.LastModifiedAt,
+                CreatedBy = menu.CreatedBy,
+                UpdatedBy = menu.LastModifiedBy,
+                TimeOfDay = menu.TimeOfDay,
                 Name = menu.Name,
                 Details = menu.MenuDetails.Select(md => new MenuDetailsDto
                 {
                     Id = md.Id,
+                    MenuId = md.MenuId,
                     FoodId = md.FoodId,
                     FoodName = md.Food?.Name,
+                    IsQty = md.IsQty,
                     Qty = md.Qty,
+                    Sold = md.Sold,
                     PriceForGuest = md.PriceForGuest,
                     PriceForPatient = md.PriceForPatient,
                     PriceForStaff = md.PriceForStaff,
@@ -53,7 +66,32 @@ namespace HOMMS.Application.Implementations
                     Status = md.Status,
                     DiscountFrom = md.DiscountFrom,
                     DiscountTo = md.DiscountTo,
-                    IsQty = md.IsQty
+                    CreatedBy = md.CreatedBy,
+                    UpdatedBy = md.LastModifiedBy,
+                    CreatedAt = md.CreatedAt,
+                    UpdatedAt = md.LastModifiedAt,
+                    Food = md.Food == null ? null : new FoodDto
+                    {
+                        Id = md.Food.Id,
+                        Name = md.Food.Name,
+                        BranchId = md.Food.BranchId,
+                        CategoryId = md.Food.CategoryId,
+                        Description = md.Food.Description,
+                        IsSetDish = md.Food.IsSetDish,
+                        IsAddOn = md.Food.IsAddOn,
+                        ForPatient = md.Food.ForPatient,
+                        PriceForGuest = md.Food.PriceForGuest,
+                        PriceForPatient = md.Food.PriceForPatient,
+                        PriceForStaff = md.Food.PriceForStaff,
+                        DiseaseCategoryId = md.Food.DiseaseCategoryId,
+                        Sort = md.Food.Sort,
+                        CreatedAt = md.Food.CreatedAt,
+                        UpdatedAt = md.Food.LastModifiedAt,
+                        CreatedBy = md.Food.CreatedBy,
+                        UpdatedBy = md.Food.LastModifiedBy,
+                        Image = md.Food.Image,
+                        SetDishDetails = null
+                    }
                 }).ToList()
             };
         }
@@ -150,10 +188,70 @@ namespace HOMMS.Application.Implementations
             return await _menuRepository.AddMenuWithDetailsAsync(menu);
         }
 
-        public async Task<UpdateMenuDto> GetByIdAsync(int id)
+        public async Task<List<MenuDetailViewDto>> GetAllMenusWithDetailsAsync()
         {
-            var detail = await _menuRepository.GetByIdAsync(id);
-            return _mapper.Map<UpdateMenuDto>(detail);
+            var branchId = EnsureBranchId(0);
+            var menus = await _menuRepository.GetAllMenusWithDetailsAsync(branchId);
+
+            // Manual mapping (reverted for testing)
+            return menus.Select(menu => new MenuDetailViewDto
+            {
+                Id = menu.Id,
+                IsTime = menu.IsTime,
+                TimeFrom = menu.TimeFrom,
+                TimeTo = menu.TimeTo,
+                Date = menu.Date,
+                BranchId = menu.BranchId,
+                CreatedAt = menu.CreatedAt,
+                UpdatedAt = menu.LastModifiedAt,
+                CreatedBy = menu.CreatedBy,
+                UpdatedBy = menu.LastModifiedBy,
+                TimeOfDay = menu.TimeOfDay,
+                Name = menu.Name,
+                Details = menu.MenuDetails.Select(md => new MenuDetailsDto
+                {
+                    Id = md.Id,
+                    MenuId = md.MenuId,
+                    FoodId = md.FoodId,
+                    FoodName = md.Food?.Name,
+                    IsQty = md.IsQty,
+                    Qty = md.Qty,
+                    Sold = md.Sold,
+                    PriceForGuest = md.PriceForGuest,
+                    PriceForPatient = md.PriceForPatient,
+                    PriceForStaff = md.PriceForStaff,
+                    DiscountPrice = md.DiscountPrice,
+                    Status = md.Status,
+                    DiscountFrom = md.DiscountFrom,
+                    DiscountTo = md.DiscountTo,
+                    CreatedBy = md.CreatedBy,
+                    UpdatedBy = md.LastModifiedBy,
+                    CreatedAt = md.CreatedAt,
+                    UpdatedAt = md.LastModifiedAt,
+                    Food = md.Food == null ? null : new FoodDto
+                    {
+                        Id = md.Food.Id,
+                        Name = md.Food.Name,
+                        BranchId = md.Food.BranchId,
+                        CategoryId = md.Food.CategoryId,
+                        Description = md.Food.Description,
+                        IsSetDish = md.Food.IsSetDish,
+                        IsAddOn = md.Food.IsAddOn,
+                        ForPatient = md.Food.ForPatient,
+                        PriceForGuest = md.Food.PriceForGuest,
+                        PriceForPatient = md.Food.PriceForPatient,
+                        PriceForStaff = md.Food.PriceForStaff,
+                        DiseaseCategoryId = md.Food.DiseaseCategoryId,
+                        Sort = md.Food.Sort,
+                        CreatedAt = md.Food.CreatedAt,
+                        UpdatedAt = md.Food.LastModifiedAt,
+                        CreatedBy = md.Food.CreatedBy,
+                        UpdatedBy = md.Food.LastModifiedBy,
+                        Image = md.Food.Image,
+                        SetDishDetails = null
+                    }
+                }).ToList()
+            }).ToList();
         }
     }
 }

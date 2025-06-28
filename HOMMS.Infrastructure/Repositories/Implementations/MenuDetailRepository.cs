@@ -27,6 +27,17 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 
+        public async Task<List<Menu>> GetAllMenusWithDetailsAsync(int branchId)
+        {
+            return await _dbContext.Menus
+                .Where(f => f.BranchId == branchId)
+                .Include(m => m.MenuDetails)
+                    .ThenInclude(md => md.Food)
+                .OrderByDescending(m => m.Date)
+                .ThenByDescending(m => m.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task<bool> UpdateMenuWithDetailsAsync(Menu menu)
         {
             _dbContext.Menus.Update(menu);
@@ -38,6 +49,5 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             await _dbContext.Menus.AddAsync(menu);
             return await _dbContext.SaveChangesAsync() > 0;
         }
-
     }
 }
