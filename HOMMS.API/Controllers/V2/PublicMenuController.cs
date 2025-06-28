@@ -88,20 +88,18 @@ namespace HOMMS.API.Controllers.V2
         [HttpDelete("{menuId}")]
         public async Task<IActionResult> DeleteMenu(int menuId)
         {
-
-            var food = await _publicMenuService.GetMenuWithDetailsAsync(menuId);
-
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
-            var user = await _userManager.FindByIdAsync(userId);
-            await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa menu {food.Name}", DateTime.UtcNow);
-
-
             var result = await _publicMenuService.DeleteMenu(menuId);
             if (!result)
             {
                 return NotFound(new { message = "Menu not found" });
             }
 
+            var food = await _publicMenuService.GetMenuWithDetailsAsync(menuId);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
+            var user = await _userManager.FindByIdAsync(userId);
+            await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa menu {food.Name}", DateTime.UtcNow);
+
+            
             return Ok(new { message = "Menu deleted successfully" });
         }
 

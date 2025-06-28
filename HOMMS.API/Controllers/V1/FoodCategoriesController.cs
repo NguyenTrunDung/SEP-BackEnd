@@ -45,18 +45,33 @@ namespace HOMMS.API.Controllers.V1
         [Authorize(Policy = "Permission:foodcategories:add")]
         public async Task<ActionResult<ApiResponseBase<FoodCategoryDto>>> CreateCategory([FromBody] FoodCategoryDto dto)
         {
-            var created = await _foodCategoryService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetCategory), new { id = created.Id }, new ApiResponseBase<FoodCategoryDto>(created, "Category created successfully"));
+            try
+            {
+                var created = await _foodCategoryService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetCategory), new { id = created.Id }, new ApiResponseBase<FoodCategoryDto>(created, "Category created successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { status = "error", message = ex.Message });
+            }
+
         }
 
         [HttpPut("{id}")]
         [Authorize(Policy = "Permission:foodcategories:edit")]
         public async Task<ActionResult<ApiResponseBase<FoodCategoryDto>>> UpdateCategory(int id, [FromBody] FoodCategoryDto dto)
         {
-            var updated = await _foodCategoryService.UpdateAsync(id, dto);
-            if (updated == null)
-                return NotFound(new ApiResponseBase<FoodCategoryDto>(null, "Category not found", "error"));
-            return Ok(new ApiResponseBase<FoodCategoryDto>(updated, "Category updated successfully"));
+            try
+            {
+                var updated = await _foodCategoryService.UpdateAsync(id, dto);
+                if (updated == null)
+                    return NotFound(new ApiResponseBase<FoodCategoryDto>(null, "Category not found", "error"));
+                return Ok(new ApiResponseBase<FoodCategoryDto>(updated, "Category updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { status = "error", message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
@@ -69,4 +84,4 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<object>(null, "Category deleted successfully"));
         }
     }
-} 
+}

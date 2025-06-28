@@ -115,13 +115,14 @@ namespace HOMMS.API.Controllers.V2
         {
             try
             {
+                var created = await _areaService.CreateAsync(dto);
 
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
                 await _systemLogService.LogAsync(dto.BranchId, user?.FullName ?? "unknown", $"đã tạo {dto.Name}", DateTime.UtcNow);
 
 
-                var created = await _areaService.CreateAsync(dto);
+               
                 return CreatedAtAction(nameof(GetArea), new { id = created.Id }, new ApiResponseBase<AreaDto>(created, "Area created successfully"));
             }
             catch (System.InvalidOperationException ex)
@@ -142,16 +143,16 @@ namespace HOMMS.API.Controllers.V2
         {
             try
             {
+                var updated = await _areaService.UpdateAsync(id, dto);
+                if (updated == null)
+                    return NotFound(new ApiResponseBase<AreaDto>(null, "Area not found", "error"));
 
                 var food = await _areaService.GetByIdAsync(id);
-
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
                 await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã cập nhật {food.Name}", DateTime.UtcNow);
 
-                var updated = await _areaService.UpdateAsync(id, dto);
-                if (updated == null)
-                    return NotFound(new ApiResponseBase<AreaDto>(null, "Area not found", "error"));
+
                 return Ok(new ApiResponseBase<AreaDto>(updated, "Area updated successfully"));
             }
             catch (System.InvalidOperationException ex)
@@ -170,16 +171,17 @@ namespace HOMMS.API.Controllers.V2
         public async Task<ActionResult<ApiResponseBase<object>>> DeleteArea(int id)
         {
 
-            var food = await _areaService.GetByIdAsync(id);
+            var deleted = await _areaService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound(new ApiResponseBase<object>(null, "Area not found", "error"));
 
+            var food = await _areaService.GetByIdAsync(id);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
             await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa {food.Name}", DateTime.UtcNow);
 
 
-            var deleted = await _areaService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound(new ApiResponseBase<object>(null, "Area not found", "error"));
+
             return Ok(new ApiResponseBase<object>(null, "Area deleted successfully"));
         }
 
@@ -201,4 +203,4 @@ namespace HOMMS.API.Controllers.V2
             return Ok(new ApiResponseBase<object>(isUnique, isUnique ? "Area name is available" : "Area name already exists"));
         }
     }
-} 
+}

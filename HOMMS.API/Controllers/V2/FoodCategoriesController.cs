@@ -55,12 +55,13 @@ namespace HOMMS.API.Controllers.V2
         [Authorize(Policy = "Permission:foodcategories:add")]
         public async Task<ActionResult<ApiResponseBase<FoodCategoryDto>>> CreateCategory([FromBody] FoodCategoryDto dto)
         {
+            var created = await _foodCategoryService.CreateAsync(dto);
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
             await _systemLogService.LogAsync(dto.BranchId, user?.FullName ?? "Unknown", $"đã tạo {dto.Name}", DateTime.UtcNow);
 
-            var created = await _foodCategoryService.CreateAsync(dto);
+
             return CreatedAtAction(nameof(GetCategory), new { id = created.Id }, new ApiResponseBase<FoodCategoryDto>(created, "Category created successfully"));
         }
 
@@ -69,16 +70,16 @@ namespace HOMMS.API.Controllers.V2
         public async Task<ActionResult<ApiResponseBase<FoodCategoryDto>>> UpdateCategory(int id, [FromBody] FoodCategoryDto dto)
         {
 
-            var food = await _foodCategoryService.GetByIdAsync(id);
+            var updated = await _foodCategoryService.UpdateAsync(id, dto);
+            if (updated == null)
+                return NotFound(new ApiResponseBase<FoodCategoryDto>(null, "Category not found", "error"));
 
+            var food = await _foodCategoryService.GetByIdAsync(id);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
             await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã cập nhật {food.Name}", DateTime.UtcNow);
 
 
-            var updated = await _foodCategoryService.UpdateAsync(id, dto);
-            if (updated == null)
-                return NotFound(new ApiResponseBase<FoodCategoryDto>(null, "Category not found", "error"));
             return Ok(new ApiResponseBase<FoodCategoryDto>(updated, "Category updated successfully"));
         }
 
@@ -86,17 +87,18 @@ namespace HOMMS.API.Controllers.V2
         [Authorize(Policy = "Permission:foodcategories:delete")]
         public async Task<ActionResult<ApiResponseBase<object>>> DeleteCategory(int id)
         {
-            var food = await _foodCategoryService.GetByIdAsync(id);
 
+            var deleted = await _foodCategoryService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound(new ApiResponseBase<object>(null, "Category not found", "error"));
+
+            var food = await _foodCategoryService.GetByIdAsync(id);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
             await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa {food.Name}", DateTime.UtcNow);
 
 
-            var deleted = await _foodCategoryService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound(new ApiResponseBase<object>(null, "Category not found", "error"));
             return Ok(new ApiResponseBase<object>(null, "Category deleted successfully"));
         }
     }
-} 
+}

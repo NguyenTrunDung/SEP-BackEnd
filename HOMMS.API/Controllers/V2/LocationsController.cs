@@ -130,11 +130,13 @@ namespace HOMMS.API.Controllers.V2
         {
             try
             {
+                var created = await _locationService.CreateAsync(dto);
+
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
                 await _systemLogService.LogAsync(dto.BranchId, user?.FullName ?? "Unknown", $"đã thêm {dto.Name}", DateTime.UtcNow);
 
-                var created = await _locationService.CreateAsync(dto);
+               
                 return CreatedAtAction(nameof(GetLocation), new { id = created.Id }, new ApiResponseBase<LocationDto>(created, "Location created successfully"));
             }
             catch (System.InvalidOperationException ex)
@@ -155,15 +157,16 @@ namespace HOMMS.API.Controllers.V2
         {
             try
             {
-                var food = await _locationService.GetByIdAsync(id);
+                var updated = await _locationService.UpdateAsync(id, dto);
+                if (updated == null)
+                    return NotFound(new ApiResponseBase<LocationDto>(null, "Location not found", "error"));
 
+                var food = await _locationService.GetByIdAsync(id);
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
                 var user = await _userManager.FindByIdAsync(userId);
                 await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã cập nhật {food.Name}", DateTime.UtcNow);
 
-                var updated = await _locationService.UpdateAsync(id, dto);
-                if (updated == null)
-                    return NotFound(new ApiResponseBase<LocationDto>(null, "Location not found", "error"));
+                
                 return Ok(new ApiResponseBase<LocationDto>(updated, "Location updated successfully"));
             }
             catch (System.InvalidOperationException ex)
@@ -182,15 +185,16 @@ namespace HOMMS.API.Controllers.V2
         public async Task<ActionResult<ApiResponseBase<object>>> DeleteLocation(int id)
         {
 
-            var food = await _locationService.GetByIdAsync(id);
+            var deleted = await _locationService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound(new ApiResponseBase<object>(null, "Location not found", "error"));
 
+            var food = await _locationService.GetByIdAsync(id);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             var user = await _userManager.FindByIdAsync(userId);
             await _systemLogService.LogAsync(food.BranchId, user?.FullName ?? "Unknown", $"đã xóa {food.Name}", DateTime.UtcNow);
 
-            var deleted = await _locationService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound(new ApiResponseBase<object>(null, "Location not found", "error"));
+           
             return Ok(new ApiResponseBase<object>(null, "Location deleted successfully"));
         }
 

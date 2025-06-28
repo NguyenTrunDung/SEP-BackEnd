@@ -1,8 +1,9 @@
+﻿using AutoMapper;
 using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Repositories.Interfaces;
-using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -33,6 +34,14 @@ namespace HOMMS.Application.Implementations
 
         public async Task<FoodCategoryDto> CreateAsync(FoodCategoryDto dto)
         {
+
+            bool isSortExist = await _foodCategoryRepository
+                .AnyAsync(x => x.Sort == dto.Sort && x.BranchId == dto.BranchId);
+
+            if (isSortExist)
+                throw new Exception($"Số thứ tự {dto.Sort} đã được sử dụng.");
+
+
             var category = _mapper.Map<FoodCategory>(dto);
             var created = await _foodCategoryRepository.AddAsync(category);
             return _mapper.Map<FoodCategoryDto>(created);
@@ -40,6 +49,14 @@ namespace HOMMS.Application.Implementations
 
         public async Task<FoodCategoryDto> UpdateAsync(int id, FoodCategoryDto dto)
         {
+
+            bool isSortExist = await _foodCategoryRepository
+              .AnyAsync(x => x.Sort == dto.Sort && x.BranchId == dto.BranchId && x.Id != id);
+
+            if (isSortExist)
+                throw new Exception($"Số thứ tự {dto.Sort} đã được sử dụng.");
+
+
             var category = await _foodCategoryRepository.GetByIdAsync(id);
             if (category == null) return null;
             _mapper.Map(dto, category);
@@ -61,4 +78,4 @@ namespace HOMMS.Application.Implementations
             return _mapper.Map<IEnumerable<FoodCategoryDto>>(categories);
         }
     }
-} 
+}
