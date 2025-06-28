@@ -1,5 +1,6 @@
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -19,6 +20,11 @@ namespace HOMMS.Application.Interfaces
         Task<IEnumerable<FoodDto>> GetFoodWithDiseaseCategoryFoodRestrictionAsync(int branchId, int categoryId);
 
        
+
+        //update url image and save image to root folder
+        Task<FoodDto> CreateFoodAsync(FoodDto dto, IFormFile image, string webRootPath);
+        Task<FoodDto> UpdateFoodAsync(int id, FoodDto dto, IFormFile? image, string webRootPath);
+
 
     }
 } 

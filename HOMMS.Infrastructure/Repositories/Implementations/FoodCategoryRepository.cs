@@ -53,5 +53,25 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .OrderBy(c => c.Sort)
                 .ToListAsync();
         }
+        
+        /// <inheritdoc/>
+        public async Task AddAndSaveAsync(FoodCategory category)
+        {
+            await DbSet.AddAsync(category);
+            await DbContext.SaveChangesAsync();
+        }
+        
+        /// <inheritdoc/>
+        public async Task<FoodCategory?> FindByIdAsync(int id)
+        {
+            return await DbSet.FindAsync(id);
+        }
+        
+        /// <inheritdoc/>
+        public async Task UpdateAndSaveAsync(FoodCategory category)
+        {
+            DbSet.Update(category);
+            await DbContext.SaveChangesAsync();
+        }
     }
 } 

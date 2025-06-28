@@ -25,7 +25,15 @@ namespace HOMMS.Application.Profiles
             CreateMap<FoodCategory, FoodCategoryDto>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
                 .ForMember(dest => dest.Sort, opt => opt.MapFrom(src => src.Sort ?? 0));
+<<<<<<< HEAD
             CreateMap<FoodCategoryDto, FoodCategory>();
+=======
+            
+            // FoodCategoryDto -> FoodCategory (reverse mapping)
+            CreateMap<FoodCategoryDto, FoodCategory>()
+                .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageUrl))
+                .ForMember(dest => dest.Sort, opt => opt.MapFrom(src => src.Sort));
+>>>>>>> 6f07400fa64e4c665edee817c1975cd1bb26ca21
 
             // Menu -> MenuDto
             CreateMap<Menu, MenuDto>();
@@ -41,6 +49,7 @@ namespace HOMMS.Application.Profiles
 
             // Order -> OrderDto
             CreateMap<Order, OrderDto>();
+            CreateMap<OrderDtoV2, Order>();
             CreateMap<Order, CreatePatientOrderDto>();
            
             CreateMap<CreatePatientOrderDto, Order>();
@@ -52,6 +61,7 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Qty))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
                 .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total));
+            CreateMap<OrderDetailsDto, OrderDetails>();
 
 
 

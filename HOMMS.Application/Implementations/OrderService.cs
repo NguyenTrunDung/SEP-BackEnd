@@ -153,10 +153,23 @@ namespace HOMMS.Application.Implementations
             return true;
         }
 
+
         public async Task<OrderDto> GetByIdAsync(int id)
         {
             var or = await _orderRepository.GetByIdAsync(id);
             return _mapper.Map<OrderDto>(or);
         }
+
+        //add order with location
+        public async Task<OrderDto> AddOrderV2Async(OrderDtoV2 dto)
+        {
+            var order = _mapper.Map<Order>(dto);
+
+            var result = await _orderRepository.AddOrderV2Async(order);
+
+            return _mapper.Map<OrderDto>(result);
+        }
+
+
     }
 }

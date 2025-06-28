@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HOMMS.Common.Helpers;
 using Asp.Versioning;
+using System;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -16,10 +17,12 @@ namespace HOMMS.API.Controllers.V1
     public class FoodCategoriesController : ControllerBase
     {
         private readonly IFoodCategoryService _foodCategoryService;
+        private readonly IWebHostEnvironment _env;
 
-        public FoodCategoriesController(IFoodCategoryService foodCategoryService)
+        public FoodCategoriesController(IFoodCategoryService foodCategoryService, IWebHostEnvironment env)
         {
             _foodCategoryService = foodCategoryService;
+            _env = env;
         }
 
         [HttpGet]
@@ -82,6 +85,93 @@ namespace HOMMS.API.Controllers.V1
             if (!deleted)
                 return NotFound(new ApiResponseBase<object>(null, "Category not found", "error"));
             return Ok(new ApiResponseBase<object>(null, "Category deleted successfully"));
+        }
+
+        // Image upload endpoints following the same pattern as FoodsController
+        [HttpPost("create")]
+        [Consumes("multipart/form-data")]
+        [Authorize(Policy = "Permission:foodcategories:add")]
+        public async Task<IActionResult> CreateCategoryWithImage([FromForm] FoodCategoryCreateRequest request)
+        {
+            try
+            {
+                var categoryDto = new FoodCategoryDto
+                {
+                    Name = request.Name,
+                    ImageUrl = request.ImageUrl,
+                    Sort = request.Sort,
+                    BranchId = request.BranchId
+                };
+
+                var result = await _foodCategoryService.CreateCategoryAsync(categoryDto, request.Image, _env.WebRootPath);
+                return Ok(new ApiResponseBase<FoodCategoryDto>(result, "Category created successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponseBase<FoodCategoryDto>(null, ex.Message, "error"));
+            }
+        }
+
+        [HttpPut("update/{id}")]
+        [Consumes("multipart/form-data")]
+        [Authorize(Policy = "Permission:foodcategories:edit")]
+        public async Task<IActionResult> UpdateCategoryWithImage(int id, [FromForm] FoodCategoryCreateRequest request)
+        {
+            try
+            {
+                var dto = new FoodCategoryDto
+                {
+                    Name = request.Name,
+                    ImageUrl = request.ImageUrl,
+                    Sort = request.Sort,
+                    BranchId = request.BranchId
+                };
+
+                var result = await _foodCategoryService.UpdateCategoryAsync(id, dto, request.Image, _env.WebRootPath);
+                return Ok(new ApiResponseBase<FoodCategoryDto>(result, "Category updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponseBase<FoodCategoryDto>(null, ex.Message, "error"));
+            }
+        }
+
+        // Debug/Test endpoint to verify audit functionality
+        [HttpPost("test-audit")]
+        [Authorize(Policy = "Permission:foodcategories:add")]
+        public async Task<IActionResult> TestAuditFunctionality([FromBody] FoodCategoryDto dto)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"[TEST] Creating test category for audit verification");
+                System.Diagnostics.Debug.WriteLine($"[TEST] Current user: {User?.Identity?.Name ?? "Unknown"}");
+                System.Diagnostics.Debug.WriteLine($"[TEST] User authenticated: {User?.Identity?.IsAuthenticated}");
+                
+                // Create a test category
+                dto.Name = $"TEST_AUDIT_{DateTime.Now:yyyyMMdd_HHmmss}";
+                dto.Sort = 999;
+                
+                var result = await _foodCategoryService.CreateAsync(dto);
+                
+                System.Diagnostics.Debug.WriteLine($"[TEST] Created category with ID: {result.Id}");
+                
+                // Get the category back to check audit fields
+                var retrievedCategory = await _foodCategoryService.GetByIdAsync(result.Id);
+                
+                return Ok(new ApiResponseBase<object>(new 
+                {
+                    CreatedCategory = result,
+                    RetrievedCategory = retrievedCategory,
+                    TestMessage = "Check the API console/debug output for audit information",
+                    UserId = User?.Identity?.Name,
+                    IsAuthenticated = User?.Identity?.IsAuthenticated
+                }, "Test audit category created successfully"));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TEST] Exception: {ex.Message}");
+                return BadRequest(new ApiResponseBase<object>(null, ex.Message, "error"));
+            }
         }
     }
 }

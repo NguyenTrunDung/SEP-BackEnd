@@ -36,5 +36,26 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="branchId">Branch ID</param>
         /// <returns>Categories with foods</returns>
         Task<IEnumerable<FoodCategory>> GetCategoriesWithFoodsByBranchAsync(int branchId);
+        
+        /// <summary>
+        /// Adds a food category and saves changes immediately
+        /// </summary>
+        /// <param name="category">Food category to add</param>
+        /// <returns>Task representing the async operation</returns>
+        Task AddAndSaveAsync(FoodCategory category);
+        
+        /// <summary>
+        /// Finds a food category by ID
+        /// </summary>
+        /// <param name="id">Category ID</param>
+        /// <returns>Food category or null if not found</returns>
+        Task<FoodCategory?> FindByIdAsync(int id);
+        
+        /// <summary>
+        /// Updates a food category and saves changes immediately
+        /// </summary>
+        /// <param name="category">Food category to update</param>
+        /// <returns>Task representing the async operation</returns>
+        Task UpdateAndSaveAsync(FoodCategory category);
     }
 } 

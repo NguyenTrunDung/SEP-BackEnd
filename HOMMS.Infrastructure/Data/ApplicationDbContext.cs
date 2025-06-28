@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.IO;
 using System.Linq;
@@ -19,16 +20,19 @@ namespace HOMMS.Infrastructure.Data
     {
         private readonly IConfiguration _configuration;
         private readonly IBranchContext _branchContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly bool _multiTenancyEnabled;
 
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options,
             IConfiguration configuration,
-            IBranchContext branchContext)
+            IBranchContext branchContext,
+            IHttpContextAccessor httpContextAccessor)
             : base(options)
         {
             _configuration = configuration;
             _branchContext = branchContext ?? throw new ArgumentNullException(nameof(branchContext));
+            _httpContextAccessor = httpContextAccessor;
             _multiTenancyEnabled = branchContext != null;
         }
 
@@ -241,6 +245,9 @@ namespace HOMMS.Infrastructure.Data
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            // Apply audit information before saving changes
+            ApplyAuditInformation();
+            
             // Apply branch filtering for new entities if multi-tenancy is enabled
             if (_multiTenancyEnabled)
             {
@@ -258,6 +265,9 @@ namespace HOMMS.Infrastructure.Data
         
         public override int SaveChanges()
         {
+            // Apply audit information before saving changes
+            ApplyAuditInformation();
+            
             // Apply branch filtering for new entities if multi-tenancy is enabled
             if (_multiTenancyEnabled)
             {
@@ -271,6 +281,168 @@ namespace HOMMS.Infrastructure.Data
             }
             
             return base.SaveChanges();
+        }
+
+        /// <summary>
+        /// Applies audit information to entities that implement IAuditableEntity or ISoftDeletable
+        /// </summary>
+        private void ApplyAuditInformation()
+        {
+            var currentUserId = GetCurrentUserId();
+            var currentTime = DateTime.UtcNow;
+
+            // Debug logging - remove in production
+            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] ApplyAuditInformation called. CurrentUserId: {currentUserId ?? "NULL"}, CurrentTime: {currentTime}");
+
+            var auditableEntries = ChangeTracker.Entries().Where(e => 
+                e.Entity is IAuditableEntity || e.Entity is ISoftDeletable).ToList();
+            
+            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Found {auditableEntries.Count} auditable entities");
+
+            foreach (var entry in auditableEntries)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Processing entity: {entry.Entity.GetType().Name}, State: {entry.State}");
+                
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        // Handle auditable entities on creation
+                        if (entry.Entity is IAuditableEntity auditableEntity)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Setting creation audit for {entry.Entity.GetType().Name}");
+                            auditableEntity.CreatedAt = currentTime;
+                            auditableEntity.CreatedBy = currentUserId;
+                            auditableEntity.LastModifiedAt = null; // Clear on creation
+                            auditableEntity.LastModifiedBy = null; // Clear on creation
+                            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Set CreatedAt: {auditableEntity.CreatedAt}, CreatedBy: {auditableEntity.CreatedBy ?? "NULL"}");
+                        }
+                        break;
+
+                    case EntityState.Modified:
+                        // Handle auditable entities on update
+                        if (entry.Entity is IAuditableEntity modifiedAuditableEntity)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Setting modification audit for {entry.Entity.GetType().Name}");
+                            
+                            // Preserve original creation values
+                            entry.Property(nameof(IAuditableEntity.CreatedAt)).IsModified = false;
+                            entry.Property(nameof(IAuditableEntity.CreatedBy)).IsModified = false;
+                            
+                            // Update modification values
+                            modifiedAuditableEntity.LastModifiedAt = currentTime;
+                            modifiedAuditableEntity.LastModifiedBy = currentUserId;
+                            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Set LastModifiedAt: {modifiedAuditableEntity.LastModifiedAt}, LastModifiedBy: {modifiedAuditableEntity.LastModifiedBy ?? "NULL"}");
+                        }
+
+                        // Handle soft deletable entities
+                        if (entry.Entity is ISoftDeletable softDeletableEntity)
+                        {
+                            // Check if IsDeleted property was changed to true
+                            var isDeletedProperty = entry.Property(nameof(ISoftDeletable.IsDeleted));
+                            if (isDeletedProperty.IsModified && 
+                                isDeletedProperty.CurrentValue is true && 
+                                isDeletedProperty.OriginalValue is false)
+                            {
+                                // This is a soft delete operation
+                                System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Setting soft delete audit for {entry.Entity.GetType().Name}");
+                                softDeletableEntity.DeletedAt = currentTime;
+                                softDeletableEntity.DeletedBy = currentUserId;
+                                System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Set DeletedAt: {softDeletableEntity.DeletedAt}, DeletedBy: {softDeletableEntity.DeletedBy ?? "NULL"}");
+                            }
+                            else if (isDeletedProperty.IsModified && 
+                                     isDeletedProperty.CurrentValue is false && 
+                                     isDeletedProperty.OriginalValue is true)
+                            {
+                                // This is a soft undelete operation
+                                System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Setting soft undelete audit for {entry.Entity.GetType().Name}");
+                                softDeletableEntity.DeletedAt = null;
+                                softDeletableEntity.DeletedBy = null;
+                            }
+                        }
+                        break;
+
+                    case EntityState.Deleted:
+                        // Handle entities being hard deleted
+                        if (entry.Entity is ISoftDeletable hardDeletedEntity)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Converting hard delete to soft delete for {entry.Entity.GetType().Name}");
+                            // Convert hard delete to soft delete
+                            entry.State = EntityState.Modified;
+                            hardDeletedEntity.IsDeleted = true;
+                            hardDeletedEntity.DeletedAt = currentTime;
+                            hardDeletedEntity.DeletedBy = currentUserId;
+                            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Set IsDeleted: true, DeletedAt: {hardDeletedEntity.DeletedAt}, DeletedBy: {hardDeletedEntity.DeletedBy ?? "NULL"}");
+                        }
+                        break;
+                }
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] ApplyAuditInformation completed");
+        }
+
+        /// <summary>
+        /// Gets the current user ID from the HTTP context
+        /// </summary>
+        /// <returns>Current user ID or null if not authenticated</returns>
+        private string? GetCurrentUserId()
+        {
+            try
+            {
+                var httpContext = _httpContextAccessor?.HttpContext;
+                
+                // Debug logging
+                System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] GetCurrentUserId - HttpContext available: {httpContext != null}");
+                
+                if (httpContext?.User?.Identity?.IsAuthenticated == true)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] User is authenticated: {httpContext.User.Identity.Name ?? "Unknown"}");
+                    
+                    // Log all claims for debugging
+                    foreach (var claim in httpContext.User.Claims)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Claim - Type: {claim.Type}, Value: {claim.Value}");
+                    }
+                    
+                    // Try to get user ID from claims (standard Identity claim)
+                    var userIdClaim = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                    if (userIdClaim != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Found NameIdentifier claim: {userIdClaim.Value}");
+                        return userIdClaim.Value;
+                    }
+
+                    // Fallback to other possible claim types
+                    var subClaim = httpContext.User.FindFirst("sub");
+                    if (subClaim != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Found sub claim: {subClaim.Value}");
+                        return subClaim.Value;
+                    }
+
+                    var idClaim = httpContext.User.FindFirst("id");
+                    if (idClaim != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Found id claim: {idClaim.Value}");
+                        return idClaim.Value;
+                    }
+                    
+                    System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] No suitable user ID claim found");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] User not authenticated or HttpContext not available");
+                }
+
+                // Return null for unauthenticated users or system operations
+                return null;
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions during user ID extraction
+                // This can happen during data seeding or system operations
+                System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Exception in GetCurrentUserId: {ex.Message}");
+                return null;
+            }
         }
     }
 } 

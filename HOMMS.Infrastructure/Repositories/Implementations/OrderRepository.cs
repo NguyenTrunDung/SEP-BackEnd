@@ -131,6 +131,22 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                                  .ToListAsync();
         }
 
+        //add order with location
+        public async Task<Order> AddOrderV2Async(Order order)
+        {
+            if (order.LocationId.HasValue)
+            {
+                var location = await _context.Locations.FindAsync(order.LocationId.Value);
+                if (location == null)
+                    throw new Exception("Location không tồn tại.");
+            }
+
+            await DbSet.AddAsync(order);
+            await _context.SaveChangesAsync();
+            return order;
+        }
+
+
 
     }
 }

@@ -46,6 +46,15 @@ namespace HOMMS.API.Controllers.V1
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 if (!string.IsNullOrEmpty(userId))
                 {
+                    // If user is SystemAdmin, return all active branches
+                    if (User.IsInRole("SystemAdmin"))
+                    {
+                        var allBranches = await _branchRepository.GetActiveBranchesAsync();
+                        var allBranchDtos = _mapper.Map<List<BranchDto>>(allBranches);
+                        var totalCountAll = allBranchDtos.Count;
+                        return Ok(new ApiResponseBase<List<BranchDto>>(allBranchDtos, "All branches retrieved successfully", "success", totalCountAll));
+                    }
+                    // Otherwise, return only branches assigned to the user
                     var userBranches = await _branchRepository.GetUserBranchesAsync(userId);
                     var userBranchDtos = _mapper.Map<List<BranchDto>>(userBranches);
                     var totalCount = userBranchDtos.Count;
