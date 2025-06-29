@@ -41,19 +41,22 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCorsPolicy", policy =>
     {
-        policy.WithOrigins("*"
-        )
+        policy.WithOrigins("*")
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
-    //options.AddPolicy("ProdCorsPolicy", policy =>
-    //{
-    //    policy.WithOrigins(
-    //        "https://homms.cuahangkinhdoanh.com"
-    //    )
-    //    .AllowAnyHeader()
-    //    .AllowAnyMethod();
-    //});
+    
+    options.AddPolicy("ProdCorsPolicy", policy =>
+    {
+        policy.WithOrigins(
+            "https://homms.cuahangkinhdoanh.com",
+            "http://localhost:3000",
+            "http://localhost:3001"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials(); // Allow credentials for authenticated requests
+    });
 });
 
 // Add DbContext
@@ -282,24 +285,7 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI(options =>
-//    {
-//        // Configure Swagger UI for multiple API versions
-//        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
-//        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
-//    });
-//    // Use CORS policy in development
-//    app.UseCors("DevCorsPolicy");
-//}
-//else
-//{
-//    // Use CORS policy in production
-//    app.UseCors("ProdCorsPolicy");
-//}
-
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -310,6 +296,18 @@ var app = builder.Build();
     });
     // Use CORS policy in development
     app.UseCors("DevCorsPolicy");
+}
+else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        // Configure Swagger UI for multiple API versions
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
+    });
+    // Use CORS policy in production
+    app.UseCors("ProdCorsPolicy");
 }
 
 app.UseHttpsRedirection();
@@ -326,12 +324,29 @@ app.UseStaticFiles(new StaticFileOptions
     OnPrepareResponse = context =>
     {
         // Add CORS headers for all uploaded files
-        context.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        // Allow specific origins in production, wildcard in development
+        var origin = context.Context.Request.Headers["Origin"].FirstOrDefault();
+        var allowedOrigins = new[] { 
+            "https://homms.cuahangkinhdoanh.com", 
+            "http://localhost:3000", 
+            "http://localhost:3001" 
+        };
+        
+        if (app.Environment.IsDevelopment() || allowedOrigins.Contains(origin))
+        {
+            context.Context.Response.Headers.Add("Access-Control-Allow-Origin", 
+                app.Environment.IsDevelopment() ? "*" : origin);
+        }
+        
         context.Context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
         context.Context.Response.Headers.Add("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
+        context.Context.Response.Headers.Add("Access-Control-Expose-Headers", "Content-Length, Content-Type");
         
         // Cache uploaded images for better performance
         context.Context.Response.Headers.Add("Cache-Control", "public, max-age=3600");
+        
+        // Add Vary header for proper caching with CORS
+        context.Context.Response.Headers.Add("Vary", "Origin");
     }
 });
 
