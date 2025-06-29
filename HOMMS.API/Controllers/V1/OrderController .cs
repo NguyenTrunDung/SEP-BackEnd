@@ -110,7 +110,7 @@ namespace HOMMS.API.Controllers.V1
 
 
 
-        [HttpPut]
+        [HttpPut("UpdateOrder")]
         [Authorize(Policy = "Permission:orders:edit")]
        public async Task<ActionResult<ApiResponseBase<OrderDto>>>UpdateOrder(int id, [FromBody] UpdateOrderDto dto)
         {
@@ -121,7 +121,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
 
-        [HttpDelete]
+        [HttpDelete("DeleteOrder")]
         [Authorize(Policy = "Permission:orders:delete")]
         public async Task<ActionResult<ApiResponseBase<object>>>DeleteOrder(int id)
         {

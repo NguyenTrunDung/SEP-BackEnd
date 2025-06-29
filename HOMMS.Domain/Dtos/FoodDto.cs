@@ -19,6 +19,10 @@ namespace HOMMS.Domain.Dtos
         /// </summary>
         public string Name { get; set; }
 
+
+        public int BranchId { get; set; }
+
+
         /// <summary>
         /// Gets or sets the image URL for this category
         /// </summary>
@@ -174,137 +178,5 @@ namespace HOMMS.Domain.Dtos
     }
 
  
-    public class FoodDtoV2
-    {
-
-
-        public int? BranchId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the food ID
-        /// </summary>
-        public int? Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the food name
-        /// </summary>
-        public string? Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets the food description
-        /// </summary>
-        public string? Description { get; set; }
-
-        /// <summary>
-        /// Gets or sets the category ID
-        /// </summary>
-        public int? CategoryId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the food category
-        /// </summary>
-        public FoodCategoryDto? Category { get; set; }
-
-        /// <summary>
-        /// Gets or sets the image URL for this food
-        /// </summary>
-        public string? ImageUrl { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether this food is a set dish
-        /// </summary>
-        public bool IsSetDish { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether this food is an add-on
-        /// </summary>
-        public bool IsAddOn { get; set; }
-
-        /// <summary>
-        /// Gets or sets the price for guests
-        /// </summary>
-        public int? PriceForGuest { get; set; }
-
-        /// <summary>
-        /// Gets or sets the price for patients
-        /// </summary>
-        public int? PriceForPatient { get; set; }
-
-        /// <summary>
-        /// Gets or sets the price for staff
-        /// </summary>
-        public int? PriceForStaff { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sort order for this food
-        /// </summary>
-        public int? Sort { get; set; }
-
-        public DateTime Date { get; set; }
-    }
-
-
-    public class FoodDtoV2_3
-    {
-
-        /// <summary>
-        /// Gets or sets the food name
-        /// </summary>
-        public string? Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets the food description
-        /// </summary>
-        public string? Description { get; set; }
-
-        /// <summary>
-        /// Gets or sets the category ID
-        /// </summary>
-        public int? CategoryId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the food category
-        /// </summary>
-        public FoodCategoryDto? Category { get; set; }
-
-        /// <summary>
-        /// Gets or sets the image URL for this food
-        /// </summary>
-        public string? ImageUrl { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether this food is a set dish
-        /// </summary>
-        public bool IsSetDish { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether this food is an add-on
-        /// </summary>
-        public bool IsAddOn { get; set; }
-
-        /// <summary>
-        /// Gets or sets the price for guests
-        /// </summary>
-        public int? PriceForGuest { get; set; }
-
-        /// <summary>
-        /// Gets or sets the price for patients
-        /// </summary>
-        public int? PriceForPatient { get; set; }
-
-        /// <summary>
-        /// Gets or sets the price for staff
-        /// </summary>
-        public int? PriceForStaff { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sort order for this food
-        /// </summary>
-        public int? Sort { get; set; }
-
-        public DateTime Date { get; set; }
-    }
-
-
-
+  
 }

@@ -28,7 +28,8 @@ namespace HOMMS.Infrastructure.Configurations
 
 
             builder.Property(f => f.UserId)
-                              .IsRequired(false);
+                               .HasMaxLength(255)
+                   .IsRequired(false);
 
 
             builder.Property(f => f.Note)

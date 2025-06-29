@@ -23,14 +23,14 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="categoryId">Category ID</param>
         /// <returns>Foods for the branch and category</returns>
         Task<IEnumerable<Food>> GetFoodsByBranchAndCategoryAsync(int branchId, int categoryId);
-        
+
         /// <summary>
         /// Gets food with its category
         /// </summary>
         /// <param name="foodId">Food ID</param>
         /// <returns>Food with category</returns>
         Task<Food> GetFoodWithCategoryAsync(int foodId);
-        
+
         /// <summary>
         /// Gets foods with their categories for a specific branch
         /// </summary>
@@ -62,10 +62,17 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="date">Date</param>
         /// <returns>Foods for the branch, category, and date</returns>
         Task<IEnumerable<Food>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date);
+ 
+
+
+        Task<IEnumerable<Food>> GetFoodWithDiseaseCategoryFoodRestrictionAsync(int branchId, int categoryId);
+
+ 
         Task AddAndSaveAsync(Food food);
         Task<Food?> FindByIdAsync(int id);
         Task UpdateAndSaveAsync(Food food);
+ 
 
 
     }
-} 
+}

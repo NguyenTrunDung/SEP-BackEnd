@@ -17,16 +17,7 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category));
             CreateMap<FoodDto, Food>();
 
-            ///////
-            CreateMap<Food, FoodDtoV2>()
-               .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
-               .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category));
-            CreateMap<FoodDtoV2, Food>();
-            CreateMap<FoodDtoV2_3, Food>();
-            CreateMap<Food, FoodDtoV2_3>()
-             .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
-             .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category));
-            ///////
+         
 
 
 
@@ -34,18 +25,24 @@ namespace HOMMS.Application.Profiles
             CreateMap<FoodCategory, FoodCategoryDto>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
                 .ForMember(dest => dest.Sort, opt => opt.MapFrom(src => src.Sort ?? 0));
+<<<<<<< HEAD
+            CreateMap<FoodCategoryDto, FoodCategory>();
+=======
             
             // FoodCategoryDto -> FoodCategory (reverse mapping)
             CreateMap<FoodCategoryDto, FoodCategory>()
                 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageUrl))
                 .ForMember(dest => dest.Sort, opt => opt.MapFrom(src => src.Sort));
+>>>>>>> 6f07400fa64e4c665edee817c1975cd1bb26ca21
 
             // Menu -> MenuDto
             CreateMap<Menu, MenuDto>();
-
+            // Add this inside DomainToDtoProfile's constructor
+            CreateMap<Menu, UpdateMenuDto>();
             // MenuDetail -> MenuDetailDto
             CreateMap<MenuDetail, MenuDetailDto>()
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Qty));
+       
 
             // Branch -> BranchDto
             CreateMap<Branch, BranchDto>();

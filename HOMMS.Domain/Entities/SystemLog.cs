@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace HOMMS.Domain.Entities
 {
-    public class SystemLog : BaseAuditableEntity<int>, IBranchEntity
+    public class SystemLog : BaseAuditableEntity<int>
     {
-        public int BranchId { get; set; }
+        public int? BranchId { get; set; }
         public virtual Branch? Branch { get; set; }
 
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
         [StringLength(255)]
         public string? Note { get; set; }
 

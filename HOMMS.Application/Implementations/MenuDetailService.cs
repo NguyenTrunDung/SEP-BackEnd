@@ -1,7 +1,9 @@
-﻿using HOMMS.Application.BaseServices;
+﻿using AutoMapper;
+using HOMMS.Application.BaseServices;
 using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
+using HOMMS.Infrastructure.Repositories.Implementations;
 using HOMMS.Infrastructure.Repositories.Interfaces;
 using HOMMS.Infrastructure.Services;
 using System;
@@ -15,11 +17,13 @@ namespace HOMMS.Application.Implementations
     public class MenuDetailService : BaseService, IMenuDetailService
     {
         private readonly IMenuDetailRepository _menuRepository;
+        private readonly IMapper _mapper;
 
-        public MenuDetailService(IMenuDetailRepository menuRepository, IBranchContext branchContext)
+        public MenuDetailService(IMenuDetailRepository menuRepository, IBranchContext branchContext, IMapper mapper)
             : base(branchContext)
         {
             _menuRepository = menuRepository;
+            _mapper = mapper;
         }
 
         public async Task<MenuDetailViewDto?> GetMenuWithDetailsAsync(int menuId)
@@ -146,5 +150,10 @@ namespace HOMMS.Application.Implementations
             return await _menuRepository.AddMenuWithDetailsAsync(menu);
         }
 
+        public async Task<UpdateMenuDto> GetByIdAsync(int id)
+        {
+            var detail = await _menuRepository.GetByIdAsync(id);
+            return _mapper.Map<UpdateMenuDto>(detail);
+        }
     }
 }

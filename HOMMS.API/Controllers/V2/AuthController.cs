@@ -22,9 +22,9 @@ using System.IdentityModel.Tokens.Jwt;
 using HOMMS.Infrastructure.Seeds;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HOMMS.API.Controllers.V1
+namespace HOMMS.API.Controllers.V2
 {
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
 
     [ApiController]
@@ -118,7 +118,7 @@ namespace HOMMS.API.Controllers.V1
             var refreshToken = _authService.GenerateRefreshToken();
             
             var jwtSettings = _configuration.GetSection("JwtSettings");
-            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "1440");
+            var expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"] ?? "60");
             var refreshExpiryInDays = int.Parse(jwtSettings["RefreshExpiryInDays"] ?? "7");
             
             var tokenExpiryTime = DateTime.UtcNow.AddMinutes(expiryInMinutes);

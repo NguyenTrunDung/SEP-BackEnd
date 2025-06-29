@@ -206,11 +206,15 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 
 
 
+builder.Services.AddScoped<IEmailVerifyService, EmailVerifyService>();
+
+
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 //builder.Services.AddScoped<IImageService, ImageService>();
+
 
 // Disease Category and Patient Dietary Services
 // TODO: Uncomment when service implementations are created

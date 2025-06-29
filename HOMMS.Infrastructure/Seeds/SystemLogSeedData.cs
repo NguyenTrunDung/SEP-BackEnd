@@ -23,7 +23,7 @@ namespace HOMMS.Infrastructure.Seeds
                        {
 
                            BranchId = 1,
-                           UserId = 1,
+                           UserId = "SystemAdmin",
                            Note = "Đã thêm món ăn Canh bí đỏ thịt bằm",
                            CreatedAt = DateTime.Parse("2025-01-21T11:39:49.190"),
                            LastModifiedAt = DateTime.Parse("2025-01-21T11:39:49.190")
@@ -32,7 +32,7 @@ namespace HOMMS.Infrastructure.Seeds
                        {
 
                            BranchId = 1,
-                           UserId = 1,
+                           UserId = "SystemAdmin",
                            Note = "Đã thêm món ăn Bắp cải xào cà rốt",
                            CreatedAt = DateTime.Parse("2025-01-21T11:40:17.723"),
                            LastModifiedAt = DateTime.Parse("2025-01-21T11:40:17.723")
@@ -41,7 +41,7 @@ namespace HOMMS.Infrastructure.Seeds
                        {
 
                            BranchId = 1,
-                           UserId = 1,
+                           UserId = "SystemAdmin",
                            Note = "Đã thêm món ăn Trái cây",
                            CreatedAt = DateTime.Parse("2025-01-21T11:40:51.253"),
                            LastModifiedAt = DateTime.Parse("2025-01-21T11:40:51.253")
@@ -50,7 +50,7 @@ namespace HOMMS.Infrastructure.Seeds
                        {
 
                            BranchId = 1,
-                           UserId = 1,
+                           UserId = "SystemAdmin",
                            Note = "Đã thêm món ăn Thịt bò xào",
                            CreatedAt = DateTime.Parse("2025-01-21T11:41:25.493"),
                            LastModifiedAt = DateTime.Parse("2025-01-21T11:41:25.493")
@@ -59,7 +59,7 @@ namespace HOMMS.Infrastructure.Seeds
                        {
 
                            BranchId = 1,
-                           UserId = 1,
+                           UserId = "SystemAdmin",
                            Note = "Đã thêm món ăn Cá lóc kho tiêu",
                            CreatedAt = DateTime.Parse("2025-01-21T11:41:54.093"),
                            LastModifiedAt = DateTime.Parse("2025-01-21T11:41:54.093")
@@ -68,7 +68,7 @@ namespace HOMMS.Infrastructure.Seeds
                        {
 
                            BranchId = 1,
-                           UserId = 1,
+                           UserId = "SystemAdmin",
                            Note = "Đã thêm món ăn Đậu hũ nhồi thịt sốt cà (Suất ăn)",
                            CreatedAt = DateTime.Parse("2025-01-21T11:43:08.123"),
                            LastModifiedAt = DateTime.Parse("2025-01-21T11:43:08.123")
