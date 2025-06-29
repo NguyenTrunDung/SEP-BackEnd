@@ -25,6 +25,8 @@ namespace HOMMS.Application.Interfaces
         Task<FoodDto> CreateFoodAsync(FoodDto dto, IFormFile image, string webRootPath);
         Task<FoodDto> UpdateFoodAsync(int id, FoodDto dto, IFormFile? image, string webRootPath);
 
+        // Auto-sort method
+        Task<FoodDto> CreateFoodWithAutoSortAsync(FoodDto dto, IFormFile? image, string webRootPath);
 
     }
 } 

@@ -145,6 +145,15 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             await DbContext.SaveChangesAsync();
         }
 
+        /// <inheritdoc/>
+        public async Task<int> GetMaxSortValueByBranchAsync(int branchId)
+        {
+            var maxSort = await DbSet
+                .Where(f => f.BranchId == branchId)
+                .MaxAsync(f => (int?)f.Sort);
+            
+            return maxSort ?? 0;
+        }
 
     }
 }

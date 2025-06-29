@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HOMMS.Common.Helpers;
 using Asp.Versioning;
 using System;
+using System.Linq;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -99,11 +100,22 @@ namespace HOMMS.API.Controllers.V1
                 {
                     Name = request.Name,
                     ImageUrl = request.ImageUrl,
-                    Sort = request.Sort,
+                   // Sort = request.Sort ?? 0, // Will be overridden by auto-sort if not provided
                     BranchId = request.BranchId
                 };
 
-                var result = await _foodCategoryService.CreateCategoryAsync(categoryDto, request.Image, _env.WebRootPath);
+                FoodCategoryDto result;
+                
+                // Use auto-sort if no sort value provided, otherwise use the provided value
+                if (request.Sort.HasValue)
+                {
+                    result = await _foodCategoryService.CreateCategoryAsync(categoryDto, request.Image, _env.WebRootPath);
+                }
+                else
+                {
+                    result = await _foodCategoryService.CreateCategoryWithAutoSortAsync(categoryDto, request.Image, _env.WebRootPath);
+                }
+
                 return Ok(new ApiResponseBase<FoodCategoryDto>(result, "Category created successfully"));
             }
             catch (Exception ex)
@@ -123,7 +135,7 @@ namespace HOMMS.API.Controllers.V1
                 {
                     Name = request.Name,
                     ImageUrl = request.ImageUrl,
-                    Sort = request.Sort,
+                    Sort = request.Sort ?? 0, 
                     BranchId = request.BranchId
                 };
 
@@ -136,40 +148,52 @@ namespace HOMMS.API.Controllers.V1
             }
         }
 
-        // Debug/Test endpoint to verify audit functionality
-        [HttpPost("test-audit")]
-        [Authorize(Policy = "Permission:foodcategories:add")]
-        public async Task<IActionResult> TestAuditFunctionality([FromBody] FoodCategoryDto dto)
+     
+
+        // Reordering endpoints for drag-and-drop functionality
+        [HttpPost("reorder")]
+        [Authorize(Policy = "Permission:foodcategories:edit")]
+        public async Task<IActionResult> ReorderCategories([FromBody] ReorderFoodCategoriesRequest request)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[TEST] Creating test category for audit verification");
-                System.Diagnostics.Debug.WriteLine($"[TEST] Current user: {User?.Identity?.Name ?? "Unknown"}");
-                System.Diagnostics.Debug.WriteLine($"[TEST] User authenticated: {User?.Identity?.IsAuthenticated}");
+                var categoryOrders = request.CategoryOrders.Select(co => (co.CategoryId, co.Sort));
+                var success = await _foodCategoryService.ReorderCategoriesAsync(categoryOrders, request.BranchId);
                 
-                // Create a test category
-                dto.Name = $"TEST_AUDIT_{DateTime.Now:yyyyMMdd_HHmmss}";
-                dto.Sort = 999;
-                
-                var result = await _foodCategoryService.CreateAsync(dto);
-                
-                System.Diagnostics.Debug.WriteLine($"[TEST] Created category with ID: {result.Id}");
-                
-                // Get the category back to check audit fields
-                var retrievedCategory = await _foodCategoryService.GetByIdAsync(result.Id);
-                
-                return Ok(new ApiResponseBase<object>(new 
+                if (success)
                 {
-                    CreatedCategory = result,
-                    RetrievedCategory = retrievedCategory,
-                    TestMessage = "Check the API console/debug output for audit information",
-                    UserId = User?.Identity?.Name,
-                    IsAuthenticated = User?.Identity?.IsAuthenticated
-                }, "Test audit category created successfully"));
+                    return Ok(new ApiResponseBase<object>(null, "Categories reordered successfully"));
+                }
+                else
+                {
+                    return BadRequest(new ApiResponseBase<object>(null, "Failed to reorder categories", "error"));
+                }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[TEST] Exception: {ex.Message}");
+                return BadRequest(new ApiResponseBase<object>(null, ex.Message, "error"));
+            }
+        }
+
+        [HttpPost("move")]
+        [Authorize(Policy = "Permission:foodcategories:edit")]
+        public async Task<IActionResult> MoveCategory([FromBody] MoveFoodCategoryRequest request)
+        {
+            try
+            {
+                var success = await _foodCategoryService.MoveCategoryAsync(request.CategoryId, request.NewPosition, request.BranchId);
+                
+                if (success)
+                {
+                    return Ok(new ApiResponseBase<object>(null, "Category moved successfully"));
+                }
+                else
+                {
+                    return BadRequest(new ApiResponseBase<object>(null, "Failed to move category", "error"));
+                }
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(new ApiResponseBase<object>(null, ex.Message, "error"));
             }
         }

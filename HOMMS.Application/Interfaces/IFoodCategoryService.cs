@@ -18,5 +18,10 @@ namespace HOMMS.Application.Interfaces
         // Image upload methods
         Task<FoodCategoryDto> CreateCategoryAsync(FoodCategoryDto dto, IFormFile? image, string webRootPath);
         Task<FoodCategoryDto> UpdateCategoryAsync(int id, FoodCategoryDto dto, IFormFile? image, string webRootPath);
+
+        // Auto-sort and reordering methods
+        Task<FoodCategoryDto> CreateCategoryWithAutoSortAsync(FoodCategoryDto dto, IFormFile? image, string webRootPath);
+        Task<bool> ReorderCategoriesAsync(IEnumerable<(int CategoryId, int Sort)> categoryOrders, int branchId);
+        Task<bool> MoveCategoryAsync(int categoryId, int newPosition, int branchId);
     }
 } 

@@ -57,5 +57,26 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="category">Food category to update</param>
         /// <returns>Task representing the async operation</returns>
         Task UpdateAndSaveAsync(FoodCategory category);
+
+        /// <summary>
+        /// Gets the maximum sort value for a specific branch
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <returns>Maximum sort value, or 0 if no categories exist</returns>
+        Task<int> GetMaxSortValueByBranchAsync(int branchId);
+
+        /// <summary>
+        /// Updates multiple categories with new sort orders
+        /// </summary>
+        /// <param name="categoryUpdates">List of categories with their new sort values</param>
+        /// <returns>Task representing the async operation</returns>
+        Task UpdateSortOrdersAsync(IEnumerable<(int CategoryId, int Sort)> categoryUpdates);
+
+        /// <summary>
+        /// Gets categories by branch ordered by sort value with tracking enabled
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <returns>Categories for the branch with tracking enabled</returns>
+        Task<IEnumerable<FoodCategory>> GetCategoriesByBranchWithTrackingAsync(int branchId);
     }
 } 

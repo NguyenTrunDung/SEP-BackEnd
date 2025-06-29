@@ -107,6 +107,7 @@ namespace HOMMS.Application.Implementations
             {
                 imagePath = await UploadHandler.SaveImageAsync(image, webRootPath, "uploads");
             }
+
             var food = new Food
             {
                 Name = dto.Name!,
@@ -118,7 +119,53 @@ namespace HOMMS.Application.Implementations
                 PriceForGuest = dto.PriceForGuest,
                 PriceForPatient = dto.PriceForPatient,
                 PriceForStaff = dto.PriceForStaff,
-                Sort = dto.Sort,
+                Sort = dto.Sort, // Use manual sort from DTO
+                BranchId = dto.BranchId,
+                Image = imagePath
+            };
+
+            await _foodRepository.AddAndSaveAsync(food);
+
+            return new FoodDto
+            {
+                Id = food.Id,
+                Name = food.Name,
+                Description = food.Description,
+                CategoryId = food.CategoryId,
+                IsAddOn = food.IsAddOn,
+                IsSetDish = food.IsSetDish,
+                PriceForGuest = food.PriceForGuest,
+                PriceForPatient = food.PriceForPatient,
+                PriceForStaff = food.PriceForStaff,
+                Sort = food.Sort,
+                BranchId = food.BranchId,
+                ImageUrl = food.Image
+            };
+        }
+
+        public async Task<FoodDto> CreateFoodWithAutoSortAsync(FoodDto dto, IFormFile? image, string webRootPath)
+        {
+            string? imagePath = null;
+            if (image != null)
+            {
+                imagePath = await UploadHandler.SaveImageAsync(image, webRootPath, "uploads");
+            }
+
+            // Auto-assign sort value
+            var nextSortValue = await _foodRepository.GetMaxSortValueByBranchAsync(dto.BranchId) + 1;
+
+            var food = new Food
+            {
+                Name = dto.Name!,
+                Description = dto.Description,
+                CategoryId = dto.CategoryId,
+                IsAddOn = dto.IsAddOn,
+                IsSetDish = dto.IsSetDish,
+                ForPatient = true,
+                PriceForGuest = dto.PriceForGuest,
+                PriceForPatient = dto.PriceForPatient,
+                PriceForStaff = dto.PriceForStaff,
+                Sort = nextSortValue, // Auto-assigned sort value
                 BranchId = dto.BranchId,
                 Image = imagePath
             };
@@ -159,7 +206,7 @@ namespace HOMMS.Application.Implementations
             existingFood.PriceForGuest = dto.PriceForGuest;
             existingFood.PriceForPatient = dto.PriceForPatient;
             existingFood.PriceForStaff = dto.PriceForStaff;
-            existingFood.Sort = dto.Sort;
+            // Sort value is preserved, not updated from DTO
             existingFood.BranchId = dto.BranchId;
 
             // 3. If there's a new image, save it and update the path with automatic cleanup

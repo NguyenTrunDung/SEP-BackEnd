@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HOMMS.Application.Implementations
@@ -167,6 +168,102 @@ namespace HOMMS.Application.Implementations
                 Sort = existingCategory.Sort ?? 0,
                 BranchId = existingCategory.BranchId
             };
+        }
+
+        // Auto-sort and reordering methods
+        public async Task<FoodCategoryDto> CreateCategoryWithAutoSortAsync(FoodCategoryDto dto, IFormFile? image, string webRootPath)
+        {
+            string? imagePath = null;
+            if (image != null)
+            {
+                imagePath = await UploadHandler.SaveImageAsync(image, webRootPath, "uploads");
+            }
+
+            // Auto-assign sort value
+            var maxSort = await _foodCategoryRepository.GetMaxSortValueByBranchAsync(EnsureBranchId(dto.BranchId));
+            var newSort = maxSort + 1;
+
+            var category = new FoodCategory
+            {
+                Name = dto.Name!,
+                Image = imagePath ?? dto.ImageUrl,
+                Sort = newSort,
+                BranchId = EnsureBranchId(dto.BranchId),
+                Active = true
+            };
+
+            await _foodCategoryRepository.AddAndSaveAsync(category);
+
+            return new FoodCategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                ImageUrl = category.Image,
+                Sort = category.Sort ?? 0,
+                BranchId = category.BranchId
+            };
+        }
+
+        public async Task<bool> ReorderCategoriesAsync(IEnumerable<(int CategoryId, int Sort)> categoryOrders, int branchId)
+        {
+            try
+            {
+                branchId = EnsureBranchId(branchId);
+
+                // Validate that all categories belong to the specified branch
+                var categoryIds = categoryOrders.Select(x => x.CategoryId).ToList();
+                var existingCategories = await _foodCategoryRepository.GetCategoriesByBranchWithTrackingAsync(branchId);
+                var existingCategoryIds = existingCategories.Select(c => c.Id).ToList();
+
+                var invalidCategories = categoryIds.Except(existingCategoryIds).ToList();
+                if (invalidCategories.Any())
+                {
+                    throw new Exception($"Categories with IDs {string.Join(", ", invalidCategories)} do not exist in branch {branchId}");
+                }
+
+                // Update sort orders
+                await _foodCategoryRepository.UpdateSortOrdersAsync(categoryOrders);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> MoveCategoryAsync(int categoryId, int newPosition, int branchId)
+        {
+            try
+            {
+                branchId = EnsureBranchId(branchId);
+
+                // Get all categories for the branch ordered by current sort
+                var categories = (await _foodCategoryRepository.GetCategoriesByBranchWithTrackingAsync(branchId)).ToList();
+                
+                // Find the category to move
+                var categoryToMove = categories.FirstOrDefault(c => c.Id == categoryId);
+                if (categoryToMove == null)
+                {
+                    throw new Exception($"Category with ID {categoryId} not found in branch {branchId}");
+                }
+
+                // Remove from current position
+                categories.Remove(categoryToMove);
+
+                // Insert at new position (ensure position is within bounds)
+                newPosition = Math.Max(0, Math.Min(newPosition, categories.Count));
+                categories.Insert(newPosition, categoryToMove);
+
+                // Update sort values based on new order
+                var updates = categories.Select((category, index) => (category.Id, index + 1));
+                await _foodCategoryRepository.UpdateSortOrdersAsync(updates);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

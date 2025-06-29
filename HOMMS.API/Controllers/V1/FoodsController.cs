@@ -94,7 +94,8 @@ namespace HOMMS.API.Controllers.V1
 
         [HttpPost("create")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> CreateFood([FromForm] FoodCreateRequest request)
+        [Authorize(Policy = "Permission:foods:add")]
+        public async Task<IActionResult> CreateFoodWithImage([FromForm] FoodCreateRequest request)
         {
             try
             {
@@ -108,23 +109,35 @@ namespace HOMMS.API.Controllers.V1
                     PriceForGuest = request.PriceForGuest,
                     PriceForPatient = request.PriceForPatient,
                     PriceForStaff = request.PriceForStaff,
-                    Sort = request.Sort,
+                    //Sort = request.Sort ?? 0, // Will be overridden by auto-sort if not provided
                     BranchId = request.BranchId
                 };
 
-                var result = await _foodService.CreateFoodAsync(foodDto, request.Image, _env.WebRootPath);
-                return Ok(result);
+                FoodDto result;
+                
+                // Use auto-sort if no sort value provided, otherwise use the provided value
+                if (request.Sort.HasValue)
+                {
+                    result = await _foodService.CreateFoodAsync(foodDto, request.Image, _env.WebRootPath);
+                }
+                else
+                {
+                    result = await _foodService.CreateFoodWithAutoSortAsync(foodDto, request.Image, _env.WebRootPath);
+                }
+
+                return Ok(new ApiResponseBase<FoodDto>(result, "Food created successfully"));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponseBase<FoodDto>(null, ex.Message, "error"));
             }
         }
 
 
         [HttpPut("update/{id}")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UpdateFood(int id, [FromForm] FoodCreateRequest request)
+        [Authorize(Policy = "Permission:foods:edit")]
+        public async Task<IActionResult> UpdateFoodWithImage(int id, [FromForm] FoodCreateRequest request)
         {
             try
             {
@@ -138,16 +151,16 @@ namespace HOMMS.API.Controllers.V1
                     PriceForGuest = request.PriceForGuest,
                     PriceForPatient = request.PriceForPatient,
                     PriceForStaff = request.PriceForStaff,
-                    Sort = request.Sort,
+                    Sort = request.Sort ?? 0, // Include sort value for update operations
                     BranchId = request.BranchId
                 };
 
                 var result = await _foodService.UpdateFoodAsync(id, dto, request.Image, _env.WebRootPath);
-                return Ok(result);
+                return Ok(new ApiResponseBase<FoodDto>(result, "Food updated successfully"));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponseBase<FoodDto>(null, ex.Message, "error"));
             }
         }
 

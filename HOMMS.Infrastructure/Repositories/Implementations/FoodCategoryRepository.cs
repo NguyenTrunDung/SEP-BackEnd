@@ -73,5 +73,38 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             DbSet.Update(category);
             await DbContext.SaveChangesAsync();
         }
+
+        /// <inheritdoc/>
+        public async Task<int> GetMaxSortValueByBranchAsync(int branchId)
+        {
+            var maxSort = await DbSet
+                .Where(c => c.BranchId == branchId)
+                .MaxAsync(c => (int?)c.Sort);
+            
+            return maxSort ?? 0;
+        }
+
+        /// <inheritdoc/>
+        public async Task UpdateSortOrdersAsync(IEnumerable<(int CategoryId, int Sort)> categoryUpdates)
+        {
+            foreach (var (categoryId, sort) in categoryUpdates)
+            {
+                var category = await DbSet.FindAsync(categoryId);
+                if (category != null)
+                {
+                    category.Sort = sort;
+                }
+            }
+            await DbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<FoodCategory>> GetCategoriesByBranchWithTrackingAsync(int branchId)
+        {
+            return await DbSet
+                .Where(c => c.BranchId == branchId)
+                .OrderBy(c => c.Sort)
+                .ToListAsync();
+        }
     }
 } 

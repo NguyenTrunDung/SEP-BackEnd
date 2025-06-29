@@ -71,8 +71,13 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task AddAndSaveAsync(Food food);
         Task<Food?> FindByIdAsync(int id);
         Task UpdateAndSaveAsync(Food food);
- 
 
+        /// <summary>
+        /// Gets the maximum sort value for a specific branch
+        /// </summary>
+        /// <param name="branchId">Branch ID</param>
+        /// <returns>Maximum sort value, or 0 if no foods exist</returns>
+        Task<int> GetMaxSortValueByBranchAsync(int branchId);
 
     }
 }
