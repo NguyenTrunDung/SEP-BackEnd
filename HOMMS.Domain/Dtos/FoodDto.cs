@@ -19,10 +19,6 @@ namespace HOMMS.Domain.Dtos
         /// </summary>
         public string Name { get; set; }
 
-
-        public int BranchId { get; set; }
-
-
         /// <summary>
         /// Gets or sets the image URL for this category
         /// </summary>

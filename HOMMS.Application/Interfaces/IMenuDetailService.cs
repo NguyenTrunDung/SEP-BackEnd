@@ -13,5 +13,6 @@ namespace HOMMS.Application.Interfaces
         Task<bool> UpdateMenuWithDetailsAsync(UpdateMenuDto dto);
         Task<bool> AddMenuWithDetailsAsync(CreateMenuDto dto);
         Task<List<MenuDetailViewDto>> GetAllMenusWithDetailsAsync();
+        Task<UpdateMenuDto> GetByIdAsync(int id);
     }
 }

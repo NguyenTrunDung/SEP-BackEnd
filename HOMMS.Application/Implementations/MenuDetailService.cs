@@ -27,6 +27,11 @@ namespace HOMMS.Application.Implementations
             _mapper = mapper;
         }
 
+        public async Task<UpdateMenuDto> GetByIdAsync(int id)
+        {
+            var detail = await _menuRepository.GetByIdAsync(id);
+            return _mapper.Map<UpdateMenuDto>(detail);
+        }
         public async Task<MenuDetailViewDto?> GetMenuWithDetailsAsync(int menuId)
         {
             var menu = await _menuRepository.GetMenuWithDetailsAsync(menuId);
