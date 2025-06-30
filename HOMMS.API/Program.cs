@@ -329,6 +329,40 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 // Configure static files for uploads folder specifically with CORS support
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(
+//        Path.Combine(builder.Environment.WebRootPath, "uploads")),
+//    RequestPath = "/uploads",
+//    OnPrepareResponse = context =>
+//    {
+//        // Add CORS headers for all uploaded files
+//        // Allow specific origins in production, wildcard in development
+//        var origin = context.Context.Request.Headers["Origin"].FirstOrDefault();
+//        var allowedOrigins = new[] { 
+//            "https://homms.cuahangkinhdoanh.com", 
+//            "http://localhost:3000", 
+//            "http://localhost:3001" 
+//        };
+        
+//        if (app.Environment.IsDevelopment() || allowedOrigins.Contains(origin))
+//        {
+//            context.Context.Response.Headers.Add("Access-Control-Allow-Origin", 
+//                app.Environment.IsDevelopment() ? "*" : origin);
+//        }
+        
+//        context.Context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+//        context.Context.Response.Headers.Add("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
+//        context.Context.Response.Headers.Add("Access-Control-Expose-Headers", "Content-Length, Content-Type");
+        
+//        // Cache uploaded images for better performance
+//        context.Context.Response.Headers.Add("Cache-Control", "public, max-age=3600");
+        
+//        // Add Vary header for proper caching with CORS
+//        context.Context.Response.Headers.Add("Vary", "Origin");
+//    }
+//});
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -337,28 +371,13 @@ app.UseStaticFiles(new StaticFileOptions
     OnPrepareResponse = context =>
     {
         // Add CORS headers for all uploaded files
-        // Allow specific origins in production, wildcard in development
-        var origin = context.Context.Request.Headers["Origin"].FirstOrDefault();
-        var allowedOrigins = new[] { 
-            "https://homms.cuahangkinhdoanh.com", 
-            "http://localhost:3000", 
-            "http://localhost:3001" 
-        };
-        
-        if (app.Environment.IsDevelopment() || allowedOrigins.Contains(origin))
-        {
-            context.Context.Response.Headers.Add("Access-Control-Allow-Origin", 
-                app.Environment.IsDevelopment() ? "*" : origin);
-        }
-        
+        context.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
         context.Context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
         context.Context.Response.Headers.Add("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
-        context.Context.Response.Headers.Add("Access-Control-Expose-Headers", "Content-Length, Content-Type");
-        
+
         // Cache uploaded images for better performance
         context.Context.Response.Headers.Add("Cache-Control", "public, max-age=3600");
-        
-        // Add Vary header for proper caching with CORS
+
         context.Context.Response.Headers.Add("Vary", "Origin");
     }
 });
