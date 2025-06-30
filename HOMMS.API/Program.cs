@@ -46,17 +46,17 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod();
     });
     
-    options.AddPolicy("ProdCorsPolicy", policy =>
-    {
-        policy.WithOrigins(
-            "https://homms.cuahangkinhdoanh.com",
-            "http://localhost:3000",
-            "http://localhost:3001"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials(); // Allow credentials for authenticated requests
-    });
+    //options.AddPolicy("ProdCorsPolicy", policy =>
+    //{
+    //    policy.WithOrigins(
+    //        "https://homms.cuahangkinhdoanh.com",
+    //        "http://localhost:3000",
+    //        "http://localhost:3001"
+    //    )
+    //    .AllowAnyHeader()
+    //    .AllowAnyMethod()
+    //    .AllowCredentials(); // Allow credentials for authenticated requests
+    //});
 });
 
 // Add DbContext
@@ -285,7 +285,31 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI(options =>
+//    {
+//        // Configure Swagger UI for multiple API versions
+//        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
+//        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
+//    });
+//    // Use CORS policy in development
+//    app.UseCors("DevCorsPolicy");
+//}
+//else
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI(options =>
+//    {
+//        // Configure Swagger UI for multiple API versions
+//        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
+//        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
+//    });
+//    // Use CORS policy in production
+//    app.UseCors("ProdCorsPolicy");
+//}
+
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -297,18 +321,7 @@ if (app.Environment.IsDevelopment())
     // Use CORS policy in development
     app.UseCors("DevCorsPolicy");
 }
-else
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        // Configure Swagger UI for multiple API versions
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HOMMS API v1");
-        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HOMMS API v2");
-    });
-    // Use CORS policy in production
-    app.UseCors("ProdCorsPolicy");
-}
+
 
 app.UseHttpsRedirection();
 
