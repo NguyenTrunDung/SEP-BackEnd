@@ -103,7 +103,8 @@ namespace HOMMS.Application.Profiles
             CreateMap<UpdateAreaDto, Area>();
 
             // Location mappings
-            CreateMap<Location, LocationDto>();
+            CreateMap<Location, LocationDto>()
+                .ForMember(dest => dest.Area, opt => opt.Ignore()); // Prevent cycle
             CreateMap<CreateLocationDto, Location>();
             CreateMap<UpdateLocationDto, Location>();
 
