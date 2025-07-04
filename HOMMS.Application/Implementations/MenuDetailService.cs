@@ -165,16 +165,49 @@ namespace HOMMS.Application.Implementations
         {
             dto.BranchId = EnsureBranchId(dto.BranchId);
 
+            // Check for existing menu for the same branch, date, and time of day
+            var existingMenu = await _menuRepository.GetMenuByDateAsync(dto.BranchId, dto.Date, dto.TimeOfDay);
+            if (existingMenu != null)
+            {
+                // Update existing menu with new details from template
+                existingMenu.TimeOfDay = dto.TimeOfDay;
+                existingMenu.IsTime = dto.IsTime;
+                existingMenu.TimeFrom = dto.TimeFrom;
+                existingMenu.TimeTo = dto.TimeTo;
+                existingMenu.Name = dto.Name;
+                existingMenu.LastModifiedAt = DateTime.UtcNow;
+                existingMenu.LastModifiedBy = dto.CreatedBy;
+
+                // Remove old details and add new ones
+                existingMenu.MenuDetails.Clear();
+                foreach (var d in dto.Details)
+                {
+                    existingMenu.MenuDetails.Add(new MenuDetail
+                    {
+                        FoodId = d.FoodId,
+                        Qty = d.Qty,
+                        PriceForGuest = d.PriceForGuest,
+                        PriceForPatient = d.PriceForPatient,
+                        PriceForStaff = d.PriceForStaff,
+                        DiscountPrice = d.DiscountPrice,
+                        Status = d.Status,
+                        DiscountFrom = d.DiscountFrom,
+                        DiscountTo = d.DiscountTo,
+                        IsQty = d.IsQty
+                    });
+                }
+                return await _menuRepository.UpdateMenuWithDetailsAsync(existingMenu);
+            }
+
+            // ... existing creation logic ...
             var menu = new Menu
             {
-
                 Date = dto.Date,
                 TimeOfDay = dto.TimeOfDay,
                 IsTime = dto.IsTime,
                 TimeFrom = dto.TimeFrom,
                 TimeTo = dto.TimeTo,
                 Name = dto.Name,
-               // BranchId = dto.BranchId , // Assuming BranchId is part of CreateMenuDto
                 MenuDetails = dto.Details.Select(d => new MenuDetail
                 {
                     FoodId = d.FoodId,
@@ -257,6 +290,87 @@ namespace HOMMS.Application.Implementations
                     }
                 }).ToList()
             }).ToList();
+        }
+
+        public async Task<List<MenuTemplateDto>> GetMenuTemplatesAsync()
+        {
+            var branchId = EnsureBranchId(0);
+            var menus = await _menuRepository.GetMenuTemplatesAsync(branchId);
+
+            return menus.Select(menu => new MenuTemplateDto
+            {
+                Id = menu.Id,
+                Name = menu.Name ?? $"Menu {menu.Date:dd/MM/yyyy}",
+                Date = menu.Date,
+                TimeOfDay = menu.TimeOfDay,
+                IsTime = menu.IsTime,
+                TimeFrom = menu.TimeFrom,
+                TimeTo = menu.TimeTo,
+                TotalDishes = menu.MenuDetails.Count,
+                CreatedAt = menu.CreatedAt,
+                CreatedBy = menu.CreatedBy,
+                BranchId = menu.BranchId,
+                CategorySummary = menu.MenuDetails
+                    .Where(md => md.Food != null && md.Food.Category != null)
+                    .GroupBy(md => new { md.Food.CategoryId, md.Food.Category.Name })
+                    .Select(g => new CategorySummaryDto
+                    {
+                        CategoryId = g.Key.CategoryId,
+                        CategoryName = g.Key.Name,
+                        DishCount = g.Count()
+                    })
+                    .OrderBy(cs => cs.CategoryName)
+                    .ToList()
+            }).ToList();
+        }
+
+        public async Task<MenuDetailViewDto?> CopyMenuAsTemplateAsync(int sourceMenuId, DateTime newDate, string? newName = null)
+        {
+            var sourceMenu = await _menuRepository.GetMenuWithDetailsAsync(sourceMenuId);
+            if (sourceMenu == null) return null;
+
+            // Ensure branch context
+            var branchId = EnsureBranchId(sourceMenu.BranchId);
+
+            // Create new menu based on source menu
+            var newMenu = new Menu
+            {
+                Date = newDate,
+                TimeOfDay = sourceMenu.TimeOfDay,
+                IsTime = sourceMenu.IsTime,
+                TimeFrom = sourceMenu.TimeFrom,
+                TimeTo = sourceMenu.TimeTo,
+                Name = newName ?? $"Copy of {sourceMenu.Name ?? $"Menu {sourceMenu.Date:dd/MM/yyyy}"}",
+                BranchId = branchId,
+                MenuDetails = sourceMenu.MenuDetails.Select(sourceDetail => new MenuDetail
+                {
+                    FoodId = sourceDetail.FoodId,
+                    Qty = sourceDetail.Qty,
+                    PriceForGuest = sourceDetail.PriceForGuest,
+                    PriceForPatient = sourceDetail.PriceForPatient,
+                    PriceForStaff = sourceDetail.PriceForStaff,
+                    DiscountPrice = sourceDetail.DiscountPrice,
+                    Status = sourceDetail.Status,
+                    DiscountFrom = sourceDetail.DiscountFrom,
+                    DiscountTo = sourceDetail.DiscountTo,
+                    IsQty = sourceDetail.IsQty
+                }).ToList()
+            };
+
+            // Save the new menu
+            var success = await _menuRepository.AddMenuWithDetailsAsync(newMenu);
+            if (!success) return null;
+
+            // Return the created menu as MenuDetailViewDto
+            return await GetMenuWithDetailsAsync(newMenu.Id);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var food = await _menuRepository.GetByIdAsync(id);
+            if (food == null) return false;
+            await _menuRepository.DeleteAsync(food);
+            return true;
         }
     }
 }

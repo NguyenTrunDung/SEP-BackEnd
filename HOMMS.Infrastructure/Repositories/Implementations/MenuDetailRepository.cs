@@ -38,6 +38,19 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .ToListAsync();
         }
 
+        public async Task<List<Menu>> GetMenuTemplatesAsync(int branchId)
+        {
+            return await _dbContext.Menus
+                .Where(m => m.BranchId == branchId)
+                .Include(m => m.MenuDetails)
+                    .ThenInclude(md => md.Food)
+                        .ThenInclude(f => f.Category)
+                .OrderByDescending(m => m.Date)
+                .ThenByDescending(m => m.CreatedAt)
+                .Take(20) // Limit to recent 20 menus for performance
+                .ToListAsync();
+        }
+
         public async Task<bool> UpdateMenuWithDetailsAsync(Menu menu)
         {
             _dbContext.Menus.Update(menu);
@@ -48,6 +61,13 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             await _dbContext.Menus.AddAsync(menu);
             return await _dbContext.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Menu?> GetMenuByDateAsync(int branchId, DateTime date, string? timeOfDay)
+        {
+            return await _dbContext.Menus
+                .Include(m => m.MenuDetails)
+                .FirstOrDefaultAsync(m => m.BranchId == branchId && m.Date == date && m.TimeOfDay == timeOfDay);
         }
     }
 }
