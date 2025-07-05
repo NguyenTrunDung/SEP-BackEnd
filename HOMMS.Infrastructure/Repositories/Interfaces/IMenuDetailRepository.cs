@@ -14,5 +14,10 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<bool> UpdateMenuWithDetailsAsync(Menu menu);
         Task<bool> AddMenuWithDetailsAsync(Menu menu);
         Task<List<Menu>> GetAllMenusWithDetailsAsync(int branchId);
+        
+        // New method for menu templates
+        Task<List<Menu>> GetMenuTemplatesAsync(int branchId);
+
+        Task<Menu?> GetMenuByDateAsync(int branchId, DateTime date, string? timeOfDay);
     }
 }

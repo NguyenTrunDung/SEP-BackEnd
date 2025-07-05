@@ -74,14 +74,12 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         /// <inheritdoc/>
         public async Task<bool> IsAreaNameUniqueAsync(int branchId, string name, int? excludeId = null)
         {
-            // Global filter applies BranchId and IsDeleted
-            var query = DbSet.Where(a => a.Name.ToLower() == name.ToLower());
-            
+            // Only consider non-deleted areas in the same branch
+            var query = DbSet.Where(a => a.BranchId == branchId && !a.IsDeleted && a.Name.ToLower() == name.ToLower());
             if (excludeId.HasValue)
             {
                 query = query.Where(a => a.Id != excludeId.Value);
             }
-            
             return !await query.AnyAsync();
         }
     }
