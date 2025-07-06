@@ -28,7 +28,7 @@ namespace HOMMS.Infrastructure.Configurations
             builder.Property(o => o.OrderDate).IsRequired();
             builder.Property(o => o.ReceiveDate).IsRequired(false);
             builder.Property(o => o.ReceiveTime).HasMaxLength(10);
-            builder.Property(o => o.ReceiveType).HasMaxLength(10);
+            builder.Property(o => o.ReceiveType).HasMaxLength(50);
             builder.Property(o => o.Type).HasMaxLength(20);
             builder.Property(o => o.Status).HasMaxLength(20);
             builder.Property(o => o.CustomerId).IsRequired(false);

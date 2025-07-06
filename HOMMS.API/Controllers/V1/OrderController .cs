@@ -237,7 +237,7 @@ namespace HOMMS.API.Controllers.V1
                     Console.WriteLine($"[AddOrderV2] Inner StackTrace: {ex.InnerException.StackTrace}");
                 }
 
-                return StatusCode(500, new ApiResponseBase<OrderDto>(null, "An unexpected error occurred. Please contact support.", "error"));
+                return StatusCode(500, new ApiResponseBase<OrderDto>(null, $"An unexpected error occurred. Please contact support: {ex.Message}", "error"));
             }
         }
 

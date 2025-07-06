@@ -32,7 +32,7 @@ namespace HOMMS.Domain.Entities
         public DateTime? ReceiveDate { get; set; }
         [StringLength(10)]
         public string? ReceiveTime { get; set; }
-        [StringLength(10)]
+        [StringLength(50)]
         public string? ReceiveType { get; set; }
         [StringLength(20)]
         public string? Type { get; set; }

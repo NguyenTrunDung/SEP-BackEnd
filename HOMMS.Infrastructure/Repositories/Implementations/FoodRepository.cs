@@ -51,8 +51,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .Where(f => f.BranchId == branchId)
                 .Include(f => f.Category)
                 .OrderBy(f => f.Category.Sort)
-                .ThenByDescending(f => f.CreatedAt)
                 .ThenBy(f => f.Sort)
+                .ThenByDescending(f => f.CreatedAt)
                 .ToListAsync();
         }
 

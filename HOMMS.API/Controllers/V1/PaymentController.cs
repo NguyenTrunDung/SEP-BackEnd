@@ -3,6 +3,7 @@ using HOMMS.Application.Interfaces;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -12,10 +13,12 @@ namespace HOMMS.API.Controllers.V1
     public class PaymentController : ControllerBase
     {
         private readonly IVnPayService _vnPayService;
+        private readonly IConfiguration _configuration;
 
-        public PaymentController(IVnPayService vnPayService)
+        public PaymentController(IVnPayService vnPayService, IConfiguration configuration)
         {
             _vnPayService = vnPayService;
+            _configuration = configuration;
         }
 
         [HttpPost("create-vnpay-payment")]
@@ -102,7 +105,8 @@ namespace HOMMS.API.Controllers.V1
                 if (query == null || query.Count == 0)
                 {
                     Console.WriteLine("[VnPayReturn] ERROR: No query parameters received");
-                    return BadRequest(new ApiResponseBase<object>(null, "No payment data received from VNPay", "error"));
+                    var errorUrl = BuildFrontendUrl("error", null, "No payment data received from VNPay", null, null);
+                    return Redirect(errorUrl);
                 }
 
                 Console.WriteLine("[VnPayReturn] Processing VNPay return...");
@@ -112,28 +116,32 @@ namespace HOMMS.API.Controllers.V1
                 Console.WriteLine($"[VnPayReturn] VNPay service response - IsSuccess: {response.IsSuccess}");
                 Console.WriteLine($"[VnPayReturn] VNPay service response - Message: {response.Message}");
 
-                if (response.IsSuccess)
-                {
-                    Console.WriteLine("[VnPayReturn] Payment processed successfully");
-                    return Ok(new ApiResponseBase<object>(null, "Payment success via VNPay", "success"));
-                }
-                else
-                {
-                    Console.WriteLine($"[VnPayReturn] Payment failed: {response.Message}");
-                    return BadRequest(new ApiResponseBase<object>(null, response.Message, "error"));
-                }
+                // Build frontend redirect URL with payment result
+                var status = response.IsSuccess ? "success" : "failed";
+                var redirectUrl = BuildFrontendUrl(
+                    status, 
+                    response.OrderId, 
+                    response.Message, 
+                    response.TransactionId, 
+                    response.Amount
+                );
+
+                Console.WriteLine($"[VnPayReturn] Redirecting to frontend: {redirectUrl}");
+                return Redirect(redirectUrl);
             }
             catch (ArgumentNullException ex)
             {
                 Console.WriteLine($"[VnPayReturn] ArgumentNullException: {ex.Message}");
                 Console.WriteLine($"[VnPayReturn] StackTrace: {ex.StackTrace}");
-                return BadRequest(new ApiResponseBase<object>(null, "Invalid payment data received", "error"));
+                var errorUrl = BuildFrontendUrl("error", null, "Invalid payment data received", null, null);
+                return Redirect(errorUrl);
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine($"[VnPayReturn] InvalidOperationException: {ex.Message}");
                 Console.WriteLine($"[VnPayReturn] StackTrace: {ex.StackTrace}");
-                return BadRequest(new ApiResponseBase<object>(null, $"Payment processing error: {ex.Message}", "error"));
+                var errorUrl = BuildFrontendUrl("error", null, $"Payment processing error: {ex.Message}", null, null);
+                return Redirect(errorUrl);
             }
             catch (Exception ex)
             {
@@ -147,7 +155,8 @@ namespace HOMMS.API.Controllers.V1
                     Console.WriteLine($"[VnPayReturn] Inner Message: {ex.InnerException.Message}");
                 }
 
-                return StatusCode(500, new ApiResponseBase<object>(null, "Failed to process payment return. Please contact support.", "error"));
+                var errorUrl = BuildFrontendUrl("error", null, "Failed to process payment return. Please contact support.", null, null);
+                return Redirect(errorUrl);
             }
         }
 
@@ -161,6 +170,64 @@ namespace HOMMS.API.Controllers.V1
                 return Ok("00"); // VNPAY yêu cầu trả "00" khi xử lý thành công
             else
                 return BadRequest("99"); // Trả "99" nếu xử lý thất bại
+        }
+
+        /// <summary>
+        /// Helper method to build frontend redirect URL with payment result parameters
+        /// </summary>
+        /// <param name="status">Payment status: success, failed, error</param>
+        /// <param name="orderId">Order ID</param>
+        /// <param name="message">Payment message</param>
+        /// <param name="transactionId">VNPay transaction ID</param>
+        /// <param name="amount">Payment amount</param>
+        /// <returns>Complete frontend URL with query parameters</returns>
+        private string BuildFrontendUrl(string status, int? orderId, string message, string transactionId, long? amount)
+        {
+            try
+            {
+                // Get frontend base URL from configuration
+                var frontendBaseUrl = _configuration["Frontend:BaseUrl"] ?? "http://localhost:3000";
+                
+                // Ensure URL ends with /vnpay-return
+                var baseUrl = $"{frontendBaseUrl.TrimEnd('/')}/vnpay-return";
+                
+                // Build query parameters
+                var queryParams = new Dictionary<string, string>
+                {
+                    ["status"] = status
+                };
+
+                if (orderId.HasValue)
+                    queryParams["orderId"] = orderId.Value.ToString();
+
+                if (!string.IsNullOrEmpty(message))
+                    queryParams["message"] = Uri.EscapeDataString(message);
+
+                if (!string.IsNullOrEmpty(transactionId))
+                    queryParams["transactionId"] = transactionId;
+
+                if (amount.HasValue)
+                    queryParams["amount"] = amount.Value.ToString();
+
+                // Build final URL with query parameters
+                var queryString = string.Join("&", 
+                    queryParams.Where(kv => !string.IsNullOrEmpty(kv.Value))
+                               .Select(kv => $"{kv.Key}={kv.Value}")
+                );
+
+                var finalUrl = $"{baseUrl}?{queryString}";
+                
+                Console.WriteLine($"[BuildFrontendUrl] Generated URL: {finalUrl}");
+                return finalUrl;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[BuildFrontendUrl] Error building URL: {ex.Message}");
+                
+                // Fallback to simple error URL
+                var frontendBaseUrl = _configuration["Frontend:BaseUrl"] ?? "http://localhost:3000";
+                return $"{frontendBaseUrl.TrimEnd('/')}/vnpay-return?status=error&message={Uri.EscapeDataString("Error processing payment")}";
+            }
         }
 
     }
