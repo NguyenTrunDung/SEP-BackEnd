@@ -27,17 +27,17 @@ namespace HOMMS.Application.Implementations
 
         }
 
-        public Task<UserWalletTransaction?> GetWalletAsync(string userId)
+        public Task<UserWallet?> GetWalletByIdAsync(string userId)
         {
-            return _walletRepository.GetWalletAsync(userId);
+            return _walletRepository.GetWalletByIdAsync(userId);
         }
 
-        public Task<UserWalletTransaction> DepositAsync(string userId, long amount, string description)
+        public Task<UserWallet> DepositAsync(string userId, long amount)
         {
-            return _walletRepository.DepositAsync(userId, amount, description);
+            return _walletRepository.DepositAsync(userId, amount);
         }
 
-        public Task<UserWalletTransaction> SetBalanceAsync(string userId, long newBalance)
+        public Task<UserWallet> SetBalanceAsync(string userId, long newBalance)
         {
             return _walletRepository.SetBalanceAsync(userId, newBalance);
         }

@@ -9,11 +9,11 @@ using static HOMMS.Infrastructure.Repositories.Implementations.WalletRepository;
 
 namespace HOMMS.Infrastructure.Repositories.Interfaces
 {
-    public interface IWalletRepository: IRepository<UserWalletTransaction, int>
+    public interface IWalletRepository: IRepository<UserWallet, int>
     {
-        Task<UserWalletTransaction?> GetWalletAsync(string userId);
-        Task<UserWalletTransaction> DepositAsync(string userId, long amount, string description);
-        Task<UserWalletTransaction> SetBalanceAsync(string userId, long newBalance);
+        Task<UserWallet?> GetWalletByIdAsync(string userId);
+        Task<UserWallet> DepositAsync(string userId, long amount);
+        Task<UserWallet> SetBalanceAsync(string userId, long newBalance);
         
         Task<(List<UserWalletTransactionDto> data, int totalCount)> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize);
         Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAndUserAsync(int branchId);

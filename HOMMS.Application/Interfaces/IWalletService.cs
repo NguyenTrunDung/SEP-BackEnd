@@ -8,9 +8,9 @@ namespace HOMMS.Application.Interfaces
 {
     public interface IWalletService
     {
-        Task<UserWalletTransaction> DepositAsync(string userId, long amount, string description);
-        Task<UserWalletTransaction> SetBalanceAsync(string userId, long newBalance);
-        Task<UserWalletTransaction?> GetWalletAsync(string userId);
+        Task<UserWallet> DepositAsync(string userId, long amount);
+        Task<UserWallet> SetBalanceAsync(string userId, long newBalance);
+        Task<UserWallet?> GetWalletByIdAsync(string userId);
         Task<object> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize);
         Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAsync(int branchId);
         Task<List<WalletPurchaseHistoryDto>> GetPurchaseHistoryByUserIdAsync(string userId);

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace HOMMS.Infrastructure.Repositories.Implementations
 {
-    public class WalletRepository : Repository<UserWalletTransaction, int>, IWalletRepository
+    public class WalletRepository : Repository<UserWallet, int>, IWalletRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
@@ -23,31 +23,27 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             _dbContext = dbContext;
         }
 
-        public async Task<UserWalletTransaction?> GetWalletAsync(string userId)
+        public async Task<UserWallet?> GetWalletByIdAsync(string userId)
         {
-            return await _dbContext.UserWalletTransactions
+            return await _dbContext.UserWallets
                 .FirstOrDefaultAsync(w => w.UserId == userId);
         }
 
         /// <summary>
         /// Add Amount to current BalanceAfter
         /// </summary>
-        public async Task<UserWalletTransaction> DepositAsync(string userId, long amount, string description)
+        public async Task<UserWallet> DepositAsync(string userId, long amount)
         {
             if (amount <= 0)
                 throw new ArgumentException("Amount must be greater than 0.");
 
-            var wallet = await GetWalletAsync(userId)
+            var wallet = await GetWalletByIdAsync(userId)
                 ?? throw new InvalidOperationException("User wallet not initialized.");
 
-            wallet.Amount = amount;
-            wallet.BalanceAfter += amount;
-            wallet.TransactionType = WalletTransactionType.Credit;
-            wallet.Description = description;
-            wallet.BranchId = wallet.BranchId;
+            wallet.Amount += amount;
             wallet.LastModifiedAt = DateTime.UtcNow;
 
-            _dbContext.UserWalletTransactions.Update(wallet);
+            _dbContext.UserWallets.Update(wallet);
             await _dbContext.SaveChangesAsync();
 
             return wallet;
@@ -56,23 +52,20 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         /// <summary>
         /// Update wallet balance directly
         /// </summary>
-        public async Task<UserWalletTransaction> SetBalanceAsync(string userId, long newBalance)
+        public async Task<UserWallet> SetBalanceAsync(string userId, long newBalance)
         {
             if (newBalance < 0)
                 throw new ArgumentException("The balance cannot be negative.");
 
-            var wallet = await GetWalletAsync(userId)
+            var wallet = await GetWalletByIdAsync(userId)
                 ?? throw new InvalidOperationException("User wallet not initialized.");
 
-            long delta = newBalance - wallet.BalanceAfter;
+            long newAmount = newBalance;
 
-            wallet.Amount = delta;
-            wallet.BalanceAfter = newBalance;
-            wallet.TransactionType = WalletTransactionType.Adjustment;
-            wallet.BranchId = wallet.BranchId;
+            wallet.Amount = newAmount;
             wallet.LastModifiedAt = DateTime.UtcNow;
 
-            _dbContext.UserWalletTransactions.Update(wallet);
+            _dbContext.UserWallets.Update(wallet);
             await _dbContext.SaveChangesAsync();
 
             return wallet;

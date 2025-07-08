@@ -18,11 +18,10 @@ namespace HOMMS.API.Controllers.V1
         {
             _walletService = walletService;
         }
-
         [HttpPost("deposit")]
         public async Task<IActionResult> Deposit([FromBody] DepositRequest request)
         {
-            var result = await _walletService.DepositAsync(request.UserId, request.Amount, request.Description);
+            var result = await _walletService.DepositAsync(request.UserId, request.Amount);
             return Ok(result);
         }
 
@@ -166,7 +165,6 @@ namespace HOMMS.API.Controllers.V1
     {
         public string UserId { get; set; } = string.Empty;
         public long Amount { get; set; }
-        public string Description { get; set; } = string.Empty;
     }
 
     public class SetBalanceRequest
