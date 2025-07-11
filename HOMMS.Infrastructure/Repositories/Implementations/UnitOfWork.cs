@@ -15,10 +15,13 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
 
         public IPatientRepository PatientRepository { get; }
         public IWalletRepository WalletRepository { get; }
-
+        public IBranchRoleManagementRepository BranchRoleManagementRepository { get; }
+        public IBranchUserManagementRepository BranchUserManagementRepository { get; }
         // Add other repositories as needed
 
-        public UnitOfWork(ApplicationDbContext context, IBranchRepository branchRepository, IOrderDetailsRepository orderDetailsRepository, IOrderRepository orderRepository, IMenuDetailRepository menuDetailRepository, IPatientRepository patientRepository, IWalletRepository walletRepository)//add order, orderdetail
+        public UnitOfWork(ApplicationDbContext context, IBranchRepository branchRepository, IOrderDetailsRepository orderDetailsRepository, 
+            IOrderRepository orderRepository, IMenuDetailRepository menuDetailRepository, IPatientRepository patientRepository, 
+            IWalletRepository walletRepository, IBranchRoleManagementRepository branchRoleManagementRepository, IBranchUserManagementRepository branchUserManagementRepository)//add order, orderdetail
         {
             _context = context;
             BranchRepository = branchRepository;
@@ -27,6 +30,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             MenuDetailRepository = menuDetailRepository;
             PatientRepository = patientRepository;
             WalletRepository = walletRepository;    
+            BranchRoleManagementRepository = branchRoleManagementRepository;
+            BranchUserManagementRepository = branchUserManagementRepository;
             // Initialize other repositories here
         }
 

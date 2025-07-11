@@ -113,7 +113,8 @@ builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>();
-
+builder.Services.AddScoped<IBranchRoleManagementRepository, BranchRoleManagementRepository>();
+builder.Services.AddScoped<IBranchUserManagementRepository, BranchUserManagementRepository>();
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
@@ -215,7 +216,8 @@ builder.Services.AddScoped<IEmailVerifyService, EmailVerifyService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
-
+builder.Services.AddScoped<IBranchRoleManagementService, BranchRoleManagementService>();
+builder.Services.AddScoped<IBranchUserManagementService, BranchUserManagementService>();
 //builder.Services.AddScoped<IImageService, ImageService>();
 
 
