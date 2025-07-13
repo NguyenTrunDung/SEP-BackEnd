@@ -33,6 +33,12 @@ namespace HOMMS.Infrastructure.Seeds
                 "foodcategories:edit",
                 "foodcategories:delete",
                 
+                // Disease Categories Management
+                "diseasecategories:view",
+                "diseasecategories:add",
+                "diseasecategories:edit",
+                "diseasecategories:delete",
+                
                 // Orders Management
                 "orders:view",
                 "orders:add",
@@ -139,6 +145,7 @@ namespace HOMMS.Infrastructure.Seeds
                         "overview:view",
                         "foods:view", "foods:add", "foods:edit", "foods:delete",
                         "foodcategories:view", "foodcategories:add", "foodcategories:edit", "foodcategories:delete",
+                        "diseasecategories:view", "diseasecategories:add", "diseasecategories:edit", "diseasecategories:delete",
                         "orders:view", "orders:add", "orders:edit", "orders:delete", "orders:approve", "orders:cancel",
                         "menus:view", "menus:add", "menus:edit", "menus:delete", "menus:publish",
                         "kitchen:view", "kitchen:status", "kitchen:prepare", "kitchen:complete",
@@ -161,6 +168,7 @@ namespace HOMMS.Infrastructure.Seeds
                         "overview:view",
                         "foods:view", "foods:add", "foods:edit", "foods:delete",
                         "foodcategories:view", "foodcategories:add", "foodcategories:edit", "foodcategories:delete",
+                        "diseasecategories:view", "diseasecategories:add", "diseasecategories:edit",
                         "orders:view", "orders:add", "orders:edit", "orders:delete", "orders:approve",
                         "menus:view", "menus:add", "menus:edit", "menus:delete", "menus:publish",
                         "kitchen:view", "kitchen:status",
@@ -230,6 +238,7 @@ namespace HOMMS.Infrastructure.Seeds
                         "overview:view",
                         "orders:view", "orders:add",
                         "patients:view", "patients:add", "patients:edit", "patients:dietary",
+                        "diseasecategories:view",
                         "foods:view",
                         "menus:view"
                     }),
@@ -243,7 +252,5 @@ namespace HOMMS.Infrastructure.Seeds
                     await branchRoleRepo.AddAsync(role);
             }
         }
-
-
     }
-} 
+}
