@@ -102,17 +102,16 @@ builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IMenuDetailRepository, MenuDetailRepository>();
 builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
-
 builder.Services.AddScoped<ISystemLogRepository, SystemLogRepository>();
-
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IAreaRepository, AreaRepository>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
-
-
-
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>();
+builder.Services.AddScoped<IDiseaseCategoryFoodRestrictionRepository, DiseaseCategoryFoodRestrictionRepository>();
+
+// Add Disease Category Repository
+builder.Services.AddScoped<IDiseaseCategoryRepository, DiseaseCategoryRepository>();
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
@@ -183,6 +182,15 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Permission:Patient:delete", policy =>
         policy.Requirements.Add(new PermissionRequirement("Patient:delete")));
 
+    // Disease Categories
+    options.AddPolicy("Permission:diseasecategories:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("diseasecategories:view")));
+    options.AddPolicy("Permission:diseasecategories:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("diseasecategories:add")));
+    options.AddPolicy("Permission:diseasecategories:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("diseasecategories:edit")));
+    options.AddPolicy("Permission:diseasecategories:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("diseasecategories:delete")));
 });
 
 // Register PrintUrlsHostedService
@@ -206,15 +214,16 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
-
-
-
 builder.Services.AddScoped<IEmailVerifyService, EmailVerifyService>();
-
-
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
+// Add Disease Category Service
+builder.Services.AddScoped<IDiseaseCategoryService, DiseaseCategoryService>();
+builder.Services.AddScoped<IDiseaseCategoryFoodRestrictionService, DiseaseCategoryFoodRestrictionService>();
+
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+
+
 
 //builder.Services.AddScoped<IImageService, ImageService>();
 
@@ -402,7 +411,7 @@ try
     Log.Information("Starting web host");
 
     // Seed the database
-    // Commented out to avoid seeding in production, running api seeding for the first time
+    // Uncomment to seed the database with initial data
     //await app.SeedDatabaseAsync();
 
     // Print listening URLs to the terminal and log with Serilog

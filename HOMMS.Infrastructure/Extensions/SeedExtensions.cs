@@ -193,6 +193,18 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation("Patient disease categories already exist. Skipping patient disease category seeding.");
                 }
 
+                ///Seed Disease Category Food Restrictions if none exist
+                if (!await context.DiseaseCategoryFoodRestrictions.AnyAsync())
+                {
+                    logger.LogInformation("Seeding disease category food restrictions...");
+                    await DiseaseCategoryFoodRestrictionSeedData.SeedDiseaseCategoryFoodRestrictionsAsync(services);
+                    logger.LogInformation("Disease category food restrictions seeded successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Disease category food restrictions already exist. Skipping disease category food restriction seeding.");
+                }
+
                 // Seed Areas if none exist
                 if (!await context.Areas.AnyAsync())
                 {
