@@ -1,3 +1,4 @@
+using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using HOMMS.Domain.Enums;
 using HOMMS.Infrastructure.Data;
@@ -20,7 +21,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
 
         public async Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId)
         {
-            var user = await _context.Users
+            var user = await _dbContext.Users
                 .Where(u => u.Id == userId)
                 .Select(u => new UserWalletInfoDto
                 {
@@ -38,7 +39,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
 
         public async Task<List<UserWalletListItemDto>> GetUserWalletListAsync()
         {
-            return await _context.Users
+            return await _dbContext.Users
                 .Select(u => new UserWalletListItemDto
                 {
                     UserId = u.Id,

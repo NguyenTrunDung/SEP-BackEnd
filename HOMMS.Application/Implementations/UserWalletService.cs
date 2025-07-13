@@ -15,10 +15,9 @@ namespace HOMMS.Application.Implementations
         private readonly IUserWalletRepository _userWalletRepository;
         private readonly DbContext _dbContext;
 
-        public UserWalletService(IUserWalletRepository userWalletRepository, DbContext dbContext)
+        public UserWalletService(IUserWalletRepository userWalletRepository)
         {
             _userWalletRepository = userWalletRepository;
-            _dbContext = dbContext;
         }
 
         public async Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId)

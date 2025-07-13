@@ -1,3 +1,4 @@
+using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 
 namespace HOMMS.Infrastructure.Repositories.Interfaces
