@@ -5,6 +5,7 @@ using HOMMS.Domain.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace HOMMS.API.Controllers.V2
 {
@@ -169,6 +170,16 @@ namespace HOMMS.API.Controllers.V2
             {
                 return StatusCode(500, ApiResponseBase<UserWalletTransactionHistoryDto>.Error($"Internal server error: {ex.Message}"));
             }
+        }
+
+        /// <summary>
+        /// Gets list of users for UserTable
+        /// </summary>
+        [HttpGet("users")]
+        public async Task<ActionResult<ApiResponseBase<List<UserWalletListItemDto>>>> GetUsers()
+        {
+            var users = await _userWalletService.GetUserWalletListAsync();
+            return Ok(ApiResponseBase<List<UserWalletListItemDto>>.Success(users, "User list retrieved successfully"));
         }
     }
 } 

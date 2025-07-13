@@ -1,6 +1,7 @@
 using HOMMS.Domain.Entities;
 using HOMMS.Domain.Enums;
 using HOMMS.Domain.Dtos;
+using System.Collections.Generic;
 
 namespace HOMMS.Application.Interfaces
 {
@@ -78,5 +79,6 @@ namespace HOMMS.Application.Interfaces
             string userId, int pageNumber = 1, int pageSize = 10);
         // Thêm method mới:
         Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId);
+        Task<List<UserWalletListItemDto>> GetUserWalletListAsync();
     }
 } 

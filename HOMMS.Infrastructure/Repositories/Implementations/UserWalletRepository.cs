@@ -11,16 +11,16 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
     /// </summary>
 public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUserWalletRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _dbContext;
 
-        public UserWalletRepository(ApplicationDbContext context) : base(context)
+        public UserWalletRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
         }
 
         public async Task<long> GetWalletBalanceAsync(string userId)
         {
-            var user = await _context.Users
+            var user = await _dbContext.Users
                 .Where(u => u.Id == userId)
                 .Select(u => u.WalletBalance)
                 .FirstOrDefaultAsync();
@@ -30,7 +30,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
 
         public async Task<ApplicationUser?> GetUserWalletAsync(string userId)
         {
-            return await _context.Users
+            return await _dbContext.Users
                 .Where(u => u.Id == userId)
                 .FirstOrDefaultAsync();
         }
@@ -38,7 +38,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
         public async Task<(IEnumerable<UserWalletTransaction> Transactions, int TotalCount)> GetTransactionHistoryAsync(
             string userId, int pageNumber, int pageSize)
         {
-            var query = _context.UserWalletTransactions
+            var query = _dbContext.UserWalletTransactions
                 .Include(t => t.User)
                 .Include(t => t.Branch)
                 .Where(t => t.UserId == userId && !t.IsDeleted)
@@ -57,7 +57,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
         public async Task<(IEnumerable<UserWalletTransaction> Transactions, int TotalCount)> GetDepositHistoryAsync(
             string userId, int pageNumber, int pageSize)
         {
-            var query = _context.UserWalletTransactions
+            var query = _dbContext.UserWalletTransactions
                 .Include(t => t.User)
                 .Include(t => t.Branch)
                 .Where(t => t.UserId == userId && 
@@ -78,7 +78,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
         public async Task<(IEnumerable<UserWalletTransaction> Transactions, int TotalCount)> GetPurchaseHistoryAsync(
             string userId, int pageNumber, int pageSize)
         {
-            var query = _context.UserWalletTransactions
+            var query = _dbContext.UserWalletTransactions
                 .Include(t => t.User)
                 .Include(t => t.Branch)
                 .Include(t => t.Order)
@@ -99,21 +99,21 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
 
         public async Task<bool> UpdateWalletBalanceAsync(string userId, long newBalance)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _dbContext.Users.FindAsync(userId);
             if (user == null)
                 return false;
 
             user.WalletBalance = newBalance;
             user.LastModifiedAt = DateTime.UtcNow;
             
-            await _context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 
         public async Task<UserWalletTransaction> CreateTransactionAsync(UserWalletTransaction transaction)
         {
-            _context.UserWalletTransactions.Add(transaction);
-            await _context.SaveChangesAsync();
+            _dbContext.UserWalletTransactions.Add(transaction);
+            await _dbContext.SaveChangesAsync();
             return transaction;
         }
     }

@@ -3,6 +3,7 @@ using HOMMS.Domain.Entities;
 using HOMMS.Domain.Enums;
 using HOMMS.Domain.Dtos;
 using HOMMS.Infrastructure.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace HOMMS.Application.Implementations
 {
@@ -12,10 +13,12 @@ namespace HOMMS.Application.Implementations
     public class UserWalletService : IUserWalletService
     {
         private readonly IUserWalletRepository _userWalletRepository;
+        private readonly DbContext _dbContext;
 
-        public UserWalletService(IUserWalletRepository userWalletRepository)
+        public UserWalletService(IUserWalletRepository userWalletRepository, DbContext dbContext)
         {
             _userWalletRepository = userWalletRepository;
+            _dbContext = dbContext;
         }
 
         public async Task<long> GetWalletBalanceAsync(string userId)
@@ -116,6 +119,22 @@ namespace HOMMS.Application.Implementations
                 IsCustomerAccount = user.IsCustomerAccount,
                 IsCustomerEnabled = user.IsCustomerEnabled
             };
+        }
+
+        public async Task<List<UserWalletListItemDto>> GetUserWalletListAsync()
+        {
+            // Lấy danh sách user và số dư ví
+            var users = await _dbContext.Set<ApplicationUser>()
+                .Select(u => new UserWalletListItemDto
+                {
+                    UserId = u.Id,
+                    Name = u.FullName,
+                    Username = u.UserName,
+                    Phone = u.PhoneNumber ?? string.Empty,
+                    Balance = u.WalletBalance
+                })
+                .ToListAsync();
+            return users;
         }
     }
 } 
