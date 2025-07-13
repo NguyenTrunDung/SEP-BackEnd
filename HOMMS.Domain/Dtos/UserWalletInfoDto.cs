@@ -8,7 +8,8 @@ namespace HOMMS.Domain.Dtos
         public string UserId { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public long Balance { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
+        public decimal? Balance { get; set; }
         public string? CustomerCode { get; set; }
         public bool IsCustomerAccount { get; set; }
         public bool IsCustomerEnabled { get; set; }

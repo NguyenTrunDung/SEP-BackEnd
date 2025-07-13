@@ -69,5 +69,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
     
         Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId);
         Task<List<UserWalletListItemDto>> GetUserWalletListAsync();
+        Task<List<UserWalletInfoDto>> GetUserWalletListByBranchAsync(int branchId);
+
     }
 } 

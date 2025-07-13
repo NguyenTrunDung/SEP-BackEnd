@@ -24,6 +24,10 @@ namespace HOMMS.Application.Implementations
         {
             return await _userWalletRepository.GetUserWalletInfoAsync(userId);
         }
+        public async Task<List<UserWalletInfoDto>> GetUserWalletListByBranchAsync(int branchId)
+        {
+            return await _userWalletRepository.GetUserWalletListByBranchAsync(branchId);
+        }
 
         public async Task<List<UserWalletListItemDto>> GetUserWalletListAsync()
         {

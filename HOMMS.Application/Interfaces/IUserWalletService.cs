@@ -79,6 +79,7 @@ namespace HOMMS.Application.Interfaces
             string userId, int pageNumber = 1, int pageSize = 10);
         
         Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId);
+        Task<List<UserWalletInfoDto>> GetUserWalletListByBranchAsync(int branchId);
         Task<List<UserWalletListItemDto>> GetUserWalletListAsync();
     }
 } 

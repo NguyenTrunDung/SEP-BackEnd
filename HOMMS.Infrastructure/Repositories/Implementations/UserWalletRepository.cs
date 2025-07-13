@@ -37,6 +37,28 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
             return user;
         }
 
+        public async Task<List<UserWalletInfoDto>> GetUserWalletListByBranchAsync(int branchId)
+        {
+            var users = await (from bu in _dbContext.BranchUsers
+                               join u in _dbContext.Users on bu.UserId equals u.Id
+                               join w in _dbContext.UserWallets on u.Id equals w.UserId into uw
+                               from w in uw.DefaultIfEmpty() 
+                               where bu.BranchId == branchId
+                               select new UserWalletInfoDto
+                               {
+                                   UserId = u.Id,
+                                   FullName = u.FullName,
+                                   Email = u.Email ?? string.Empty,
+                                   Balance =  w.Amount,
+                                   PhoneNumber = u.PhoneNumber,
+                                   CustomerCode = u.CustomerCode,
+                                   IsCustomerAccount = u.IsCustomerAccount,
+                                   IsCustomerEnabled = u.IsCustomerEnabled
+                               }).ToListAsync();
+
+            return users;
+        }
+
         public async Task<List<UserWalletListItemDto>> GetUserWalletListAsync()
         {
             return await (from w in _dbContext.UserWallets

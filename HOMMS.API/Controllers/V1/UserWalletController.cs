@@ -175,10 +175,24 @@ namespace HOMMS.API.Controllers.V1
         /// Gets list of users for UserTable
         /// </summary>
         [HttpGet("users")]
-        public async Task<ActionResult<ApiResponseBase<List<UserWalletListItemDto>>>> GetUsers()
+        public async Task<ActionResult<ApiResponseBase<List<UserWalletListItemDto>>>> GetAllUsers()
         {
             var users = await _userWalletService.GetUserWalletListAsync();
             return Ok(ApiResponseBase<List<UserWalletListItemDto>>.Success(users, "User list retrieved successfully"));
+        }
+
+        [HttpGet("users-by-branch")]
+        public async Task<ActionResult<ApiResponseBase<List<UserWalletInfoDto>>>> GetUsersByBranch([FromQuery] int? branchId)
+        {
+            int resolvedBranchId = branchId ?? 0;
+            if (resolvedBranchId == 0)
+            {
+                var branchIdHeader = Request.Headers["X-Branch-Id"].FirstOrDefault();
+                if (!int.TryParse(branchIdHeader, out resolvedBranchId))
+                    return BadRequest(ApiResponseBase<List<UserWalletInfoDto>>.Error("BranchId is required"));
+            }
+            var users = await _userWalletService.GetUserWalletListByBranchAsync(resolvedBranchId);
+            return Ok(ApiResponseBase<List<UserWalletInfoDto>>.Success(users, "User list retrieved successfully"));
         }
     }
 } 
