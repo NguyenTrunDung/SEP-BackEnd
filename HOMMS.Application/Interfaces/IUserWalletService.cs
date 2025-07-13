@@ -1,10 +1,11 @@
 using HOMMS.Domain.Entities;
 using HOMMS.Domain.Enums;
+using HOMMS.Domain.Dtos;
 
 namespace HOMMS.Application.Interfaces
 {
     /// <summary>
-    /// Service interface for managing user wallet operations (simplified for POC)
+    /// Service interface for managing user wallet operations
     /// All amounts are in VND (Vietnamese Dong) - whole numbers only
     /// </summary>
     public interface IUserWalletService
@@ -17,16 +18,16 @@ namespace HOMMS.Application.Interfaces
         Task<long> GetWalletBalanceAsync(string userId);
         
         /// <summary>
-        /// Adds money to a user's wallet (by admin/manager)
+        /// Deposits money to a user's wallet
         /// </summary>
         /// <param name="userId">The user ID</param>
-        /// <param name="amount">The amount to add in VND</param>
-        /// <param name="description">Description of the transaction (supports Vietnamese)</param>
-        /// <param name="addedByUserId">ID of the user adding the money</param>
+        /// <param name="amount">The amount to deposit in VND</param>
+        /// <param name="description">Description of the deposit</param>
+        /// <param name="depositedByUserId">ID of the user making the deposit</param>
         /// <param name="branchId">The branch ID where transaction occurs</param>
         /// <returns>The transaction record</returns>
-        Task<UserWalletTransaction> AddMoneyAsync(string userId, long amount, string description, 
-            string addedByUserId, int branchId);
+        Task<UserWalletTransaction> DepositAsync(string userId, long amount, string description, 
+            string depositedByUserId, int branchId);
         
         /// <summary>
         /// Deducts money from a user's wallet for order payment
@@ -47,42 +48,35 @@ namespace HOMMS.Application.Interfaces
         Task<bool> HasSufficientBalanceAsync(string userId, long amount);
         
         /// <summary>
-        /// Gets wallet transaction history for a user
+        /// Gets deposit history for a user
         /// </summary>
         /// <param name="userId">The user ID</param>
         /// <param name="pageNumber">Page number for pagination</param>
         /// <param name="pageSize">Page size for pagination</param>
-        /// <returns>List of wallet transactions</returns>
-        Task<(IEnumerable<UserWalletTransaction> Transactions, int TotalCount)> GetTransactionHistoryAsync(
+        /// <returns>List of deposit transactions</returns>
+        Task<(IEnumerable<UserWalletTransaction> Transactions, int TotalCount)> GetDepositHistoryAsync(
             string userId, int pageNumber = 1, int pageSize = 10);
         
         /// <summary>
-        /// Creates a customer account with specified wallet balance
+        /// Gets purchase history for a user
         /// </summary>
-        /// <param name="customerData">Customer account information</param>
-        /// <param name="initialBalance">Initial wallet balance in VND</param>
-        /// <param name="createdByUserId">ID of the user creating the account</param>
-        /// <param name="branchId">The branch ID</param>
-        /// <returns>The created customer user</returns>
-        Task<ApplicationUser> CreateCustomerAccountAsync(CreateCustomerRequest customerData, 
-            long initialBalance, string createdByUserId, int branchId);
-    }
-    
-    /// <summary>
-    /// Request model for creating customer accounts (simplified for POC)
-    /// Supports Vietnamese customer information
-    /// </summary>
-    public class CreateCustomerRequest
-    {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string? Email { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? CustomerCode { get; set; }
-        public string? Address { get; set; }
+        /// <param name="userId">The user ID</param>
+        /// <param name="pageNumber">Page number for pagination</param>
+        /// <param name="pageSize">Page size for pagination</param>
+        /// <returns>List of purchase transactions</returns>
+        Task<(IEnumerable<UserWalletTransaction> Transactions, int TotalCount)> GetPurchaseHistoryAsync(
+            string userId, int pageNumber = 1, int pageSize = 10);
+        
         /// <summary>
-        /// Customer notes in Vietnamese (allergies, dietary restrictions, etc.)
+        /// Gets all transaction history for a user
         /// </summary>
-        public string? CustomerNotes { get; set; }
+        /// <param name="userId">The user ID</param>
+        /// <param name="pageNumber">Page number for pagination</param>
+        /// <param name="pageSize">Page size for pagination</param>
+        /// <returns>List of all transactions</returns>
+        Task<(IEnumerable<UserWalletTransaction> Transactions, int TotalCount)> GetTransactionHistoryAsync(
+            string userId, int pageNumber = 1, int pageSize = 10);
+        // Thêm method mới:
+        Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId);
     }
 } 

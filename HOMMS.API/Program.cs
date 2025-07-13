@@ -112,6 +112,7 @@ builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 
 
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+builder.Services.AddScoped<IUserWalletRepository, UserWalletRepository>();
 builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>();
 builder.Services.AddScoped<IBranchRoleManagementRepository, BranchRoleManagementRepository>();
 builder.Services.AddScoped<IBranchUserManagementRepository, BranchUserManagementRepository>();
@@ -214,6 +215,7 @@ builder.Services.AddScoped<IEmailVerifyService, EmailVerifyService>();
 
 
 builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IUserWalletService, UserWalletService>();
 builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 builder.Services.AddScoped<IBranchRoleManagementService, BranchRoleManagementService>();
