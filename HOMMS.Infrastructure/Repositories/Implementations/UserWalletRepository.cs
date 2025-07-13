@@ -39,16 +39,17 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
 
         public async Task<List<UserWalletListItemDto>> GetUserWalletListAsync()
         {
-            return await _dbContext.Users
-                .Select(u => new UserWalletListItemDto
-                {
-                    UserId = u.Id,
-                    Name = u.FullName,
-                    Username = u.UserName,
-                    Phone = u.PhoneNumber ?? string.Empty,
-                    Balance = u.WalletBalance
-                })
-                .ToListAsync();
+            return await (from w in _dbContext.UserWallets
+                          join u in _dbContext.Users on w.UserId equals u.Id
+                          select new UserWalletListItemDto
+                          {
+                              UserId = u.Id,
+                              Name = u.FullName,
+                              Username = u.UserName,
+                              Phone = u.PhoneNumber ?? string.Empty,
+                              Balance = w.Amount
+                          })
+                          .ToListAsync();
         }
 
         public async Task<long> GetWalletBalanceAsync(string userId)

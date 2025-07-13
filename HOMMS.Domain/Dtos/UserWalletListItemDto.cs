@@ -6,6 +6,6 @@ namespace HOMMS.Domain.Dtos
         public string Name { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
-        public long Balance { get; set; }
+        public decimal Balance { get; set; }
     }
 } 
