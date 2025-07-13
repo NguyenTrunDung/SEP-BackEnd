@@ -18,6 +18,38 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
             _dbContext = dbContext;
         }
 
+        public async Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId)
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new UserWalletInfoDto
+                {
+                    UserId = u.Id,
+                    FullName = u.FullName,
+                    Email = u.Email ?? string.Empty,
+                    Balance = u.WalletBalance,
+                    CustomerCode = u.CustomerCode,
+                    IsCustomerAccount = u.IsCustomerAccount,
+                    IsCustomerEnabled = u.IsCustomerEnabled
+                })
+                .FirstOrDefaultAsync();
+            return user;
+        }
+
+        public async Task<List<UserWalletListItemDto>> GetUserWalletListAsync()
+        {
+            return await _context.Users
+                .Select(u => new UserWalletListItemDto
+                {
+                    UserId = u.Id,
+                    Name = u.FullName,
+                    Username = u.UserName,
+                    Phone = u.PhoneNumber ?? string.Empty,
+                    Balance = u.WalletBalance
+                })
+                .ToListAsync();
+        }
+
         public async Task<long> GetWalletBalanceAsync(string userId)
         {
             var user = await _dbContext.Users

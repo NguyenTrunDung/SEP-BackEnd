@@ -21,6 +21,16 @@ namespace HOMMS.Application.Implementations
             _dbContext = dbContext;
         }
 
+        public async Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId)
+        {
+            return await _userWalletRepository.GetUserWalletInfoAsync(userId);
+        }
+
+        public async Task<List<UserWalletListItemDto>> GetUserWalletListAsync()
+        {
+            return await _userWalletRepository.GetUserWalletListAsync();
+        }
+
         public async Task<long> GetWalletBalanceAsync(string userId)
         {
             return await _userWalletRepository.GetWalletBalanceAsync(userId);
@@ -105,36 +115,5 @@ namespace HOMMS.Application.Implementations
             return await _userWalletRepository.GetTransactionHistoryAsync(userId, pageNumber, pageSize);
         }
 
-        public async Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId)
-        {
-            var user = await _userWalletRepository.GetUserWalletAsync(userId);
-            if (user == null) return null;
-            return new UserWalletInfoDto
-            {
-                UserId = user.Id,
-                FullName = user.FullName,
-                Email = user.Email ?? string.Empty,
-                Balance = user.WalletBalance,
-                CustomerCode = user.CustomerCode,
-                IsCustomerAccount = user.IsCustomerAccount,
-                IsCustomerEnabled = user.IsCustomerEnabled
-            };
         }
-
-        public async Task<List<UserWalletListItemDto>> GetUserWalletListAsync()
-        {
-            // Lấy danh sách user và số dư ví
-            var users = await _dbContext.Set<ApplicationUser>()
-                .Select(u => new UserWalletListItemDto
-                {
-                    UserId = u.Id,
-                    Name = u.FullName,
-                    Username = u.UserName,
-                    Phone = u.PhoneNumber ?? string.Empty,
-                    Balance = u.WalletBalance
-                })
-                .ToListAsync();
-            return users;
-        }
-    }
 } 

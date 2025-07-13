@@ -65,5 +65,8 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="transaction">The transaction to create</param>
         /// <returns>The created transaction</returns>
         Task<UserWalletTransaction> CreateTransactionAsync(UserWalletTransaction transaction);
+    
+        Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId);
+        Task<List<UserWalletListItemDto>> GetUserWalletListAsync();
     }
 } 

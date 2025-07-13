@@ -77,7 +77,7 @@ namespace HOMMS.Application.Interfaces
         /// <returns>List of all transactions</returns>
         Task<(IEnumerable<UserWalletTransaction> Transactions, int TotalCount)> GetTransactionHistoryAsync(
             string userId, int pageNumber = 1, int pageSize = 10);
-        // Thêm method mới:
+        
         Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId);
         Task<List<UserWalletListItemDto>> GetUserWalletListAsync();
     }
