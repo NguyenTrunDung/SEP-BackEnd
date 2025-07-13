@@ -14,10 +14,12 @@ namespace HOMMS.Application.Implementations
     public class BranchUserManagementService: IBranchUserManagementService
     {
         private readonly IBranchUserManagementRepository _repository;
-
-        public BranchUserManagementService(IBranchUserManagementRepository repository)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public BranchUserManagementService(IBranchUserManagementRepository repository
+            ,UserManager<ApplicationUser> userManager)
         {
             _repository = repository;
+            _userManager = userManager;
         }
 
         public async Task<IdentityResult> CreateUserAsync(CreateBranchUserRequest request)
@@ -42,7 +44,7 @@ namespace HOMMS.Application.Implementations
 
             await _repository.AddUserToBranchAsync(user.Id, request.BranchId);
             await _repository.AddUserToBranchRoleAsync(user.Id, request.BranchId, request.BranchRoleId);
-
+            await _userManager.AddToRoleAsync(user, "Staff");
             return IdentityResult.Success;
         }
 
@@ -85,10 +87,8 @@ namespace HOMMS.Application.Implementations
 
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
-
             await _repository.UpdateUserAsync(user);
             return true;
-
         }
 
         public async Task<bool> DeleteUserAsync(string userId, int branchId)
