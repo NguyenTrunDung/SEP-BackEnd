@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HOMMS.API.Controllers.V1
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class BranchRoleManagementController : ControllerBase
     {
