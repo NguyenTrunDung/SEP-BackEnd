@@ -73,6 +73,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                           {
                               UserId = u.Id,
                               FullName = u.FirstName + " " + u.LastName,
+                              FirstName = u.FirstName,
+                              LastName = u.LastName,
                               Email = u.Email,
                               PhoneNumber = u.PhoneNumber,
                               UserName = u.UserName,
@@ -96,6 +98,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                           {
                               UserId = u.Id,
                               FullName = u.FirstName + " " + u.LastName,
+                              FirstName = u.FirstName,
+                              LastName = u.LastName,
                               Email = u.Email,
                               PhoneNumber = u.PhoneNumber,
                               UserName = u.UserName,
@@ -117,6 +121,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                           {
                               UserId = u.Id,
                               FullName = u.FirstName + " " + u.LastName,
+                              FirstName = u.FirstName,
+                              LastName = u.LastName,
                               Email = u.Email,
                               PhoneNumber = u.PhoneNumber,
                               UserName = u.UserName,
