@@ -67,6 +67,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                           join bur in _context.BranchUserRoles
                             on new { UserId = u.Id, BranchId = (int?)bu.BranchId }
                             equals new {bur.UserId, bur.BranchId }
+                          join br in _context.BranchRoles on bur.BranchRoleId equals br.Id
                           where !bu.IsDeleted && bu.BranchId == branchId
                           select new UserDto
                           {
@@ -74,7 +75,9 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                               FullName = u.FirstName + " " + u.LastName,
                               Email = u.Email,
                               BranchId = bu.BranchId,
-                              BranchRoleId = bur.BranchRoleId
+                              BranchRoleId = bur.BranchRoleId,
+                              BranchRoleName = br.Name,
+                              IsActive = u.IsActive
                           }).ToListAsync();
         }
 

@@ -87,6 +87,7 @@ namespace HOMMS.Application.Implementations
 
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
+            user.IsActive = request.IsActive;
             await _repository.UpdateUserAsync(user);
             return true;
         }

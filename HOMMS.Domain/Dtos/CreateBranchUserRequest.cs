@@ -23,6 +23,7 @@ namespace HOMMS.Domain.Dtos
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string? Email { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public class UserDto
@@ -32,5 +33,8 @@ namespace HOMMS.Domain.Dtos
         public string Email { get; set; }
         public int BranchId { get; set; }
         public int BranchRoleId { get; set; }
+        public string BranchRoleName { get; set; }
+        public bool IsActive { get; set; }
+
     }
 }
