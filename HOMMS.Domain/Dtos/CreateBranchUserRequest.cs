@@ -31,6 +31,8 @@ namespace HOMMS.Domain.Dtos
         public string UserId { get; set; }
         public string FullName { get; set; }
         public string Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string UserName { get; set; } = default!;
         public int BranchId { get; set; }
         public int BranchRoleId { get; set; }
         public string BranchRoleName { get; set; }

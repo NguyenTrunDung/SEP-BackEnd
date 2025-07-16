@@ -74,6 +74,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                               UserId = u.Id,
                               FullName = u.FirstName + " " + u.LastName,
                               Email = u.Email,
+                              PhoneNumber = u.PhoneNumber,
+                              UserName = u.UserName,
                               BranchId = bu.BranchId,
                               BranchRoleId = bur.BranchRoleId,
                               BranchRoleName = br.Name,
@@ -95,8 +97,11 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                               UserId = u.Id,
                               FullName = u.FirstName + " " + u.LastName,
                               Email = u.Email,
+                              PhoneNumber = u.PhoneNumber,
+                              UserName = u.UserName,
                               BranchId = bu.BranchId,
-                              BranchRoleId = bur.BranchRoleId
+                              BranchRoleId = bur.BranchRoleId,
+                              IsActive = u.IsActive
                           }).ToListAsync();
         }
 
@@ -113,8 +118,11 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                               UserId = u.Id,
                               FullName = u.FirstName + " " + u.LastName,
                               Email = u.Email,
+                              PhoneNumber = u.PhoneNumber,
+                              UserName = u.UserName,
                               BranchId = bu.BranchId,
-                              BranchRoleId = bur.BranchRoleId
+                              BranchRoleId = bur.BranchRoleId,
+                              IsActive = u.IsActive
                           }).ToListAsync();
         }
 
