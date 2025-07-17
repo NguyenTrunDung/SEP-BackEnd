@@ -159,7 +159,40 @@ namespace HOMMS.API.Controllers.V1
 
             return Ok("Transaction updated successfully");
         }
+        /// <summary>
+        /// Tạo ví mới cho người dùng
+        /// </summary>
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateWallet([FromBody] CreateWalletRequestDto dto)
+        {
+            var result = await _walletService.CreateWalletAsync(dto);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Cập nhật số dư ví người dùng
+        /// </summary>
+        [HttpPut("updates")]
+        public async Task<IActionResult> UpdateWallet([FromBody] UpdateWalletRequestDto dto)
+        {
+            var result = await _walletService.UpdateWalletAsync(dto);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Vô hiệu hóa (deactivate) ví người dùng
+        /// </summary>
+        [HttpDelete("deactivates/{id}")]
+        public async Task<IActionResult> DeactivateWallet(int id)
+        {
+            var success = await _walletService.DeactivateWalletAsync(id);
+            if (!success)
+                return NotFound("Wallet not found.");
+
+            return Ok(new { message = "Wallet deactivated successfully" });
+        }
     }
+}
 
     public class DepositRequest
     {
@@ -172,4 +205,4 @@ namespace HOMMS.API.Controllers.V1
         public string UserId { get; set; } = string.Empty;
         public long NewBalance { get; set; }
     }
-}
+

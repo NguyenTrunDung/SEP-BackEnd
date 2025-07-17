@@ -18,6 +18,8 @@ namespace HOMMS.Application.Interfaces
         Task<bool> DeactivateTransactionAsync(int transactionId);
         Task<bool> UpdateWalletTransactionAsync(UpdateUserWalletTransactionDto dto);
 
-
+        Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto);
+        Task<WalletResponseDto> UpdateWalletAsync(UpdateWalletRequestDto dto);
+        Task<bool> DeactivateWalletAsync(int id);
     }
 }

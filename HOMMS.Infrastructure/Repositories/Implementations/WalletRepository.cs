@@ -261,5 +261,89 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         }
 
 
+        public class CreateWalletRequestDto
+        {
+            public string UserName { get; set; } = null!;
+            public string Email { get; set; } = null!;
+            public string FirstName { get; set; } = null!;
+            public string LastName { get; set; } = null!;
+            public string PhoneNumber { get; set; } = null!;
+            public string Password { get; set; } = null!;
+            public long Amount { get; set; }
+            public string Description { get; set; } = null!;
+            public int BranchId { get; set; }
+        }
+
+        public class UpdateWalletRequestDto
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; } = null!;
+            public string LastName { get; set; } = null!;
+            public string PhoneNumber { get; set; } = null!;
+            public long Amount { get; set; }
+            public string Description { get; set; } = null!;
+            public int BranchId { get; set; }
+        }
+
+        public class WalletResponseDto
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; } = null!;
+            public string LastName { get; set; } = null!;
+            public string PhoneNumber { get; set; } = null!;
+            public long Amount { get; set; }
+            public string Description { get; set; } = null!;
+            public int BranchId { get; set; }
+        }
+        public async Task<UserWallet?> GetByIdAsyncs(int id)
+        {
+            return await _dbContext.UserWallets
+                .Include(w => w.User)
+                .FirstOrDefaultAsync(w => w.Id == id && !w.IsDeleted);
+        }
+
+        public async Task<UserWallet?> GetByUserIdAsync(string userId)
+        {
+            return await _dbContext.UserWallets
+                .Include(w => w.User)
+                .FirstOrDefaultAsync(w => w.UserId == userId && !w.IsDeleted);
+        }
+
+        public async Task AddAsync(UserWallet wallet)
+        {
+            await _dbContext.UserWallets.AddAsync(wallet);
+        }
+
+        public void Update(UserWallet wallet)
+        {
+            _dbContext.UserWallets.Update(wallet);
+        }
+
+        public void SoftDelete(UserWallet wallet)
+        {
+            wallet.IsDeleted = true;
+            wallet.DeletedAt = DateTime.UtcNow;
+            wallet.DeletedBy = "system"; // hoặc lấy từ HttpContext.User
+            _dbContext.UserWallets.Update(wallet);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        public async Task<ApplicationUser?> FindByNameAsync(string userName)
+        {
+            return await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.UserName == userName);
+        }
+        public void UpdateUser(ApplicationUser user)
+        {
+            _dbContext.Users.Update(user);
+        }
+        public async Task<ApplicationUser?> FindUserByIdAsync(string userId)
+        {
+            return await _dbContext .Users.FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
     }
 }

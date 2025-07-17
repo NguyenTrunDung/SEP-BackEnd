@@ -25,6 +25,15 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<UserWalletTransaction?> GetByIdAsync(int id);
         Task<bool> DeactivateAsync(int id);
         Task<bool> UpdateUserWalletTransactionAsync(UpdateUserWalletTransactionDto dto);
+        Task<UserWallet?> GetByIdAsyncs(int id);
+        Task<UserWallet?> GetByUserIdAsync(string userId);
+        Task<ApplicationUser?> FindByNameAsync(string userName);
+        Task AddAsync(UserWallet wallet);
+        void Update(UserWallet wallet);
+        void SoftDelete(UserWallet wallet);
+        Task SaveChangesAsync();
+        void UpdateUser(ApplicationUser user);
+        Task<ApplicationUser?> FindUserByIdAsync(string userId);
 
 
     }

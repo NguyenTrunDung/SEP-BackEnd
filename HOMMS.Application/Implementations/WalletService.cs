@@ -91,5 +91,115 @@ namespace HOMMS.Application.Implementations
         {
             return await _walletRepository.UpdateUserWalletTransactionAsync(dto);
         }
+        public async Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto)
+        {
+            // Truy vấn user từ UserName
+            var user = await _walletRepository.FindByNameAsync(dto.UserName);
+            if (user == null)
+                throw new Exception($"Không tìm thấy user với UserName: {dto.UserName}");
+
+            // Cập nhật thông tin user nếu có thay đổi
+            bool isModified = false;
+
+            if (!string.Equals(user.FirstName, dto.FirstName, StringComparison.OrdinalIgnoreCase))
+            {
+                user.FirstName = dto.FirstName;
+                isModified = true;
+            }
+
+            if (!string.Equals(user.LastName, dto.LastName, StringComparison.OrdinalIgnoreCase))
+            {
+                user.LastName = dto.LastName;
+                isModified = true;
+            }
+
+            if (!string.Equals(user.PhoneNumber, dto.PhoneNumber, StringComparison.OrdinalIgnoreCase))
+            {
+                user.PhoneNumber = dto.PhoneNumber;
+                isModified = true;
+            }
+
+            if (isModified)
+            {
+                _walletRepository.UpdateUser(user);
+            }
+
+            var userWallet = new UserWallet
+            {
+                UserId = user.Id,
+                Amount = dto.Amount,
+                CreatedBy = "system"
+            };
+
+            await _walletRepository.AddAsync(userWallet);
+            await _walletRepository.SaveChangesAsync();
+
+            return new WalletResponseDto
+            {
+                Id = userWallet.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                Amount = (long)userWallet.Amount,
+                Description = dto.Description,
+                BranchId = dto.BranchId
+            };
+        }
+
+        public async Task<WalletResponseDto> UpdateWalletAsync(UpdateWalletRequestDto dto)
+        {
+            var userWallet = await _walletRepository.GetByIdAsyncs(dto.Id);
+            if (userWallet == null)
+                throw new Exception("Wallet not found");
+
+            // 1. Tìm user liên kết
+            var user = await _walletRepository.FindUserByIdAsync(userWallet.UserId);
+            if (user == null)
+                throw new Exception("User not found");
+
+            // 2. Cập nhật thông tin người dùng
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.PhoneNumber = dto.PhoneNumber;
+            user.LastModifiedAt = DateTime.UtcNow;
+            user.LastModifiedBy = "system";
+
+            _walletRepository.UpdateUser(user); // <-- bạn cần định nghĩa hàm này
+
+            // 3. Cập nhật ví
+            userWallet.Amount = dto.Amount;
+            userWallet.LastModifiedAt = DateTime.UtcNow;
+            userWallet.LastModifiedBy = "system";
+
+            _walletRepository.Update(userWallet);
+            await _walletRepository.SaveChangesAsync();
+
+            return new WalletResponseDto
+            {
+                Id = userWallet.Id,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                PhoneNumber = dto.PhoneNumber,
+                Amount = (long)userWallet.Amount,
+                Description = dto.Description,
+                BranchId = dto.BranchId
+            };
+        }
+
+        public async Task<bool> DeactivateWalletAsync(int id)
+        {
+            var userWallet = await _walletRepository.GetByIdAsyncs(id);
+            if (userWallet == null)
+                return false;
+
+            userWallet.IsDeleted = true;
+            userWallet.DeletedAt = DateTime.UtcNow;
+            userWallet.DeletedBy = "system";
+
+            _walletRepository.Update(userWallet);
+            await _walletRepository.SaveChangesAsync();
+                return true; // <-- thiếu dòng này
+
+        }
+        }
     }
-}
