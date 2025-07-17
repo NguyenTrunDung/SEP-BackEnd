@@ -137,6 +137,19 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+        public async Task<bool> UpdateUserBranchRoleAsync(string userId, int branchId, int newBranchRoleId)
+        {
+            var record = await _context.BranchUserRoles
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.BranchId == branchId && !x.IsDeleted);
+
+            if (record == null) return false;
+
+            record.BranchRoleId = newBranchRoleId;
+            record.LastModifiedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
         public async Task<bool> SoftDeleteAsync(string userId, int branchId)
         {

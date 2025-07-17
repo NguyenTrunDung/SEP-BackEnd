@@ -1,4 +1,5 @@
 ﻿using HOMMS.Application.Interfaces;
+using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Repositories.Interfaces;
 using System;
@@ -17,39 +18,78 @@ namespace HOMMS.Application.Implementations
         {
             _repository = repository;
         }
-
-        public async Task<IEnumerable<BranchRole>> GetByBranchAsync(int branchId, string? keyword = null)
+        private BranchRoleDto MapToDto(BranchRole entity)
         {
-            return await _repository.GetByAsync(r =>
+            return new BranchRoleDto
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                BranchId = entity.BranchId,
+                IsDefault = entity.IsDefault,
+                Permissions = string.IsNullOrEmpty(entity.Permissions)
+                    ? new List<string>()
+                    : entity.Permissions.Split(',').ToList()
+            };
+        }
+        private BranchRole MapToEntity(BranchRoleCreateUpdateDto dto)
+        {
+            return new BranchRole
+            {
+                Name = dto.Name,
+                BranchId = dto.BranchId,
+                IsDefault = dto.IsDefault,
+                Permissions = dto.Permissions != null
+                    ? string.Join(",", dto.Permissions)
+                    : string.Empty
+            };
+        }
+
+        private void UpdateEntityFromDto(BranchRole entity, BranchRoleCreateUpdateDto dto)
+        {
+            entity.Name = dto.Name;
+            entity.BranchId = dto.BranchId;
+            entity.IsDefault = dto.IsDefault;
+            entity.Permissions = dto.Permissions != null
+                ? string.Join(",", dto.Permissions)
+                : string.Empty;
+        }
+
+        public async Task<IEnumerable<BranchRoleDto>> GetByBranchAsync(int branchId, string? keyword = null)
+        {
+            var roles = await _repository.GetByAsync(r =>
                 r.BranchId == branchId &&
                 !r.IsDeleted &&
                 (string.IsNullOrEmpty(keyword) || r.Name.Contains(keyword)));
+
+            return roles.Select(MapToDto);
         }
 
-        public async Task<BranchRole?> GetByIdAsync(int id)
+        public async Task<BranchRoleDto?> GetByIdAsync(int id)
         {
             var role = await _repository.GetByIdAsync(id);
-            return role?.IsDeleted == true ? null : role;
+            return role?.IsDeleted == true ? null : MapToDto(role);
         }
 
-        public async Task<BranchRole> CreateAsync(BranchRole role)
+        public async Task<BranchRoleDto> CreateAsync(BranchRoleCreateUpdateDto dto)
         {
-            role.CreatedAt = DateTime.UtcNow;
-            role.IsDeleted = false;
-            return await _repository.AddAsync(role);
+            var entity = MapToEntity(dto);
+            entity.CreatedAt = DateTime.UtcNow;
+            entity.IsDeleted = false;
+
+            var created = await _repository.AddAsync(entity);
+            return MapToDto(created);
         }
 
-        public async Task<BranchRole?> UpdateAsync(int id, BranchRole updated)
+        public async Task<BranchRoleDto?> UpdateAsync(int id, BranchRoleCreateUpdateDto dto)
         {
             var existing = await _repository.GetByIdAsync(id);
             if (existing == null || existing.IsDeleted) return null;
 
-            existing.Name = updated.Name;
-            existing.Permissions = updated.Permissions;
-            existing.IsDefault = updated.IsDefault;
+            UpdateEntityFromDto(existing, dto);
             existing.LastModifiedAt = DateTime.UtcNow;
 
-            return await _repository.UpdateAsync(existing);
+            var updated = await _repository.UpdateAsync(existing);
+            return MapToDto(updated);
         }
 
         public async Task<bool> DeleteAsync(int id)

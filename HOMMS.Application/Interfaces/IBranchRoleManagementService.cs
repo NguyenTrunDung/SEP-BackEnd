@@ -1,4 +1,5 @@
-﻿using HOMMS.Domain.Entities;
+﻿using HOMMS.Domain.Dtos;
+using HOMMS.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace HOMMS.Application.Interfaces
 {
     public interface IBranchRoleManagementService
     {
-        Task<IEnumerable<BranchRole>> GetByBranchAsync(int branchId, string? keyword = null);
-        Task<BranchRole?> GetByIdAsync(int id);
-        Task<BranchRole> CreateAsync(BranchRole role);
-        Task<BranchRole?> UpdateAsync(int id, BranchRole updated);
+        Task<IEnumerable<BranchRoleDto>> GetByBranchAsync(int branchId, string? keyword = null);
+        Task<BranchRoleDto?> GetByIdAsync(int id);
+        Task<BranchRoleDto> CreateAsync(BranchRoleCreateUpdateDto role);
+        Task<BranchRoleDto?> UpdateAsync(int id, BranchRoleCreateUpdateDto updated);
         Task<bool> DeleteAsync(int id);
     }
 }

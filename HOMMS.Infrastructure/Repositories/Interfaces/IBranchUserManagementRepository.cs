@@ -20,6 +20,8 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<List<UserDto>> SearchInBranchAsync(string keyword, int branchId);
         Task<List<UserDto>> GetByRoleInBranchAsync(int branchId, int branchRoleId);
         Task UpdateUserAsync(ApplicationUser user);
+        Task<bool> UpdateUserBranchRoleAsync(string userId, int branchId, int newBranchRoleId);
+
         Task<bool> SoftDeleteAsync(string userId, int branchId);
     }
 }

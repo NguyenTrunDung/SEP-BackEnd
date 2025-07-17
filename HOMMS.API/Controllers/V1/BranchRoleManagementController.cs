@@ -1,4 +1,5 @@
 ﻿using HOMMS.Application.Interfaces;
+using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,19 +31,18 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] BranchRole role)
+        public async Task<IActionResult> Create([FromBody] BranchRoleCreateUpdateDto dto)
         {
-            var created = await _service.CreateAsync(role);
+            var created = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] BranchRole role)
+        public async Task<IActionResult> Update(int id, [FromBody] BranchRoleCreateUpdateDto dto)
         {
-            var updated = await _service.UpdateAsync(id, role);
-            return updated == null ? NotFound() : Ok();
+            var updated = await _service.UpdateAsync(id, dto);
+            return updated == null ? NotFound() : Ok(updated);
         }
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

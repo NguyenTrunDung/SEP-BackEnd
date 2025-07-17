@@ -91,6 +91,7 @@ namespace HOMMS.Application.Implementations
             user.IsActive = request.IsActive;
             user.PhoneNumber = request.PhoneNumber;
             await _repository.UpdateUserAsync(user);
+            await _repository.UpdateUserBranchRoleAsync(request.UserId, request.BranchId, request.BranchRoleId);
             return true;
         }
 
