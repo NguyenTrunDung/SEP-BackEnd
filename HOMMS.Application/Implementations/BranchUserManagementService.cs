@@ -113,6 +113,7 @@ namespace HOMMS.Application.Implementations
 
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
+            user.UserName = request.UserName;
             user.IsActive = request.IsActive;
             user.PhoneNumber = request.PhoneNumber;
             await _repository.UpdateUserAsync(user);
