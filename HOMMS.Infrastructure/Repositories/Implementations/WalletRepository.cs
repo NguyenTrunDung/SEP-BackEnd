@@ -156,30 +156,25 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             public string Description { get; set; } = string.Empty;
             public int BranchId { get; set; }
         }
-        public async Task<(List<UserWalletTransactionDto> data, int totalCount)> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize)
+        public async Task<List<UserWalletTransactionDto>> GetWalletCreditHistoryAsync(string userId)
         {
-            var query = _dbContext.UserWalletTransactions
-                .Where(x => x.UserId == userId && x.TransactionType == WalletTransactionType.Credit)
-                .OrderByDescending(x => x.CreatedAt);
-
-            var totalCount = await query.CountAsync();
-
-            var data = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+            var data = await _dbContext.UserWalletTransactions
+                .Where(x => x.UserId == userId && x.TransactionType == WalletTransactionType.Credit && !x.IsDeleted)
+                .OrderByDescending(x => x.CreatedAt)
                 .Select(x => new UserWalletTransactionDto
                 {
                     Id = x.Id,
                     Amount = x.Amount,
                     BalanceAfter = x.BalanceAfter,
                     Description = x.Description,
-                    CreatedAt = x.CreatedAt, 
+                    CreatedAt = x.CreatedAt,
                     CreatedBy = x.CreatedBy
                 })
                 .ToListAsync();
 
-            return (data, totalCount);
+            return data;
         }
+
         public async Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAndUserAsync(int branchId)
         {
             return await _dbContext.UserWalletTransactions
@@ -199,18 +194,13 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 })
                 .ToListAsync();
         }
-        public async Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId, int pageNumber, int pageSize)
+        public async Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId)
         {
             var query = _dbContext.UserWalletTransactions
-                .Where(t => t.UserId == userId && t.TransactionType == WalletTransactionType.OrderPayment && !t.IsDeleted)
-                .OrderByDescending(t => t.CreatedAt);
+        .Where(t => t.UserId == userId && t.TransactionType == WalletTransactionType.OrderPayment && !t.IsDeleted)
+        .OrderByDescending(t => t.CreatedAt);
 
-            int totalCount = await query.CountAsync();
-
-            var transactions = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var transactions = await query.ToListAsync();
 
             var orderIds = transactions
                 .Where(t => t.OrderId.HasValue)
@@ -237,7 +227,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                     : new List<string>()
             }).ToList();
 
-            return (items, totalCount);
+            return (items, items.Count);
         }
 
         public async Task<ApplicationUser?> GetUserByUsernameAsync(string username)

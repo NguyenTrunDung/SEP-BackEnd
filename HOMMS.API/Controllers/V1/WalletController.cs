@@ -32,33 +32,12 @@ namespace HOMMS.API.Controllers.V1
             return Ok(result);
         }
         [HttpGet("credit-history")]
-        public async Task<IActionResult> GetWalletCreditHistory([FromQuery] string userId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetWalletCreditHistory([FromQuery] string userId)
         {
-            try
-            {
-                Console.WriteLine($"Calling GetWalletCreditHistory: userId={userId}, pageNumber={pageNumber}, pageSize={pageSize}");
-
-                var result = await _walletService.GetWalletCreditHistoryAsync(userId, pageNumber, pageSize);
-
-                if (result == null)
-                {
-                    Console.WriteLine("Result is null.");
-                    return NotFound(new { status = "error", message = "No data found." });
-                }
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ ERROR in GetWalletCreditHistory: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    status = "error",
-                    message = ex.Message,
-                    stackTrace = ex.StackTrace
-                });
-            }
+            var result = await _walletService.GetWalletCreditHistoryAsync(userId);
+            return Ok(result);
         }
+
         [HttpGet("branch-transactions")]
         public async Task<IActionResult> GetWalletTransactionsByBranch([FromQuery] int branchId)
         {
@@ -86,28 +65,10 @@ namespace HOMMS.API.Controllers.V1
 
         }
         [HttpGet("purchase-history")]
-        public async Task<IActionResult> GetPurchaseHistory([FromQuery] string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetPurchaseHistory([FromQuery] string userId)
         {
-            try
-            {
-                var (items, totalCount) = await _walletService.GetPurchaseHistoryByUserIdAsync(userId, pageNumber, pageSize);
-
-                return Ok(new
-                {
-                    status = "success",
-                    data = items,
-                    total = totalCount
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    status = "error",
-                    message = ex.Message,
-                    stackTrace = ex.StackTrace
-                });
-            }
+            var result = await _walletService.GetPurchaseHistoryByUserIdAsync(userId);
+            return Ok(result);
         }
 
         [HttpPost("add-transaction")]

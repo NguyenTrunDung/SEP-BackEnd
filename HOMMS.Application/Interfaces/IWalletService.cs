@@ -11,9 +11,9 @@ namespace HOMMS.Application.Interfaces
         Task<UserWallet> DepositAsync(string userId, long amount, int branchId, string description,string createdBy);
         Task<UserWallet> SetBalanceAsync(string userId, long newBalance);
         Task<UserWallet?> GetWalletByIdAsync(string userId);
-        Task<object> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize);
+        Task<object> GetWalletCreditHistoryAsync(string userId);
         Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAsync(int branchId);
-        Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId, int pageNumber, int pageSize);
+        Task<List<WalletPurchaseHistoryDto>> GetPurchaseHistoryByUserIdAsync(string userId);
         Task<UserWalletTransaction> AddWalletTransactionAsync(CreateUserWalletTransactionDto dto);
         Task<bool> DeactivateTransactionAsync(int transactionId);
         Task<bool> UpdateWalletTransactionAsync(UpdateUserWalletTransactionDto dto);

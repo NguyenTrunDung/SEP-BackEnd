@@ -14,10 +14,9 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<UserWallet?> GetWalletByIdAsync(string userId);
         Task<UserWallet> DepositAsync(string userId, long amount, int branchId, string description, string createdBy);
         Task<UserWallet> SetBalanceAsync(string userId, long newBalance);
-        
-        Task<(List<UserWalletTransactionDto> data, int totalCount)> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize);
+        Task<List<UserWalletTransactionDto>> GetWalletCreditHistoryAsync(string userId);
         Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAndUserAsync(int branchId);
-        Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId, int pageNumber, int pageSize);
+        Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId);
 
         Task<UserWalletTransaction> AddTransactionAsync(UserWalletTransaction transaction);
         Task<ApplicationUser?> GetUserByUsernameAsync(string username);

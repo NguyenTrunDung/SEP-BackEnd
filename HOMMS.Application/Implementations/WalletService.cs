@@ -41,24 +41,18 @@ namespace HOMMS.Application.Implementations
         {
             return _walletRepository.SetBalanceAsync(userId, newBalance);
         }
-        public async Task<object> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize)
+        public async Task<List<UserWalletTransactionDto>> GetWalletCreditHistoryAsync(string userId)
         {
-            var (data, totalCount) = await _walletRepository.GetWalletCreditHistoryAsync(userId, pageNumber, pageSize);
-
-            return new
-            {
-                status = "success",
-                data,
-                totalCount
-            };
+            return await _walletRepository.GetWalletCreditHistoryAsync(userId);
         }
         public async Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAsync(int branchId)
         {
             return await _walletRepository.GetWalletTransactionsByBranchAndUserAsync(branchId);
         }
-        public async Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId, int pageNumber, int pageSize)
+        public async Task<List<WalletPurchaseHistoryDto>> GetPurchaseHistoryByUserIdAsync(string userId)
         {
-            return await _walletRepository.GetPurchaseHistoryByUserIdAsync(userId, pageNumber, pageSize);
+            var (items, _) = await _walletRepository.GetPurchaseHistoryByUserIdAsync(userId);
+            return items;
         }
 
         public async Task<UserWalletTransaction> AddWalletTransactionAsync(CreateUserWalletTransactionDto dto)
