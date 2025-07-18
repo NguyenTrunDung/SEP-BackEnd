@@ -119,6 +119,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             public string TransactionId { get; set; } = null!;
             public string OrderId { get; set; } = null!;
+            public string? Description { get; set; }
+            public WalletTransactionType TransactionType { get; set; }
             public DateTime CreatedAt { get; set; }
             public decimal Amount { get; set; }
             public List<string> FoodNames { get; set; } = new();
@@ -226,6 +228,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             {
                 TransactionId = t.Id.ToString(),
                 OrderId = t.OrderId?.ToString() ?? "",
+                Description = t.Description,
+                TransactionType = WalletTransactionType.OrderPayment,
                 CreatedAt = t.CreatedAt,
                 Amount = t.Amount,
                 FoodNames = t.OrderId != null && foodMap.ContainsKey(t.OrderId.Value)

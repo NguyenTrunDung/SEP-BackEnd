@@ -26,7 +26,9 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
                 .Select(u => new UserWalletInfoDto
                 {
                     UserId = u.Id,
-                    FullName = u.FullName,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    UserName = u.UserName,
                     Email = u.Email ?? string.Empty,
                     Balance = u.WalletBalance,
                     CustomerCode = u.CustomerCode,
@@ -47,9 +49,9 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
                                select new UserWalletInfoDto
                                {
                                    UserId = u.Id,
-                                   FirtName = u.FirstName,
+                                   FirstName = u.FirstName,
                                    LastName = u.LastName,
-                                   FullName = u.FullName,
+                                   UserName = u.UserName,
                                    Email = u.Email ?? string.Empty,
                                    Balance =  w.Amount,
                                    PhoneNumber = u.PhoneNumber,
