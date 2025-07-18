@@ -94,7 +94,30 @@ namespace HOMMS.Application.Implementations
             await _repository.UpdateUserBranchRoleAsync(request.UserId, request.BranchId, request.BranchRoleId);
             return true;
         }
+        public async Task<bool> UpdateUserWalletAsync(UpdateUserRequest2 request)
+        {
+            var user = await _repository.GetByIdInBranchAsync(request.UserId, request.BranchId);
+            if (user == null) return false;
 
+            // Nếu đổi email, thì check xem email mới có trùng ai khác không
+            if (!string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                var emailExists = await _repository.GetByEmailAsync(request.Email);
+                if (emailExists != null && emailExists.Id != request.UserId)
+                {
+                    return false;
+                }
+
+                user.Email = request.Email;
+            }
+
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.IsActive = request.IsActive;
+            user.PhoneNumber = request.PhoneNumber;
+            await _repository.UpdateUserAsync(user);
+            return true;
+        }
         public async Task<bool> DeleteUserAsync(string userId, int branchId)
         {
             return await _repository.SoftDeleteAsync(userId, branchId);

@@ -61,6 +61,13 @@ namespace HOMMS.API.Controllers.V1
             return Ok("User updated successfully");
         }
 
+        [HttpPut("update-user-wallet")]
+        public async Task<IActionResult> UpdateUserWallet([FromBody] UpdateUserRequest2 request)
+        {
+            var success = await _service.UpdateUserWalletAsync(request);
+            if (!success) return BadRequest("User not found or email already exists");
+            return Ok("User updated successfully");
+        }
 
         [HttpDelete("{userId}/branch/{branchId}")]
         public async Task<IActionResult> Delete(string userId, int branchId)

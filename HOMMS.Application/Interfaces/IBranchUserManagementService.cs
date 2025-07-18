@@ -17,6 +17,7 @@ namespace HOMMS.Application.Interfaces
         Task<List<UserDto>> GetUsersByRoleAsync(int branchId, int branchRoleId);
         Task<ApplicationUser?> GetUserByIdAsync(string userId, int branchId);
         Task<bool> UpdateUserAsync(UpdateUserRequest request);
+        Task<bool> UpdateUserWalletAsync(UpdateUserRequest2 request);
         Task<bool> DeleteUserAsync(string userId, int branchId);
     }
 }

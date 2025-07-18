@@ -8,7 +8,7 @@ using static HOMMS.Infrastructure.Repositories.Implementations.WalletRepository;
 
 namespace HOMMS.API.Controllers.V1
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class WalletController : ControllerBase
     {
