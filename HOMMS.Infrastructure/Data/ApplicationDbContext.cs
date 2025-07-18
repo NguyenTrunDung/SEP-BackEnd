@@ -49,8 +49,10 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<SystemLog> SystemLogs { get; set; }
         public DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
+ 
         public DbSet<Comment> Comment { get; set; }
 
+ 
         // Disease Category Management DbSets
         public DbSet<DiseaseCategory> DiseaseCategories { get; set; }
         public DbSet<PatientDiseaseCategory> PatientDiseaseCategories { get; set; }
@@ -153,8 +155,10 @@ namespace HOMMS.Infrastructure.Data
             builder.ApplyConfiguration(new OrderDetailsConfiguration());
             builder.ApplyConfiguration(new UserWalletTransactionConfiguration());
             builder.ApplyConfiguration(new SystemLogsConfigurations());
+ 
             builder.ApplyConfiguration(new CommentConfiguration());
 
+ 
             // Disease Category configurations
             builder.ApplyConfiguration(new DiseaseCategoryConfiguration());
             builder.ApplyConfiguration(new PatientDiseaseCategoryConfiguration());

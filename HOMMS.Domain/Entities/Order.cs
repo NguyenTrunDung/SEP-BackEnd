@@ -102,7 +102,9 @@ namespace HOMMS.Domain.Entities
         public virtual Patient? Patient { get; set; }
         public virtual ICollection<OrderDetails> OrderDetails { get; set; } = new List<OrderDetails>();
         public virtual ICollection<UserWalletTransaction> WalletTransactions { get; set; } = new List<UserWalletTransaction>();
+ 
         public virtual ICollection<Comment> comment { get; set; } = new List<Comment>();
+ 
         public virtual Location? Location { get; set; }
     }
 }

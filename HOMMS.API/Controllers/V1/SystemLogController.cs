@@ -33,7 +33,9 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("Branch/{branchId}")]
+
         [Authorize(Policy = "Permission:systemlog:view")]
+
         public async Task<ActionResult<ApiResponseBase<List<SystemLogDto>>> >GetSystemLogList([FromRoute] int branchId, [FromQuery] DateTime dateStart, [FromQuery] DateTime dateEnd)//nhập theo kiểu YY-MM-DD
         {
             try
@@ -57,8 +59,10 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpPost]
+
         [Authorize(Policy = "Permission:systemlog:view")]
         public async Task<ActionResult<ApiResponseBase<CommentDto>>> AddSystemLog([FromForm] AddSystemLogDto dto)
+
         {
            var sys = await _systemLogService.AddSystemLog(dto);
             return Ok( new ApiResponseBase<AddSystemLogDto>(sys, "Log created successfully"));

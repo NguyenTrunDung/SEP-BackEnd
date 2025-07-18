@@ -106,9 +106,11 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         public virtual ICollection<Patient> Patients { get; set; } = new HashSet<Patient>();
 
+ 
 
 
         public virtual ICollection<Comment> comment { get; set; } = new List<Comment>();
 
+ 
     }
 } 

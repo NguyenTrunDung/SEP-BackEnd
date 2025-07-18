@@ -505,6 +505,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("BranchUserRoles");
                 });
 
+ 
             modelBuilder.Entity("HOMMS.Domain.Entities.Comment", b =>
                 {
                     b.Property<int>("Id")
@@ -566,6 +567,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("Comment");
                 });
 
+ 
             modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -1862,6 +1864,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+ 
             modelBuilder.Entity("HOMMS.Domain.Entities.Comment", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -1889,6 +1892,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Order");
                 });
 
+ 
             modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -2203,8 +2207,10 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("WalletTransactions");
+ 
 
                     b.Navigation("comment");
+ 
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Area", b =>
@@ -2229,8 +2235,10 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Patients");
 
                     b.Navigation("SystemLogs");
+ 
 
                     b.Navigation("comment");
+ 
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.BranchRole", b =>
@@ -2269,8 +2277,10 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("OrderDetails");
 
                     b.Navigation("WalletTransactions");
+ 
 
                     b.Navigation("comment");
+ 
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Patient", b =>
