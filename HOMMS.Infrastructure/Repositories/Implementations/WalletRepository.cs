@@ -18,10 +18,13 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
-        public WalletRepository(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager) : base(dbContext)
+        private readonly IBranchUserManagementRepository _branchUserManagement;
+        public WalletRepository(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, IBranchUserManagementRepository branchUserManagement) 
+            : base(dbContext)
         {
             _dbContext = dbContext;
             _userManager = userManager;
+            _branchUserManagement = branchUserManagement;
         }
 
         public async Task<UserWallet?> GetWalletByIdAsync(string userId)
@@ -305,7 +308,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             public string Password { get; set; } = null!;
             public long Amount { get; set; }
             public string Description { get; set; } = null!;
-            public string CreatedBy { get; set; }
+            public int BranchId { get; set; }
+            public string? CreatedBy { get; set; }
         }
 
         public class UpdateWalletRequestDto
@@ -399,13 +403,22 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 throw new Exception($"Không tạo được user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            // Gán vào chi nhánh
+            var branchUser = new BranchUser
+            {
+                UserId = user.Id,
+                BranchId = dto.BranchId,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _dbContext.BranchUsers.AddAsync(branchUser);
+
             // Tạo ví
             var wallet = new UserWallet
             {
                 UserId = user.Id,
                 Amount = dto.Amount,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = dto.CreatedBy
+                CreatedBy = string.IsNullOrWhiteSpace(dto.CreatedBy) ? "admin" : dto.CreatedBy!
             };
             await _dbContext.UserWallets.AddAsync(wallet);
             await _dbContext.SaveChangesAsync();
