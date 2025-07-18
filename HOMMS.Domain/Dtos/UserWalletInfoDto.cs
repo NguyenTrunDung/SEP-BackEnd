@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace HOMMS.Domain.Dtos
 {
     /// <summary>
@@ -6,6 +8,8 @@ namespace HOMMS.Domain.Dtos
     public class UserWalletInfoDto
     {
         public string UserId { get; set; } = string.Empty;
+        public string FirtName {  get; set; } = string.Empty;
+        public string LastName {  get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;

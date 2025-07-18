@@ -47,6 +47,8 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
                                select new UserWalletInfoDto
                                {
                                    UserId = u.Id,
+                                   FirtName = u.FirstName,
+                                   LastName = u.LastName,
                                    FullName = u.FullName,
                                    Email = u.Email ?? string.Empty,
                                    Balance =  w.Amount,

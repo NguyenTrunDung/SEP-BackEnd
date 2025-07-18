@@ -140,12 +140,27 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public async Task<bool> UpdateUserBranchRoleAsync(string userId, int branchId, int newBranchRoleId)
         {
             var record = await _context.BranchUserRoles
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.BranchId == branchId && !x.IsDeleted);
+        .FirstOrDefaultAsync(x => x.UserId == userId && x.BranchId == branchId && !x.IsDeleted);
 
-            if (record == null) return false;
-
-            record.BranchRoleId = newBranchRoleId;
-            record.LastModifiedAt = DateTime.UtcNow;
+            if (record != null)
+            {
+                // Cập nhật nếu đã tồn tại
+                record.BranchRoleId = newBranchRoleId;
+                record.LastModifiedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                // Tạo mới nếu chưa có
+                record = new BranchUserRole
+                {
+                    UserId = userId,
+                    BranchId = branchId,
+                    BranchRoleId = newBranchRoleId,
+                    CreatedAt = DateTime.UtcNow,
+                    IsDeleted = false
+                };
+                await _context.BranchUserRoles.AddAsync(record);
+            }
 
             await _context.SaveChangesAsync();
             return true;
