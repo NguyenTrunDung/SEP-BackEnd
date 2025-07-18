@@ -12,12 +12,12 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
     public interface IWalletRepository: IRepository<UserWallet, int>
     {
         Task<UserWallet?> GetWalletByIdAsync(string userId);
-        Task<UserWallet> DepositAsync(string userId, long amount);
+        Task<UserWallet> DepositAsync(string userId, long amount, int branchId, string createdBy);
         Task<UserWallet> SetBalanceAsync(string userId, long newBalance);
         
         Task<(List<UserWalletTransactionDto> data, int totalCount)> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize);
         Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAndUserAsync(int branchId);
-        Task<List<WalletPurchaseHistoryDto>> GetPurchaseHistoryByUserIdAsync(string userId);
+        Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId, int pageNumber, int pageSize);
 
         Task<UserWalletTransaction> AddTransactionAsync(UserWalletTransaction transaction);
         Task<ApplicationUser?> GetUserByUsernameAsync(string username);
@@ -35,6 +35,6 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         void UpdateUser(ApplicationUser user);
         Task<ApplicationUser?> FindUserByIdAsync(string userId);
 
-
+        Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto);
     }
 }

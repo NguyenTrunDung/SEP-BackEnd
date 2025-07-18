@@ -32,9 +32,9 @@ namespace HOMMS.Application.Implementations
             return _walletRepository.GetWalletByIdAsync(userId);
         }
 
-        public Task<UserWallet> DepositAsync(string userId, long amount)
+        public Task<UserWallet> DepositAsync(string userId, long amount,int branchId,string createdBy)
         {
-            return _walletRepository.DepositAsync(userId, amount);
+            return _walletRepository.DepositAsync(userId, amount, branchId, createdBy);
         }
 
         public Task<UserWallet> SetBalanceAsync(string userId, long newBalance)
@@ -56,10 +56,11 @@ namespace HOMMS.Application.Implementations
         {
             return await _walletRepository.GetWalletTransactionsByBranchAndUserAsync(branchId);
         }
-        public async Task<List<WalletPurchaseHistoryDto>> GetPurchaseHistoryByUserIdAsync(string userId)
+        public async Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId, int pageNumber, int pageSize)
         {
-            return await _walletRepository.GetPurchaseHistoryByUserIdAsync(userId);
+            return await _walletRepository.GetPurchaseHistoryByUserIdAsync(userId, pageNumber, pageSize);
         }
+
         public async Task<UserWalletTransaction> AddWalletTransactionAsync(CreateUserWalletTransactionDto dto)
         {
             var user = await _walletRepository.GetUserByUsernameAsync(dto.UserName);
@@ -93,57 +94,7 @@ namespace HOMMS.Application.Implementations
         }
         public async Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto)
         {
-            // Truy vấn user từ UserName
-            var user = await _walletRepository.FindByNameAsync(dto.UserName);
-            if (user == null)
-                throw new Exception($"Không tìm thấy user với UserName: {dto.UserName}");
-
-            // Cập nhật thông tin user nếu có thay đổi
-            bool isModified = false;
-
-            if (!string.Equals(user.FirstName, dto.FirstName, StringComparison.OrdinalIgnoreCase))
-            {
-                user.FirstName = dto.FirstName;
-                isModified = true;
-            }
-
-            if (!string.Equals(user.LastName, dto.LastName, StringComparison.OrdinalIgnoreCase))
-            {
-                user.LastName = dto.LastName;
-                isModified = true;
-            }
-
-            if (!string.Equals(user.PhoneNumber, dto.PhoneNumber, StringComparison.OrdinalIgnoreCase))
-            {
-                user.PhoneNumber = dto.PhoneNumber;
-                isModified = true;
-            }
-
-            if (isModified)
-            {
-                _walletRepository.UpdateUser(user);
-            }
-
-            var userWallet = new UserWallet
-            {
-                UserId = user.Id,
-                Amount = dto.Amount,
-                CreatedBy = "system"
-            };
-
-            await _walletRepository.AddAsync(userWallet);
-            await _walletRepository.SaveChangesAsync();
-
-            return new WalletResponseDto
-            {
-                Id = userWallet.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber,
-                Amount = (long)userWallet.Amount,
-                Description = dto.Description,
-                BranchId = dto.BranchId
-            };
+            return await _walletRepository.CreateWalletAsync(dto);
         }
 
         public async Task<WalletResponseDto> UpdateWalletAsync(UpdateWalletRequestDto dto)

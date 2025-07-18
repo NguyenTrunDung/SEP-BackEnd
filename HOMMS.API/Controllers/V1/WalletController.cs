@@ -21,7 +21,7 @@ namespace HOMMS.API.Controllers.V1
         [HttpPost("deposit")]
         public async Task<IActionResult> Deposit([FromBody] DepositRequest request)
         {
-            var result = await _walletService.DepositAsync(request.UserId, request.Amount);
+            var result = await _walletService.DepositAsync(request.UserId, request.Amount, request.BranchId, request.CreatedBy);
             return Ok(result);
         }
 
@@ -86,16 +86,17 @@ namespace HOMMS.API.Controllers.V1
 
         }
         [HttpGet("purchase-history")]
-        public async Task<IActionResult> GetPurchaseHistory([FromQuery] string userId)
+        public async Task<IActionResult> GetPurchaseHistory([FromQuery] string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _walletService.GetPurchaseHistoryByUserIdAsync(userId);
+                var (items, totalCount) = await _walletService.GetPurchaseHistoryByUserIdAsync(userId, pageNumber, pageSize);
+
                 return Ok(new
                 {
                     status = "success",
-                    data = result,
-                    total = result.Count
+                    data = items,
+                    total = totalCount
                 });
             }
             catch (Exception ex)
@@ -108,6 +109,7 @@ namespace HOMMS.API.Controllers.V1
                 });
             }
         }
+
         [HttpPost("add-transaction")]
         public async Task<IActionResult> AddWalletTransaction([FromBody] CreateUserWalletTransactionDto dto)
         {
@@ -162,13 +164,27 @@ namespace HOMMS.API.Controllers.V1
         /// <summary>
         /// Tạo ví mới cho người dùng
         /// </summary>
-        [HttpPost("create")]
+        [HttpPost("create-wallet")]
         public async Task<IActionResult> CreateWallet([FromBody] CreateWalletRequestDto dto)
         {
-            var result = await _walletService.CreateWalletAsync(dto);
-            return Ok(result);
+            try
+            {
+                var result = await _walletService.CreateWalletAsync(dto);
+                return Ok(new
+                {
+                    status = "success",
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
+            }
         }
-
         /// <summary>
         /// Cập nhật số dư ví người dùng
         /// </summary>
@@ -176,7 +192,7 @@ namespace HOMMS.API.Controllers.V1
         public async Task<IActionResult> UpdateWallet([FromBody] UpdateWalletRequestDto dto)
         {
             var result = await _walletService.UpdateWalletAsync(dto);
-            return Ok(result);
+            return Ok(result);  
         }
 
         /// <summary>
@@ -198,6 +214,8 @@ namespace HOMMS.API.Controllers.V1
     {
         public string UserId { get; set; } = string.Empty;
         public long Amount { get; set; }
+        public int BranchId { get; set; }
+        public string CreatedBy { get; set; }
     }
 
     public class SetBalanceRequest

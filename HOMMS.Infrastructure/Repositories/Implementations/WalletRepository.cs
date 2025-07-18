@@ -17,10 +17,11 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
     public class WalletRepository : Repository<UserWallet, int>, IWalletRepository
     {
         private readonly ApplicationDbContext _dbContext;
-
-        public WalletRepository(ApplicationDbContext dbContext) : base(dbContext)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public WalletRepository(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager) : base(dbContext)
         {
             _dbContext = dbContext;
+            _userManager = userManager;
         }
 
         public async Task<UserWallet?> GetWalletByIdAsync(string userId)
@@ -32,7 +33,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         /// <summary>
         /// Add Amount to current BalanceAfter
         /// </summary>
-        public async Task<UserWallet> DepositAsync(string userId, long amount)
+        public async Task<UserWallet> DepositAsync(string userId, long amount, int branchId, string createdBy)
         {
             if (amount <= 0)
                 throw new ArgumentException("Amount must be greater than 0.");
@@ -40,10 +41,28 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             var wallet = await GetWalletByIdAsync(userId)
                 ?? throw new InvalidOperationException("User wallet not initialized.");
 
-            wallet.Amount += amount;
+            decimal newBalance = wallet.Amount + amount;
+
+            var transaction = new UserWalletTransaction
+            {
+                UserId = userId,
+                BranchId = branchId, 
+                TransactionType = WalletTransactionType.Credit,
+                Amount = amount,
+                BalanceAfter = (long)newBalance,
+                Description = "Nạp tiền vào ví",
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = createdBy
+            };
+
+            _dbContext.UserWalletTransactions.Add(transaction);
+
+            wallet.Amount = newBalance;
             wallet.LastModifiedAt = DateTime.UtcNow;
+            wallet.LastModifiedBy = createdBy;
 
             _dbContext.UserWallets.Update(wallet);
+
             await _dbContext.SaveChangesAsync();
 
             return wallet;
@@ -77,6 +96,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             public long BalanceAfter { get; set; }
             public string Description { get; set; } = string.Empty;
             public DateTime CreatedAt { get; set; }
+            public string CreatedBy { get; set; }
         }
         public class UserWalletTransactionsDto
         {
@@ -88,16 +108,17 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             public string Description { get; set; } = string.Empty;
             public WalletTransactionType TransactionType { get; set; }
             public DateTime CreatedAt { get; set; }
+            public string CreatedBy { get; set; }
+
         }
 
         public class WalletPurchaseHistoryDto
         {
-            public int TransactionId { get; set; }
+            public string TransactionId { get; set; } = null!;
+            public string OrderId { get; set; } = null!;
             public DateTime CreatedAt { get; set; }
-            public long Amount { get; set; }
-            public string Description { get; set; }
-            public int OrderId { get; set; }
-            public List<OrderDetailDto> OrderDetails { get; set; } = new();
+            public decimal Amount { get; set; }
+            public List<string> FoodNames { get; set; } = new();
         }
 
         public class OrderDetailDto
@@ -130,11 +151,6 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             public string Description { get; set; } = string.Empty;
             public int BranchId { get; set; }
         }
-
-
-
-
-
         public async Task<(List<UserWalletTransactionDto> data, int totalCount)> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize)
         {
             var query = _dbContext.UserWalletTransactions
@@ -152,7 +168,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                     Amount = x.Amount,
                     BalanceAfter = x.BalanceAfter,
                     Description = x.Description,
-                    CreatedAt = x.CreatedAt
+                    CreatedAt = x.CreatedAt, 
+                    CreatedBy = x.CreatedBy
                 })
                 .ToListAsync();
 
@@ -172,33 +189,50 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                     BalanceAfter = t.BalanceAfter,
                     Description = t.Description,
                     TransactionType = t.TransactionType,
-                    CreatedAt = t.CreatedAt
-                })
-                .ToListAsync();
-        }
-        public async Task<List<WalletPurchaseHistoryDto>> GetPurchaseHistoryByUserIdAsync(string userId)
-        {
-            return await _dbContext.UserWalletTransactions
-                .Where(t => t.UserId == userId && t.TransactionType == WalletTransactionType.OrderPayment && t.OrderId != null)
-                .OrderByDescending(t => t.CreatedAt)
-                .Select(t => new WalletPurchaseHistoryDto
-                {
-                    TransactionId = t.Id,
                     CreatedAt = t.CreatedAt,
-                    Amount = t.Amount,
-                    Description = t.Description,
-                    OrderId = t.OrderId.Value,
-                    OrderDetails = t.Order!.OrderDetails.Select(od => new OrderDetailDto
-                    {
-                        FoodId = od.FoodId ?? 0,
-                        FoodName = od.Food != null ? od.Food.Name : (od.Menu != null ? od.Menu.Name : ""),
-                        Qty = od.Qty ?? 0,
-                        Price = od.Price ?? 0,
-                        Total = od.Total ?? 0
-                    }).ToList()
+                    CreatedBy = t.CreatedBy
                 })
                 .ToListAsync();
         }
+        public async Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId, int pageNumber, int pageSize)
+        {
+            var query = _dbContext.UserWalletTransactions
+                .Where(t => t.UserId == userId && t.TransactionType == WalletTransactionType.OrderPayment && !t.IsDeleted)
+                .OrderByDescending(t => t.CreatedAt);
+
+            int totalCount = await query.CountAsync();
+
+            var transactions = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var orderIds = transactions
+                .Where(t => t.OrderId.HasValue)
+                .Select(t => t.OrderId!.Value)
+                .Distinct()
+                .ToList();
+
+            var foodMap = await _dbContext.OrderDetails
+                .Where(od => orderIds.Contains(od.OrderId) && !od.IsDeleted)
+                .Join(_dbContext.Foods, od => od.FoodId, f => f.Id, (od, f) => new { od.OrderId, f.Name })
+                .GroupBy(x => x.OrderId)
+                .ToDictionaryAsync(g => g.Key, g => g.Select(x => x.Name).ToList());
+
+            var items = transactions.Select(t => new WalletPurchaseHistoryDto
+            {
+                TransactionId = t.Id.ToString(),
+                OrderId = t.OrderId?.ToString() ?? "",
+                CreatedAt = t.CreatedAt,
+                Amount = t.Amount,
+                FoodNames = t.OrderId != null && foodMap.ContainsKey(t.OrderId.Value)
+                    ? foodMap[t.OrderId.Value]
+                    : new List<string>()
+            }).ToList();
+
+            return (items, totalCount);
+        }
+
         public async Task<ApplicationUser?> GetUserByUsernameAsync(string username)
         {
             return await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == username);
@@ -272,6 +306,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             public long Amount { get; set; }
             public string Description { get; set; } = null!;
             public int BranchId { get; set; }
+            public string CreatedBy { get; set; }
         }
 
         public class UpdateWalletRequestDto
@@ -288,9 +323,12 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public class WalletResponseDto
         {
             public int Id { get; set; }
+            public string UserId { get; set; }
             public string FirstName { get; set; } = null!;
             public string LastName { get; set; } = null!;
+            public string FullName { get; set; } = null!;
             public string PhoneNumber { get; set; } = null!;
+            public string Email { get; set; } = null!;
             public long Amount { get; set; }
             public string Description { get; set; } = null!;
             public int BranchId { get; set; }
@@ -344,6 +382,57 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             return await _dbContext .Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
+        public async Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto)
+        {
+            // Kiểm tra email
+            if (await _dbContext.Users.AnyAsync(u => u.Email == dto.Email))
+                throw new Exception("Email đã tồn tại.");
 
+            // Tạo user
+            var user = new ApplicationUser
+            {
+                UserName = dto.UserName,
+                Email = dto.Email,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                PhoneNumber = dto.PhoneNumber
+            };
+
+            var result = await _userManager.CreateAsync(user, dto.Password);
+            if (!result.Succeeded)
+                throw new Exception($"Không tạo được user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+
+            // Gán vào chi nhánh
+            var branchUser = new BranchUser
+            {
+                UserId = user.Id,
+                BranchId = dto.BranchId,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _dbContext.BranchUsers.AddAsync(branchUser);
+
+            // Tạo ví
+            var wallet = new UserWallet
+            {
+                UserId = user.Id,
+                Amount = dto.Amount,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = dto.CreatedBy
+            };
+            await _dbContext.UserWallets.AddAsync(wallet);
+            await _dbContext.SaveChangesAsync();
+
+            return new WalletResponseDto
+            {
+                Id = wallet.Id,
+                UserId = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                FullName = $"{user.FirstName} {user.LastName}",
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Amount = (long)wallet.Amount,
+            };
+        }
     }
 }
