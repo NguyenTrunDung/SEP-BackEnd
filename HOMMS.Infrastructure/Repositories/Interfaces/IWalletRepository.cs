@@ -12,7 +12,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
     public interface IWalletRepository: IRepository<UserWallet, int>
     {
         Task<UserWallet?> GetWalletByIdAsync(string userId);
-        Task<UserWallet> DepositAsync(string userId, long amount, int branchId, string description, string createdBy);
+        Task<UserWalletTransaction> DepositAsync(string userId, long amount, int branchId, string description, string createdBy);
         Task<UserWallet> SetBalanceAsync(string userId, long newBalance);
         Task<List<UserWalletTransactionDto>> GetWalletCreditHistoryAsync(string userId);
         Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAndUserAsync(int branchId);

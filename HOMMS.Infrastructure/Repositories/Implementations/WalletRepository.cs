@@ -36,7 +36,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         /// <summary>
         /// Add Amount to current BalanceAfter
         /// </summary>
-        public async Task<UserWallet> DepositAsync(string userId, long amount, int branchId, string description, string createdBy)
+        public async Task<UserWalletTransaction> DepositAsync(string userId, long amount, int branchId, string description, string createdBy)
         {
             if (amount <= 0)
                 throw new ArgumentException("Amount must be greater than 0.");
@@ -45,30 +45,23 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 ?? throw new InvalidOperationException("User wallet not initialized.");
 
             decimal newBalance = wallet.Amount + amount;
-
             var transaction = new UserWalletTransaction
             {
                 UserId = userId,
-                BranchId = branchId, 
+                BranchId = branchId,
                 TransactionType = WalletTransactionType.Credit,
                 Amount = amount,
                 BalanceAfter = (long)newBalance,
                 Description = description,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = createdBy
+                CreatedBy = createdBy,
+                CreatedAt = DateTime.UtcNow
             };
-
             _dbContext.UserWalletTransactions.Add(transaction);
-
             wallet.Amount = newBalance;
             wallet.LastModifiedAt = DateTime.UtcNow;
-            wallet.LastModifiedBy = createdBy;
-
             _dbContext.UserWallets.Update(wallet);
-
             await _dbContext.SaveChangesAsync();
-
-            return wallet;
+            return transaction;
         }
 
         /// <summary>

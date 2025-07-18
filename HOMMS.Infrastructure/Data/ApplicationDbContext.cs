@@ -312,7 +312,8 @@ namespace HOMMS.Infrastructure.Data
                         {
                             System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Setting creation audit for {entry.Entity.GetType().Name}");
                             auditableEntity.CreatedAt = currentTime;
-                            auditableEntity.CreatedBy = currentUserId;
+                            if (string.IsNullOrEmpty(auditableEntity.CreatedBy))
+                                auditableEntity.CreatedBy = currentUserId;
                             auditableEntity.LastModifiedAt = null; // Clear on creation
                             auditableEntity.LastModifiedBy = null; // Clear on creation
                             System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Set CreatedAt: {auditableEntity.CreatedAt}, CreatedBy: {auditableEntity.CreatedBy ?? "NULL"}");

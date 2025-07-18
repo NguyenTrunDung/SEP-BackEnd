@@ -176,8 +176,8 @@ namespace HOMMS.API.Controllers.V1
         public string UserId { get; set; } = string.Empty;
         public long Amount { get; set; }
         public int BranchId { get; set; }
-        public string Description { get; set; }
-        public string CreatedBy { get; set; }
+        public string Description { get; set; } = null!;
+       public string CreatedBy { get; set; } = null!;
         
     }
 

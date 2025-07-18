@@ -32,7 +32,7 @@ namespace HOMMS.Application.Implementations
             return _walletRepository.GetWalletByIdAsync(userId);
         }
 
-        public Task<UserWallet> DepositAsync(string userId, long amount,int branchId,string description, string createdBy)
+        public Task<UserWalletTransaction> DepositAsync(string userId, long amount,int branchId,string description, string createdBy)
         {
             return _walletRepository.DepositAsync(userId, amount, branchId, description, createdBy);
         }
