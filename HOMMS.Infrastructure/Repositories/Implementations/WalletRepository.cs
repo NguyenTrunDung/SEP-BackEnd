@@ -33,7 +33,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         /// <summary>
         /// Add Amount to current BalanceAfter
         /// </summary>
-        public async Task<UserWallet> DepositAsync(string userId, long amount, int branchId, string createdBy)
+        public async Task<UserWallet> DepositAsync(string userId, long amount, int branchId, string description, string createdBy)
         {
             if (amount <= 0)
                 throw new ArgumentException("Amount must be greater than 0.");
@@ -50,7 +50,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 TransactionType = WalletTransactionType.Credit,
                 Amount = amount,
                 BalanceAfter = (long)newBalance,
-                Description = "Nạp tiền vào ví",
+                Description = description,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = createdBy
             };
@@ -305,7 +305,6 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             public string Password { get; set; } = null!;
             public long Amount { get; set; }
             public string Description { get; set; } = null!;
-            public int BranchId { get; set; }
             public string CreatedBy { get; set; }
         }
 
@@ -317,7 +316,6 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             public string PhoneNumber { get; set; } = null!;
             public long Amount { get; set; }
             public string Description { get; set; } = null!;
-            public int BranchId { get; set; }
         }
 
         public class WalletResponseDto
@@ -401,16 +399,6 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 throw new Exception($"Không tạo được user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-
-            // Gán vào chi nhánh
-            var branchUser = new BranchUser
-            {
-                UserId = user.Id,
-                BranchId = dto.BranchId,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _dbContext.BranchUsers.AddAsync(branchUser);
-
             // Tạo ví
             var wallet = new UserWallet
             {

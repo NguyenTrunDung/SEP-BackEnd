@@ -32,9 +32,9 @@ namespace HOMMS.Application.Implementations
             return _walletRepository.GetWalletByIdAsync(userId);
         }
 
-        public Task<UserWallet> DepositAsync(string userId, long amount,int branchId,string createdBy)
+        public Task<UserWallet> DepositAsync(string userId, long amount,int branchId,string description, string createdBy)
         {
-            return _walletRepository.DepositAsync(userId, amount, branchId, createdBy);
+            return _walletRepository.DepositAsync(userId, amount, branchId, description, createdBy);
         }
 
         public Task<UserWallet> SetBalanceAsync(string userId, long newBalance)
@@ -133,7 +133,6 @@ namespace HOMMS.Application.Implementations
                 PhoneNumber = dto.PhoneNumber,
                 Amount = (long)userWallet.Amount,
                 Description = dto.Description,
-                BranchId = dto.BranchId
             };
         }
 
