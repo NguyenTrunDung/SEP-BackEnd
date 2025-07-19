@@ -170,6 +170,91 @@ namespace HOMMS.Application.Implementations
             return _mapper.Map<OrderDto>(result);
         }
 
+        /// <summary>
+        /// Gets orders by branch ID with optional filtering and search capabilities
+        /// Combines the functionality of GetOrdersByBranchIdAsync, FilterOrdersAsync, and SearchOrdersAsync
+        /// </summary>
+        public async Task<List<OrderDto>> GetOrdersByBranchWithFiltersAsync(
+            int branchId,
+            DateTime? startOrderDate = null,
+            DateTime? endOrderDate = null,
+            DateTime? startReceiveDate = null,
+            DateTime? endReceiveDate = null,
+            string? receiveTime = null,
+            string? status = null,
+            string? customerName = null,
+            string? customerPhone = null,
+            int? minTotal = null,
+            int? maxTotal = null,
+            string? code = null,
+            string? keyword = null,
+            bool? isPaid = null)
+        {
+            var orders = await _orderRepository.GetOrdersByBranchWithFiltersAsync(
+                branchId,
+                startOrderDate,
+                endOrderDate,
+                startReceiveDate,
+                endReceiveDate,
+                receiveTime,
+                status,
+                customerName,
+                customerPhone,
+                minTotal,
+                maxTotal,
+                code,
+                keyword,
+                isPaid
+            );
+
+            return orders.Select(o => new OrderDto
+            {
+                Id = o.Id,
+                BranchId = o.BranchId,
+                UserId = o.UserId,
+                PatientId = o.PatientId,
+                IsPatientOrder = o.IsPatientOrder,
+                OrderDate = o.OrderDate,
+                ReceiveDate = o.ReceiveDate,
+                ReceiveTime = o.ReceiveTime,
+                ReceiveType = o.ReceiveType,
+                Type = o.Type,
+                Status = o.Status,
+                CustomerName = o.CustomerName,
+                CustomerPhone = o.CustomerPhone,
+                CustomerAddress = o.CustomerAddress,
+                Total = o.Total,
+                ShippingFee = o.ShippingFee,
+                FoodToolFee = o.FoodToolFee,
+                PaymentMethod = o.PaymentMethod,
+                IsPaid = o.IsPaid,
+                WalletAmountUsed = o.WalletAmountUsed,
+                Code = o.Code,
+                Note = o.Note,
+                // Patient information
+                PatientName = o.Patient?.FullName,
+                PatientMedicalRecordNumber = o.Patient?.MedicalRecordNumber,
+                PatientRoomNumber = o.Patient?.RoomNumber,
+                PatientBedNumber = o.Patient?.BedNumber,
+                AttendingPhysician = o.Patient?.AttendingPhysician,
+                RequiresDietarySupervision = o.Patient?.RequiresDietarySupervision ?? false,
+                // Branch and location information
+                BranchName = o.Branch?.Name ?? "",
+                // Map OrderDetails with Food information
+                OrderDetails = o.OrderDetails?.Select(od => new OrderDetailsDto
+                {
+                    Id = od.Id,
+                    Qty = od.Qty,
+                    Price = od.Price,
+                    Total = od.Total,
+                    Note = od.Note,
+                    FoodName = od.Food?.Name,
+                    MenuName = od.Menu?.Name
+                }).ToList() ?? new List<OrderDetailsDto>()
+                // Note: OrderTypeDisplay and LocationDisplay are computed properties and don't need to be set
+            }).ToList();
+        }
+
 
     }
 }
