@@ -21,5 +21,6 @@ namespace HOMMS.Application.Interfaces
         Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto);
         Task<WalletResponseDto> UpdateWalletAsync(UpdateWalletRequestDto dto);
         Task<bool> DeactivateWalletAsync(int id);
+        Task<bool> DeleteUserWallet(string userid, int branchid);
     }
 }

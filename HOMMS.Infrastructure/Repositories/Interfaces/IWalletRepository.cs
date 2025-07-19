@@ -35,5 +35,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<ApplicationUser?> FindUserByIdAsync(string userId);
 
         Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto);
+        Task<bool> DeleteUserWallet(string userId, int branchId);
+
     }
 }

@@ -91,6 +91,11 @@ namespace HOMMS.Application.Implementations
             return await _walletRepository.CreateWalletAsync(dto);
         }
 
+        public async Task<bool> DeleteUserWallet(string userId, int branchId)
+        {
+            return await _walletRepository.DeleteUserWallet(userId,branchId);
+        }
+
         public async Task<WalletResponseDto> UpdateWalletAsync(UpdateWalletRequestDto dto)
         {
             var userWallet = await _walletRepository.GetByIdAsyncs(dto.Id);

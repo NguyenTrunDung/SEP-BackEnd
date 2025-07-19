@@ -19,7 +19,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IBranchUserManagementRepository _branchUserManagement;
-        public WalletRepository(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, IBranchUserManagementRepository branchUserManagement) 
+        public WalletRepository(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, IBranchUserManagementRepository branchUserManagement)
             : base(dbContext)
         {
             _dbContext = dbContext;
@@ -171,7 +171,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public async Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAndUserAsync(int branchId)
         {
             return await _dbContext.UserWalletTransactions
-                .Where(t => t.BranchId == branchId )
+                .Where(t => t.BranchId == branchId)
                 .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new UserWalletTransactionsDto
                 {
@@ -369,7 +369,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         }
         public async Task<ApplicationUser?> FindUserByIdAsync(string userId)
         {
-            return await _dbContext .Users.FirstOrDefaultAsync(u => u.Id == userId);
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
         public async Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto)
         {
@@ -421,6 +421,28 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 PhoneNumber = user.PhoneNumber,
                 Amount = (long)wallet.Amount,
             };
+        }
+        public async Task<bool> DeleteUserWallet(string userId, int branchId)
+        {
+            var branchUser = await _dbContext.BranchUsers
+                .FirstOrDefaultAsync(bu => bu.UserId == userId && bu.BranchId == branchId && !bu.IsDeleted);
+
+            if (branchUser == null)
+                return false;
+
+            branchUser.IsDeleted = true;
+            branchUser.DeletedAt = DateTime.UtcNow;
+
+            var userWallet = await _dbContext.UserWallets
+                .FirstOrDefaultAsync(w => w.UserId == userId);
+
+            if (userWallet != null)
+            {
+                _dbContext.UserWallets.Remove(userWallet);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
     }
 }

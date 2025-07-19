@@ -156,18 +156,17 @@ namespace HOMMS.API.Controllers.V1
             return Ok(result);  
         }
 
-        /// <summary>
-        /// Vô hiệu hóa (deactivate) ví người dùng
-        /// </summary>
-        [HttpDelete("deactivates/{id}")]
-        public async Task<IActionResult> DeactivateWallet(int id)
+        [HttpDelete("delete/{userId}/branch/{branchId}")]
+        public async Task<IActionResult> DeactivateUserInBranch(string userId, int branchId)
         {
-            var success = await _walletService.DeactivateWalletAsync(id);
-            if (!success)
-                return NotFound("Wallet not found.");
+            var success = await _walletService.DeleteUserWallet(userId, branchId);
 
-            return Ok(new { message = "Wallet deactivated successfully" });
+            if (!success)
+                return NotFound("User not found in this branch or already deactivated.");
+
+            return Ok(new { message = "User deactivated and wallet removed successfully" });
         }
+
     }
 }
 

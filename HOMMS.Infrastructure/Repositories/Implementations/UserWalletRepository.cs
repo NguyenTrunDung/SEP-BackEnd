@@ -22,7 +22,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
         public async Task<UserWalletInfoDto?> GetUserWalletInfoAsync(string userId)
         {
             var user = await _dbContext.Users
-                .Where(u => u.Id == userId)
+                .Where(u => u.Id == userId && _dbContext.UserWallets.Any(w => w.UserId == u.Id))
                 .Select(u => new UserWalletInfoDto
                 {
                     UserId = u.Id,
@@ -36,6 +36,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
                     IsCustomerEnabled = u.IsCustomerEnabled
                 })
                 .FirstOrDefaultAsync();
+
             return user;
         }
 
@@ -43,8 +44,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
         {
             var users = await (from bu in _dbContext.BranchUsers
                                join u in _dbContext.Users on bu.UserId equals u.Id
-                               join w in _dbContext.UserWallets on u.Id equals w.UserId into uw
-                               from w in uw.DefaultIfEmpty() 
+                               join w in _dbContext.UserWallets on u.Id equals w.UserId
                                where bu.BranchId == branchId
                                select new UserWalletInfoDto
                                {
@@ -53,7 +53,7 @@ public class UserWalletRepository : Repository<UserWalletTransaction, int>, IUse
                                    LastName = u.LastName,
                                    UserName = u.UserName,
                                    Email = u.Email ?? string.Empty,
-                                   Balance =  w.Amount,
+                                   Balance = w.Amount,
                                    PhoneNumber = u.PhoneNumber,
                                    CustomerCode = u.CustomerCode,
                                    IsCustomerAccount = u.IsCustomerAccount,
