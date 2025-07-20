@@ -146,6 +146,90 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             return order;
         }
 
+        /// <summary>
+        /// Gets orders by branch ID with optional filtering and search capabilities
+        /// Combines the functionality of GetOrdersByBranchIdAsync, FilterOrdersAsync, and SearchOrdersAsync
+        /// </summary>
+        public async Task<List<Order>> GetOrdersByBranchWithFiltersAsync(
+            int branchId,
+            DateTime? startOrderDate = null,
+            DateTime? endOrderDate = null,
+            DateTime? startReceiveDate = null,
+            DateTime? endReceiveDate = null,
+            string? receiveTime = null,
+            string? status = null,
+            string? customerName = null,
+            string? customerPhone = null,
+            int? minTotal = null,
+            int? maxTotal = null,
+            string? code = null,
+            string? keyword = null,
+            bool? isPaid = null)
+        {
+            var query = _context.Orders.Where(o => o.BranchId == branchId);
+
+            // Apply keyword search if provided
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                keyword = keyword.Trim();
+                query = query.Where(o =>
+                    (o.Code != null && o.Code.Contains(keyword)) ||
+                    (o.CustomerName != null && o.CustomerName.Contains(keyword)) ||
+                    (o.CustomerPhone != null && o.CustomerPhone.Contains(keyword)) ||
+                    (o.Status != null && o.Status.Contains(keyword)) ||
+                    (o.ReceiveTime != null && o.ReceiveTime.Contains(keyword))
+                );
+            }
+
+            // Apply date filters
+            if (startOrderDate.HasValue)
+                query = query.Where(o => o.OrderDate >= startOrderDate.Value);
+            if (endOrderDate.HasValue)
+                query = query.Where(o => o.OrderDate <= endOrderDate.Value);
+
+            // Apply receive date filters
+            if (startReceiveDate.HasValue)
+                query = query.Where(o => o.ReceiveDate.HasValue && o.ReceiveDate.Value >= startReceiveDate.Value);
+            if (endReceiveDate.HasValue)
+                query = query.Where(o => o.ReceiveDate.HasValue && o.ReceiveDate.Value <= endReceiveDate.Value);
+
+            // Apply other filters
+            if (!string.IsNullOrWhiteSpace(receiveTime))
+                query = query.Where(o => o.ReceiveTime != null && o.ReceiveTime.Contains(receiveTime));
+
+            if (!string.IsNullOrWhiteSpace(status))
+                query = query.Where(o => o.Status == status);
+
+            if (!string.IsNullOrWhiteSpace(customerName))
+                query = query.Where(o => o.CustomerName != null && o.CustomerName.Contains(customerName));
+
+            if (!string.IsNullOrWhiteSpace(customerPhone))
+                query = query.Where(o => o.CustomerPhone != null && o.CustomerPhone.Contains(customerPhone));
+
+            if (minTotal.HasValue)
+                query = query.Where(o => o.Total.HasValue && o.Total.Value >= minTotal.Value);
+            if (maxTotal.HasValue)
+                query = query.Where(o => o.Total.HasValue && o.Total.Value <= maxTotal.Value);
+
+            if (!string.IsNullOrWhiteSpace(code))
+                query = query.Where(o => o.Code != null && o.Code.Contains(code));
+
+            // Apply payment status filter
+            if (isPaid.HasValue)
+                query = query.Where(o => o.IsPaid == isPaid.Value);
+
+            // Apply Include statements at the end to load related entities
+            return await query
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Food)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Menu)
+                .Include(o => o.Patient)
+                .Include(o => o.Branch)
+                .Include(o => o.Location)
+                .ToListAsync();
+        }
+
 
 
     }

@@ -27,30 +27,23 @@ namespace HOMMS.Application.Implementations
 
         }
 
-        public Task<UserWalletTransaction?> GetWalletAsync(string userId)
+        public Task<UserWallet?> GetWalletByIdAsync(string userId)
         {
-            return _walletRepository.GetWalletAsync(userId);
+            return _walletRepository.GetWalletByIdAsync(userId);
         }
 
-        public Task<UserWalletTransaction> DepositAsync(string userId, long amount, string description)
+        public Task<UserWalletTransaction> DepositAsync(string userId, long amount,int branchId,string description, string createdBy)
         {
-            return _walletRepository.DepositAsync(userId, amount, description);
+            return _walletRepository.DepositAsync(userId, amount, branchId, description, createdBy);
         }
 
-        public Task<UserWalletTransaction> SetBalanceAsync(string userId, long newBalance)
+        public Task<UserWallet> SetBalanceAsync(string userId, long newBalance)
         {
             return _walletRepository.SetBalanceAsync(userId, newBalance);
         }
-        public async Task<object> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize)
+        public async Task<List<UserWalletTransactionDto>> GetWalletCreditHistoryAsync(string userId)
         {
-            var (data, totalCount) = await _walletRepository.GetWalletCreditHistoryAsync(userId, pageNumber, pageSize);
-
-            return new
-            {
-                status = "success",
-                data,
-                totalCount
-            };
+            return await _walletRepository.GetWalletCreditHistoryAsync(userId);
         }
         public async Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAsync(int branchId)
         {
@@ -58,8 +51,10 @@ namespace HOMMS.Application.Implementations
         }
         public async Task<List<WalletPurchaseHistoryDto>> GetPurchaseHistoryByUserIdAsync(string userId)
         {
-            return await _walletRepository.GetPurchaseHistoryByUserIdAsync(userId);
+            var (items, _) = await _walletRepository.GetPurchaseHistoryByUserIdAsync(userId);
+            return items;
         }
+
         public async Task<UserWalletTransaction> AddWalletTransactionAsync(CreateUserWalletTransactionDto dto)
         {
             var user = await _walletRepository.GetUserByUsernameAsync(dto.UserName);
@@ -91,5 +86,69 @@ namespace HOMMS.Application.Implementations
         {
             return await _walletRepository.UpdateUserWalletTransactionAsync(dto);
         }
+        public async Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto)
+        {
+            return await _walletRepository.CreateWalletAsync(dto);
+        }
+
+        public async Task<bool> DeleteUserWallet(string userId, int branchId)
+        {
+            return await _walletRepository.DeleteUserWallet(userId,branchId);
+        }
+
+        public async Task<WalletResponseDto> UpdateWalletAsync(UpdateWalletRequestDto dto)
+        {
+            var userWallet = await _walletRepository.GetByIdAsyncs(dto.Id);
+            if (userWallet == null)
+                throw new Exception("Wallet not found");
+
+            // 1. Tìm user liên kết
+            var user = await _walletRepository.FindUserByIdAsync(userWallet.UserId);
+            if (user == null)
+                throw new Exception("User not found");
+
+            // 2. Cập nhật thông tin người dùng
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.PhoneNumber = dto.PhoneNumber;
+            user.LastModifiedAt = DateTime.UtcNow;
+            user.LastModifiedBy = "system";
+
+            _walletRepository.UpdateUser(user); // <-- bạn cần định nghĩa hàm này
+
+            // 3. Cập nhật ví
+            userWallet.Amount = dto.Amount;
+            userWallet.LastModifiedAt = DateTime.UtcNow;
+            userWallet.LastModifiedBy = "system";
+
+            _walletRepository.Update(userWallet);
+            await _walletRepository.SaveChangesAsync();
+
+            return new WalletResponseDto
+            {
+                Id = userWallet.Id,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                PhoneNumber = dto.PhoneNumber,
+                Amount = (long)userWallet.Amount,
+                Description = dto.Description,
+            };
+        }
+
+        public async Task<bool> DeactivateWalletAsync(int id)
+        {
+            var userWallet = await _walletRepository.GetByIdAsyncs(id);
+            if (userWallet == null)
+                return false;
+
+            userWallet.IsDeleted = true;
+            userWallet.DeletedAt = DateTime.UtcNow;
+            userWallet.DeletedBy = "system";
+
+            _walletRepository.Update(userWallet);
+            await _walletRepository.SaveChangesAsync();
+                return true; // <-- thiếu dòng này
+
+        }
+        }
     }
-}

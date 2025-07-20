@@ -9,15 +9,14 @@ using static HOMMS.Infrastructure.Repositories.Implementations.WalletRepository;
 
 namespace HOMMS.Infrastructure.Repositories.Interfaces
 {
-    public interface IWalletRepository: IRepository<UserWalletTransaction, int>
+    public interface IWalletRepository: IRepository<UserWallet, int>
     {
-        Task<UserWalletTransaction?> GetWalletAsync(string userId);
-        Task<UserWalletTransaction> DepositAsync(string userId, long amount, string description);
-        Task<UserWalletTransaction> SetBalanceAsync(string userId, long newBalance);
-        
-        Task<(List<UserWalletTransactionDto> data, int totalCount)> GetWalletCreditHistoryAsync(string userId, int pageNumber, int pageSize);
+        Task<UserWallet?> GetWalletByIdAsync(string userId);
+        Task<UserWalletTransaction> DepositAsync(string userId, long amount, int branchId, string description, string createdBy);
+        Task<UserWallet> SetBalanceAsync(string userId, long newBalance);
+        Task<List<UserWalletTransactionDto>> GetWalletCreditHistoryAsync(string userId);
         Task<List<UserWalletTransactionsDto>> GetWalletTransactionsByBranchAndUserAsync(int branchId);
-        Task<List<WalletPurchaseHistoryDto>> GetPurchaseHistoryByUserIdAsync(string userId);
+        Task<(List<WalletPurchaseHistoryDto> Items, int TotalCount)> GetPurchaseHistoryByUserIdAsync(string userId);
 
         Task<UserWalletTransaction> AddTransactionAsync(UserWalletTransaction transaction);
         Task<ApplicationUser?> GetUserByUsernameAsync(string username);
@@ -25,7 +24,18 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         Task<UserWalletTransaction?> GetByIdAsync(int id);
         Task<bool> DeactivateAsync(int id);
         Task<bool> UpdateUserWalletTransactionAsync(UpdateUserWalletTransactionDto dto);
+        Task<UserWallet?> GetByIdAsyncs(int id);
+        Task<UserWallet?> GetByUserIdAsync(string userId);
+        Task<ApplicationUser?> FindByNameAsync(string userName);
+        Task AddAsync(UserWallet wallet);
+        void Update(UserWallet wallet);
+        void SoftDelete(UserWallet wallet);
+        Task SaveChangesAsync();
+        void UpdateUser(ApplicationUser user);
+        Task<ApplicationUser?> FindUserByIdAsync(string userId);
 
+        Task<WalletResponseDto> CreateWalletAsync(CreateWalletRequestDto dto);
+        Task<bool> DeleteUserWallet(string userId, int branchId);
 
     }
 }

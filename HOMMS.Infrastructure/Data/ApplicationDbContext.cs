@@ -49,10 +49,15 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<SystemLog> SystemLogs { get; set; }
         public DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
+
  
         public DbSet<Comment> Comment { get; set; }
 
  
+
+        public DbSet<UserWallet> UserWallets { get; set; }
+
+
         // Disease Category Management DbSets
         public DbSet<DiseaseCategory> DiseaseCategories { get; set; }
         public DbSet<PatientDiseaseCategory> PatientDiseaseCategories { get; set; }
@@ -317,7 +322,8 @@ namespace HOMMS.Infrastructure.Data
                         {
                             System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Setting creation audit for {entry.Entity.GetType().Name}");
                             auditableEntity.CreatedAt = currentTime;
-                            auditableEntity.CreatedBy = currentUserId;
+                            if (string.IsNullOrEmpty(auditableEntity.CreatedBy))
+                                auditableEntity.CreatedBy = currentUserId;
                             auditableEntity.LastModifiedAt = null; // Clear on creation
                             auditableEntity.LastModifiedBy = null; // Clear on creation
                             System.Diagnostics.Debug.WriteLine($"[AUDIT DEBUG] Set CreatedAt: {auditableEntity.CreatedAt}, CreatedBy: {auditableEntity.CreatedBy ?? "NULL"}");

@@ -8,7 +8,7 @@ using static HOMMS.Infrastructure.Repositories.Implementations.WalletRepository;
 
 namespace HOMMS.API.Controllers.V1
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class WalletController : ControllerBase
     {
@@ -18,11 +18,10 @@ namespace HOMMS.API.Controllers.V1
         {
             _walletService = walletService;
         }
-
         [HttpPost("deposit")]
         public async Task<IActionResult> Deposit([FromBody] DepositRequest request)
         {
-            var result = await _walletService.DepositAsync(request.UserId, request.Amount, request.Description);
+            var result = await _walletService.DepositAsync(request.UserId, request.Amount, request.BranchId, request.Description, request.CreatedBy);
             return Ok(result);
         }
 
@@ -33,33 +32,12 @@ namespace HOMMS.API.Controllers.V1
             return Ok(result);
         }
         [HttpGet("credit-history")]
-        public async Task<IActionResult> GetWalletCreditHistory([FromQuery] string userId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetWalletCreditHistory([FromQuery] string userId)
         {
-            try
-            {
-                Console.WriteLine($"Calling GetWalletCreditHistory: userId={userId}, pageNumber={pageNumber}, pageSize={pageSize}");
-
-                var result = await _walletService.GetWalletCreditHistoryAsync(userId, pageNumber, pageSize);
-
-                if (result == null)
-                {
-                    Console.WriteLine("Result is null.");
-                    return NotFound(new { status = "error", message = "No data found." });
-                }
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ ERROR in GetWalletCreditHistory: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    status = "error",
-                    message = ex.Message,
-                    stackTrace = ex.StackTrace
-                });
-            }
+            var result = await _walletService.GetWalletCreditHistoryAsync(userId);
+            return Ok(result);
         }
+
         [HttpGet("branch-transactions")]
         public async Task<IActionResult> GetWalletTransactionsByBranch([FromQuery] int branchId)
         {
@@ -89,26 +67,10 @@ namespace HOMMS.API.Controllers.V1
         [HttpGet("purchase-history")]
         public async Task<IActionResult> GetPurchaseHistory([FromQuery] string userId)
         {
-            try
-            {
-                var result = await _walletService.GetPurchaseHistoryByUserIdAsync(userId);
-                return Ok(new
-                {
-                    status = "success",
-                    data = result,
-                    total = result.Count
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    status = "error",
-                    message = ex.Message,
-                    stackTrace = ex.StackTrace
-                });
-            }
+            var result = await _walletService.GetPurchaseHistoryByUserIdAsync(userId);
+            return Ok(result);
         }
+
         [HttpPost("add-transaction")]
         public async Task<IActionResult> AddWalletTransaction([FromBody] CreateUserWalletTransactionDto dto)
         {
@@ -160,13 +122,62 @@ namespace HOMMS.API.Controllers.V1
 
             return Ok("Transaction updated successfully");
         }
+        /// <summary>
+        /// Tạo ví mới cho người dùng
+        /// </summary>
+        [HttpPost("create-wallet")]
+        public async Task<IActionResult> CreateWallet([FromBody] CreateWalletRequestDto dto)
+        {
+            try
+            {
+                var result = await _walletService.CreateWalletAsync(dto);
+                return Ok(new
+                {
+                    status = "success",
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
+            }
+        }
+        /// <summary>
+        /// Cập nhật số dư ví người dùng
+        /// </summary>
+        [HttpPut("updates")]
+        public async Task<IActionResult> UpdateWallet([FromBody] UpdateWalletRequestDto dto)
+        {
+            var result = await _walletService.UpdateWalletAsync(dto);
+            return Ok(result);  
+        }
+
+        [HttpDelete("delete/{userId}/branch/{branchId}")]
+        public async Task<IActionResult> DeactivateUserInBranch(string userId, int branchId)
+        {
+            var success = await _walletService.DeleteUserWallet(userId, branchId);
+
+            if (!success)
+                return NotFound("User not found in this branch or already deactivated.");
+
+            return Ok(new { message = "User deactivated and wallet removed successfully" });
+        }
+
     }
+}
 
     public class DepositRequest
     {
         public string UserId { get; set; } = string.Empty;
         public long Amount { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public int BranchId { get; set; }
+        public string Description { get; set; } = null!;
+       public string CreatedBy { get; set; } = null!;
+        
     }
 
     public class SetBalanceRequest
@@ -174,4 +185,4 @@ namespace HOMMS.API.Controllers.V1
         public string UserId { get; set; } = string.Empty;
         public long NewBalance { get; set; }
     }
-}
+
