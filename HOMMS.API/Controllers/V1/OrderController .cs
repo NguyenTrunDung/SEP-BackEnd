@@ -43,12 +43,42 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("branch/{branchId}")]
-        public async Task<IActionResult> GetOrdersByBranchId(int branchId)
+        public async Task<IActionResult> GetOrdersByBranchWithFilters(
+            int branchId,
+            [FromQuery] DateTime? startOrderDate,
+            [FromQuery] DateTime? endOrderDate,
+            [FromQuery] DateTime? startReceiveDate,
+            [FromQuery] DateTime? endReceiveDate,
+            [FromQuery] string? receiveTime,
+            [FromQuery] string? status,
+            [FromQuery] string? customerName,
+            [FromQuery] string? customerPhone,
+            [FromQuery] int? minTotal,
+            [FromQuery] int? maxTotal,
+            [FromQuery] string? code,
+            [FromQuery] string? keyword,
+            [FromQuery] bool? isPaid)
         {
-            var orders = await _orderService.GetOrdersByBranchIdAsync(branchId);
+            var orders = await _orderService.GetOrdersByBranchWithFiltersAsync(
+                branchId,
+                startOrderDate,
+                endOrderDate,
+                startReceiveDate,
+                endReceiveDate,
+                receiveTime,
+                status,
+                customerName,
+                customerPhone,
+                minTotal,
+                maxTotal,
+                code,
+                keyword,
+                isPaid
+            );
             var totalCount = orders?.Count ?? 0;
             return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
+
         // GET: api/order/search?keyword=abc
         [HttpGet("search")]
         public async Task<IActionResult> SearchOrders([FromQuery] string keyword)

@@ -43,6 +43,26 @@ namespace HOMMS.Application.Interfaces
         //add order with location
         Task<OrderDto> AddOrderV2Async(OrderDtoV2 dto);
 
+        /// <summary>
+        /// Gets orders by branch ID with optional filtering and search capabilities
+        /// </summary>
+        Task<List<OrderDto>> GetOrdersByBranchWithFiltersAsync(
+            int branchId,
+            DateTime? startOrderDate = null,
+            DateTime? endOrderDate = null,
+            DateTime? startReceiveDate = null,
+            DateTime? endReceiveDate = null,
+            string? receiveTime = null,
+            string? status = null,
+            string? customerName = null,
+            string? customerPhone = null,
+            int? minTotal = null,
+            int? maxTotal = null,
+            string? code = null,
+            string? keyword = null,
+            bool? isPaid = null
+        );
+
 
     }
 }
