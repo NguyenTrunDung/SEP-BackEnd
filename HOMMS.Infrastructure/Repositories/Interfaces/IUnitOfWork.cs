@@ -9,6 +9,8 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         IOrderRepository OrderRepository { get; }  // Th�m
         IMenuDetailRepository MenuDetailRepository { get; }
         IPatientRepository PatientRepository { get; }
+        IBranchRoleManagementRepository BranchRoleManagementRepository { get; }
+        IBranchUserManagementRepository BranchUserManagementRepository { get; }
         // Add other repositories as needed, e.g.:
         // IMenuRepository MenuRepository { get; }
         // IFoodRepository FoodRepository { get; }

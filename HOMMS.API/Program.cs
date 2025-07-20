@@ -107,9 +107,11 @@ builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IAreaRepository, AreaRepository>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+builder.Services.AddScoped<IUserWalletRepository, UserWalletRepository>();
 builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>();
+builder.Services.AddScoped<IBranchRoleManagementRepository, BranchRoleManagementRepository>();
+builder.Services.AddScoped<IBranchUserManagementRepository, BranchUserManagementRepository>();
 builder.Services.AddScoped<IDiseaseCategoryFoodRestrictionRepository, DiseaseCategoryFoodRestrictionRepository>();
-
 // Add Disease Category Repository
 builder.Services.AddScoped<IDiseaseCategoryRepository, DiseaseCategoryRepository>();
 
@@ -216,6 +218,7 @@ builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IEmailVerifyService, EmailVerifyService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IUserWalletService, UserWalletService>();
 builder.Services.AddScoped<IBranchUserRoleService,BranchUserRoleService>();
 // Add Disease Category Service
 builder.Services.AddScoped<IDiseaseCategoryService, DiseaseCategoryService>();
@@ -223,7 +226,8 @@ builder.Services.AddScoped<IDiseaseCategoryFoodRestrictionService, DiseaseCatego
 
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 
-
+builder.Services.AddScoped<IBranchRoleManagementService, BranchRoleManagementService>();
+builder.Services.AddScoped<IBranchUserManagementService, BranchUserManagementService>();
 
 //builder.Services.AddScoped<IImageService, ImageService>();
 
