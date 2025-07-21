@@ -10,5 +10,13 @@ namespace HOMMS.Application.Interfaces
     public interface IOrderDetailService
     {
         Task<List<OrderDetailsDto>> GetOrderDetailsByOrderIdAsync(int orderId);
+
+        /// <summary>
+        /// Gets orders with status "Preparing" for kitchen view
+        /// Note: This method is implemented in OrderService instead
+        /// </summary>
+        [Obsolete("Use OrderService.GetOrdersByStatusPreparingAsync instead")]
+        Task<List<OrderDto>> GetOrderDetailsByStatusPrepare();
+
     }
 }

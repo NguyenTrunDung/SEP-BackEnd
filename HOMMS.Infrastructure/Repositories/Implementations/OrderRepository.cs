@@ -222,11 +222,31 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             return await query
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Food)
+                        .ThenInclude(f => f.Category)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Menu)
                 .Include(o => o.Patient)
                 .Include(o => o.Branch)
                 .Include(o => o.Location)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets orders with status "Preparing" for kitchen view with detailed food information
+        /// </summary>
+        public async Task<List<Order>> GetOrdersByStatusPreparingAsync(int branchId)
+        {
+            return await _context.Orders
+                .Where(o => o.BranchId == branchId && o.Status == "Preparing")
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Food)
+                        .ThenInclude(f => f.Category)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Menu)
+                .Include(o => o.Patient)
+                .Include(o => o.Branch)
+                .Include(o => o.Location)
+                .OrderBy(o => o.OrderDate)
                 .ToListAsync();
         }
 

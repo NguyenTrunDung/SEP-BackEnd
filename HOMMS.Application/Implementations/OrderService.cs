@@ -240,18 +240,146 @@ namespace HOMMS.Application.Implementations
                 RequiresDietarySupervision = o.Patient?.RequiresDietarySupervision ?? false,
                 // Branch and location information
                 BranchName = o.Branch?.Name ?? "",
-                // Map OrderDetails with Food information
+                // Map OrderDetails with complete information (same as kitchen endpoint)
                 OrderDetails = o.OrderDetails?.Select(od => new OrderDetailsDto
                 {
                     Id = od.Id,
+                    MenuId = od.MenuId,
+                    OrderId = od.OrderId,
+                    FoodId = od.FoodId,
+                    Qty = od.Qty,
+                    Price = od.Price,
+                    Total = od.Total,
+                    Note = od.Note,
+                    FoodName = od.Food?.Name ?? od.Menu?.Name,
+                    MenuName = od.Menu?.Name,
+                    CreatedAt = od.CreatedAt,
+                    UpdatedAt = od.LastModifiedAt,
+                    // Map detailed Food information if available
+                    Food = od.Food != null ? new FoodDto
+                    {
+                        Id = od.Food.Id,
+                        Name = od.Food.Name,
+                        BranchId = od.Food.BranchId,
+                        CategoryId = od.Food.CategoryId,
+                        Description = od.Food.Description,
+                        IsSetDish = od.Food.IsSetDish,
+                        IsAddOn = od.Food.IsAddOn,
+                        ForPatient = od.Food.ForPatient,
+                        PriceForGuest = od.Food.PriceForGuest,
+                        PriceForPatient = od.Food.PriceForPatient,
+                        PriceForStaff = od.Food.PriceForStaff,
+                        DiseaseCategoryId = od.Food.DiseaseCategoryId,
+                        Sort = od.Food.Sort,
+                        CreatedAt = od.Food.CreatedAt,
+                        UpdatedAt = od.Food.LastModifiedAt,
+                        CreatedBy = od.Food.CreatedBy,
+                        UpdatedBy = od.Food.LastModifiedBy,
+                        ImageUrl = od.Food.Image,
+                        // Map the food category information
+                        Category = od.Food.Category != null ? new FoodCategoryDto
+                        {
+                            Id = od.Food.Category.Id,
+                            Name = od.Food.Category.Name,
+                            ImageUrl = od.Food.Category.Image ?? "",
+                            Sort = od.Food.Category.Sort ?? 0,
+                            BranchId = od.Food.Category.BranchId
+                        } : null,
+                        SetDishDetails = null // Can be populated if needed
+                    } : null
+                }).ToList() ?? new List<OrderDetailsDto>()
+                // Note: OrderTypeDisplay and LocationDisplay are computed properties and don't need to be set
+            }).ToList();
+        }
+
+        /// <summary>
+        /// Gets orders with status "Preparing" for kitchen view with detailed food information
+        /// </summary>
+        public async Task<List<OrderDto>> GetOrdersByStatusPreparingAsync(int branchId)
+        {
+            var orders = await _orderRepository.GetOrdersByStatusPreparingAsync(branchId);
+
+            return orders.Select(o => new OrderDto
+            {
+                Id = o.Id,
+                BranchId = o.BranchId,
+                UserId = o.UserId,
+                PatientId = o.PatientId,
+                IsPatientOrder = o.IsPatientOrder,
+                OrderDate = o.OrderDate,
+                ReceiveDate = o.ReceiveDate,
+                ReceiveTime = o.ReceiveTime,
+                ReceiveType = o.ReceiveType,
+                Type = o.Type,
+                Status = o.Status,
+                CustomerName = o.CustomerName,
+                CustomerPhone = o.CustomerPhone,
+                CustomerAddress = o.CustomerAddress,
+                Total = o.Total,
+                ShippingFee = o.ShippingFee,
+                FoodToolFee = o.FoodToolFee,
+                PaymentMethod = o.PaymentMethod,
+                IsPaid = o.IsPaid,
+                WalletAmountUsed = o.WalletAmountUsed,
+                Code = o.Code,
+                Note = o.Note,
+                // Patient information
+                PatientName = o.Patient?.FullName,
+                PatientMedicalRecordNumber = o.Patient?.MedicalRecordNumber,
+                PatientRoomNumber = o.Patient?.RoomNumber,
+                PatientBedNumber = o.Patient?.BedNumber,
+                AttendingPhysician = o.Patient?.AttendingPhysician,
+                RequiresDietarySupervision = o.Patient?.RequiresDietarySupervision ?? false,
+                // Branch and location information
+                BranchName = o.Branch?.Name ?? "",
+                // Map OrderDetails with detailed Food information for kitchen
+                OrderDetails = o.OrderDetails?.Select(od => new OrderDetailsDto
+                {
+                    Id = od.Id,
+                    MenuId = od.MenuId,
+                    OrderId = od.OrderId,
+                    FoodId = od.FoodId,
                     Qty = od.Qty,
                     Price = od.Price,
                     Total = od.Total,
                     Note = od.Note,
                     FoodName = od.Food?.Name,
-                    MenuName = od.Menu?.Name
+                    MenuName = od.Menu?.Name,
+                    CreatedAt = od.CreatedAt,
+                    UpdatedAt = od.LastModifiedAt,
+                    // Map detailed Food information
+                    Food = od.Food != null ? new FoodDto
+                    {
+                        Id = od.Food.Id,
+                        Name = od.Food.Name,
+                        BranchId = od.Food.BranchId,
+                        CategoryId = od.Food.CategoryId,
+                        Description = od.Food.Description,
+                        IsSetDish = od.Food.IsSetDish,
+                        IsAddOn = od.Food.IsAddOn,
+                        ForPatient = od.Food.ForPatient,
+                        PriceForGuest = od.Food.PriceForGuest,
+                        PriceForPatient = od.Food.PriceForPatient,
+                        PriceForStaff = od.Food.PriceForStaff,
+                        DiseaseCategoryId = od.Food.DiseaseCategoryId,
+                        Sort = od.Food.Sort,
+                        CreatedAt = od.Food.CreatedAt,
+                        UpdatedAt = od.Food.LastModifiedAt,
+                        CreatedBy = od.Food.CreatedBy,
+                        UpdatedBy = od.Food.LastModifiedBy,
+                        ImageUrl = od.Food.Image,
+                        // Map the food category information
+                        Category = od.Food.Category != null ? new FoodCategoryDto
+                        {
+                            Id = od.Food.Category.Id,
+                            Name = od.Food.Category.Name,
+                            ImageUrl = od.Food.Category.Image ?? "",
+                            Sort = od.Food.Category.Sort ?? 0,
+                            BranchId = od.Food.Category.BranchId
+                        } : null,
+                        SetDishDetails = null // Can be populated if needed
+                    } : null
                 }).ToList() ?? new List<OrderDetailsDto>()
-                // Note: OrderTypeDisplay and LocationDisplay are computed properties and don't need to be set
             }).ToList();
         }
 

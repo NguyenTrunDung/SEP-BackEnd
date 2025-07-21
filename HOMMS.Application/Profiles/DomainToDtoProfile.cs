@@ -87,9 +87,21 @@ namespace HOMMS.Application.Profiles
 
             // OrderDetail -> OrderDetailDto
             CreateMap<OrderDetails, OrderDetailsDto>()
+                .ForMember(dest => dest.MenuId, opt => opt.MapFrom(src => src.MenuId))
+                .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
+                .ForMember(dest => dest.FoodId, opt => opt.MapFrom(src => src.FoodId))
                 .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Qty))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
-                .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total));
+                .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total))
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
+                .ForMember(dest => dest.FoodName, opt => opt.MapFrom(src => 
+                    src.Food != null ? src.Food.Name : 
+                    src.Menu != null ? src.Menu.Name : 
+                    null))
+                .ForMember(dest => dest.MenuName, opt => opt.MapFrom(src => src.Menu != null ? src.Menu.Name : null))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.LastModifiedAt))
+                .ForMember(dest => dest.Food, opt => opt.MapFrom(src => src.Food));
             CreateMap<OrderDetailsDto, OrderDetails>();
 
             // SystemLog ->  SystemLogDto
