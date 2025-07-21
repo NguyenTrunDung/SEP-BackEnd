@@ -119,6 +119,13 @@ namespace HOMMS.Application.Profiles
             CreateMap<CreateLocationDto, Location>();
             CreateMap<UpdateLocationDto, Location>();
 
+ 
+            // Feedback mappings
+            CreateMap<Comment, CommentDto>();
+            CreateMap<CommentDto, Comment>();
+
+
+ 
             // DiseaseCategoryFoodRestriction mappings
             CreateMap<DiseaseCategoryFoodRestriction, DiseaseCategoryFoodRestrictionDto>()
                 .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.Branch != null ? src.Branch.Name : null))

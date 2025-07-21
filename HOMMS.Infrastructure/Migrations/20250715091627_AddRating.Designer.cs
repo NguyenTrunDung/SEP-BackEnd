@@ -4,6 +4,7 @@ using HOMMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HOMMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250715091627_AddRating")]
+    partial class AddRating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -505,69 +508,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("BranchUserRoles");
                 });
 
- 
-            modelBuilder.Entity("HOMMS.Domain.Entities.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CommentLines")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime?>("LastModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Star")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Comment");
-                });
-
- 
             modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -1549,6 +1489,67 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("PatientDiseaseCategories", (string)null);
                 });
 
+            modelBuilder.Entity("HOMMS.Domain.Entities.Rating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Star")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Ratings");
+                });
+
             modelBuilder.Entity("HOMMS.Domain.Entities.SystemLog", b =>
                 {
                     b.Property<int>("Id")
@@ -1594,49 +1595,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("BranchId");
 
                     b.ToTable("SystemLogs", (string)null);
-                });
-
-            modelBuilder.Entity("HOMMS.Domain.Entities.UserWallet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,0)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserWallets");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
@@ -1907,35 +1865,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
- 
-            modelBuilder.Entity("HOMMS.Domain.Entities.Comment", b =>
-                {
-                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
-                        .WithMany("comment")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("HOMMS.Domain.Entities.Order", "Order")
-                        .WithMany("comment")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany("comment")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("Order");
-                });
-
- 
             modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -2156,6 +2085,33 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("HOMMS.Domain.Entities.Rating", b =>
+                {
+                    b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
+                        .WithMany("Ratings")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.Order", "Order")
+                        .WithMany("Ratings")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany("Ratings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("HOMMS.Domain.Entities.SystemLog", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -2164,17 +2120,6 @@ namespace HOMMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Branch");
-                });
-
-            modelBuilder.Entity("HOMMS.Domain.Entities.UserWallet", b =>
-                {
-                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
@@ -2260,11 +2205,9 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.Navigation("Orders");
 
-                    b.Navigation("WalletTransactions");
- 
+                    b.Navigation("Ratings");
 
-                    b.Navigation("comment");
- 
+                    b.Navigation("WalletTransactions");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Area", b =>
@@ -2288,11 +2231,9 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.Navigation("Patients");
 
-                    b.Navigation("SystemLogs");
- 
+                    b.Navigation("Ratings");
 
-                    b.Navigation("comment");
- 
+                    b.Navigation("SystemLogs");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.BranchRole", b =>
@@ -2330,11 +2271,9 @@ namespace HOMMS.Infrastructure.Migrations
                 {
                     b.Navigation("OrderDetails");
 
-                    b.Navigation("WalletTransactions");
- 
+                    b.Navigation("Ratings");
 
-                    b.Navigation("comment");
- 
+                    b.Navigation("WalletTransactions");
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Patient", b =>

@@ -148,8 +148,12 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         public virtual Patient? Patient { get; set; }
 
+ 
+        public virtual ICollection<Comment> comment { get; set; } = new List<Comment>();
+
         #region Audit Properties
-        
+
+ 
         /// <summary>
         /// Gets or sets the created datetime
         /// </summary>

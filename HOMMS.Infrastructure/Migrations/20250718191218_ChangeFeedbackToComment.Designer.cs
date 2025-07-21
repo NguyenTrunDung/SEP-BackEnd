@@ -4,6 +4,7 @@ using HOMMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HOMMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250718191218_ChangeFeedbackToComment")]
+    partial class ChangeFeedbackToComment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -505,7 +508,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("BranchUserRoles");
                 });
 
- 
             modelBuilder.Entity("HOMMS.Domain.Entities.Comment", b =>
                 {
                     b.Property<int>("Id")
@@ -567,7 +569,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("Comment");
                 });
 
- 
             modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -1596,49 +1597,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.ToTable("SystemLogs", (string)null);
                 });
 
-            modelBuilder.Entity("HOMMS.Domain.Entities.UserWallet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,0)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserWallets");
-                });
-
             modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
                 {
                     b.Property<int>("Id")
@@ -1907,7 +1865,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
- 
             modelBuilder.Entity("HOMMS.Domain.Entities.Comment", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -1935,7 +1892,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Order");
                 });
 
- 
             modelBuilder.Entity("HOMMS.Domain.Entities.DiseaseCategory", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -2166,17 +2122,6 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Branch");
                 });
 
-            modelBuilder.Entity("HOMMS.Domain.Entities.UserWallet", b =>
-                {
-                    b.HasOne("HOMMS.Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("HOMMS.Domain.Entities.UserWalletTransaction", b =>
                 {
                     b.HasOne("HOMMS.Domain.Entities.Branch", "Branch")
@@ -2261,10 +2206,8 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("WalletTransactions");
- 
 
                     b.Navigation("comment");
- 
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Area", b =>
@@ -2289,10 +2232,8 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("Patients");
 
                     b.Navigation("SystemLogs");
- 
 
                     b.Navigation("comment");
- 
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.BranchRole", b =>
@@ -2331,10 +2272,8 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Navigation("OrderDetails");
 
                     b.Navigation("WalletTransactions");
- 
 
                     b.Navigation("comment");
- 
                 });
 
             modelBuilder.Entity("HOMMS.Domain.Entities.Patient", b =>

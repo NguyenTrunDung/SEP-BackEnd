@@ -112,6 +112,12 @@ builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>(
 builder.Services.AddScoped<IBranchRoleManagementRepository, BranchRoleManagementRepository>();
 builder.Services.AddScoped<IBranchUserManagementRepository, BranchUserManagementRepository>();
 builder.Services.AddScoped<IDiseaseCategoryFoodRestrictionRepository, DiseaseCategoryFoodRestrictionRepository>();
+
+ 
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+ 
+
+
 // Add Disease Category Repository
 builder.Services.AddScoped<IDiseaseCategoryRepository, DiseaseCategoryRepository>();
 
@@ -226,8 +232,14 @@ builder.Services.AddScoped<IDiseaseCategoryFoodRestrictionService, DiseaseCatego
 
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 
+
+ 
+builder.Services.AddScoped<ICommentService, CommentService>();
+ 
+
 builder.Services.AddScoped<IBranchRoleManagementService, BranchRoleManagementService>();
 builder.Services.AddScoped<IBranchUserManagementService, BranchUserManagementService>();
+
 
 //builder.Services.AddScoped<IImageService, ImageService>();
 
