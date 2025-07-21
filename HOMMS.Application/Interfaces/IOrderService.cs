@@ -63,6 +63,11 @@ namespace HOMMS.Application.Interfaces
             bool? isPaid = null
         );
 
+        /// <summary>
+        /// Gets orders with status "Preparing" for kitchen view with detailed food information
+        /// </summary>
+        Task<List<OrderDto>> GetOrdersByStatusPreparingAsync(int branchId);
+
 
     }
 }

@@ -119,6 +119,14 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));
         }
 
+        [HttpGet("order-kitchen")]
+        public async Task<ActionResult<ApiResponseBase<List<OrderDto>>>> GetOrderDetailsByStatusPrepare([FromQuery] int branchId)
+        {
+            var orders = await _orderService.GetOrdersByStatusPreparingAsync(branchId);
+            var totalCount = orders?.Count ?? 0;
+            return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Kitchen orders retrieved successfully", "success", totalCount));
+        }
+
 
         [HttpPost("AddDishesforPatient")]
         [Authorize(Policy = "Permission:orders:add")]

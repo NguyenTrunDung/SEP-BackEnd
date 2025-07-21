@@ -29,5 +29,19 @@ namespace HOMMS.API.Controllers.V1
             var totalCount = orderDetails.Count;
             return Ok(new ApiResponseBase<List<OrderDetailsDto>>(orderDetails, "Order details retrieved successfully", "success", totalCount));
         }
+
+        //[HttpGet("order-kitchen")]
+        //public async Task<ActionResult<ApiResponseBase<List<OrderDto>>>> GetOrderDetailsByStatusPrepare()
+        //{
+     
+        //    return Ok();
+        //}
+
+        //[HttpGet("order-delivery")]
+        //public async Task<ActionResult<ApiResponseBase<List<OrderDto>>>> GetOrderDetailsByStatusDelivering()
+        //{
+
+        //    return Ok();
+        //}
     }
 }
