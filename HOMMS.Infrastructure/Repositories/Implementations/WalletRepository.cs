@@ -386,7 +386,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 LastName = dto.LastName,
                 PhoneNumber = dto.PhoneNumber
             };
-
+            user.EmailConfirmed = true;
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 throw new Exception($"Không tạo được user: {string.Join(", ", result.Errors.Select(e => e.Description))}");

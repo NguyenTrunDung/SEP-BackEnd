@@ -32,7 +32,7 @@ namespace HOMMS.Application.Implementations
                 Email = request.Email,
                 PhoneNumber = request.PhoneNumber
             };
-
+            user.EmailConfirmed = true;
             var existingUser = await _repository.GetByEmailAsync(request.Email);
             if (existingUser != null)
             {
