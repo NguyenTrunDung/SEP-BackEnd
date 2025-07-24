@@ -111,6 +111,7 @@ namespace HOMMS.Domain.Entities
 
         public virtual ICollection<Comment> comment { get; set; } = new List<Comment>();
 
- 
+        public virtual ICollection<Department> department { get; set; } = new List<Department>();
+
     }
 } 

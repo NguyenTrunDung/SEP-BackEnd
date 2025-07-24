@@ -29,7 +29,11 @@ namespace HOMMS.Common.Constants
             "Patient:view",
             "Patient:add",
             "Patient:edit",
-            "Patient:delete"
+            "Patient:delete",
+            //"Department:view",
+            //"Department:add",
+            //"Department:edit",
+            //"Department:delete"
             // Add more as needed
         };
     }

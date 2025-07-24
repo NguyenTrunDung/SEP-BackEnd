@@ -21,7 +21,7 @@ namespace HOMMS.Application.Profiles
             CreateMap<FoodCategory, FoodCategoryDto>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
                 .ForMember(dest => dest.Sort, opt => opt.MapFrom(src => src.Sort ?? 0));
-            
+
             // FoodCategoryDto -> FoodCategory (reverse mapping)
             CreateMap<FoodCategoryDto, FoodCategory>()
                 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageUrl))
@@ -32,7 +32,7 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.Branch != null ? src.Branch.Name : null))
                 .ForMember(dest => dest.TotalPatients, opt => opt.Ignore()) // Populated manually in service
                 .ForMember(dest => dest.TotalFoodRestrictions, opt => opt.Ignore()); // Populated manually in service
-            
+
             CreateMap<CreateDiseaseCategoryDto, DiseaseCategory>()
                 .ForMember(dest => dest.Code, opt => opt.Ignore()) // Code will be set manually in service
                 .ForMember(dest => dest.BranchId, opt => opt.Ignore()) // BranchId will be set manually in service
@@ -41,7 +41,7 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.LastModifiedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore());
-            
+
             CreateMap<UpdateDiseaseCategoryDto, DiseaseCategory>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.BranchId, opt => opt.Ignore())
@@ -80,7 +80,7 @@ namespace HOMMS.Application.Profiles
             CreateMap<Order, OrderDto>();
             CreateMap<OrderDtoV2, Order>();
             CreateMap<Order, CreatePatientOrderDto>();
-           
+
             CreateMap<CreatePatientOrderDto, Order>();
             CreateMap<CreateOrderDetailDto, OrderDetails>();
             CreateMap<UpdateOrderDto, Order>();
@@ -94,9 +94,9 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
                 .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
-                .ForMember(dest => dest.FoodName, opt => opt.MapFrom(src => 
-                    src.Food != null ? src.Food.Name : 
-                    src.Menu != null ? src.Menu.Name : 
+                .ForMember(dest => dest.FoodName, opt => opt.MapFrom(src =>
+                    src.Food != null ? src.Food.Name :
+                    src.Menu != null ? src.Menu.Name :
                     null))
                 .ForMember(dest => dest.MenuName, opt => opt.MapFrom(src => src.Menu != null ? src.Menu.Name : null))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
@@ -130,14 +130,17 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.Area, opt => opt.Ignore()); // Prevent cycle
             CreateMap<CreateLocationDto, Location>();
             CreateMap<UpdateLocationDto, Location>();
+            // Department
+            CreateMap<Department, DepartmentDto>();
+            CreateMap<CreateDepartmentDto, Department>();
+            CreateMap<UpdateDepartmentDto, Department>();
 
- 
             // Feedback mappings
             CreateMap<Comment, CommentDto>();
             CreateMap<CommentDto, Comment>();
 
 
- 
+
             // DiseaseCategoryFoodRestriction mappings
             CreateMap<DiseaseCategoryFoodRestriction, DiseaseCategoryFoodRestrictionDto>()
                 .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.Branch != null ? src.Branch.Name : null))
@@ -147,9 +150,9 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.FoodPrice, opt => opt.MapFrom(src => src.Food != null ? src.Food.PriceForGuest : null))
                 .ForMember(dest => dest.RestrictionLevelName, opt => opt.Ignore()) // Computed property
                 .ForMember(dest => dest.RestrictionLevelColor, opt => opt.Ignore()); // Computed property
-            
+
             CreateMap<CreateDiseaseCategoryFoodRestrictionDto, DiseaseCategoryFoodRestriction>();
-            
+
             CreateMap<UpdateDiseaseCategoryFoodRestrictionDto, DiseaseCategoryFoodRestriction>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.BranchId, opt => opt.Ignore())
