@@ -151,9 +151,14 @@ namespace HOMMS.Domain.Entities
  
         public virtual ICollection<Comment> comment { get; set; } = new List<Comment>();
 
+        public int? DepartmentId { get; set; }
+
+        public virtual Department? department { get; set; }
+
+
         #region Audit Properties
 
- 
+
         /// <summary>
         /// Gets or sets the created datetime
         /// </summary>

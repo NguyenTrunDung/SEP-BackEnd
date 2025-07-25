@@ -70,6 +70,8 @@ namespace HOMMS.Infrastructure.Data
         public DbSet<Area> Areas { get; set; }
         public DbSet<Location> Locations { get; set; }
 
+        public DbSet<Department> Department { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -175,6 +177,7 @@ namespace HOMMS.Infrastructure.Data
             // Area and Location configurations
             builder.ApplyConfiguration(new AreaConfiguration());
             builder.ApplyConfiguration(new LocationConfiguration());
+            builder.ApplyConfiguration(new DepartmentConfiguration());
 
         }
 

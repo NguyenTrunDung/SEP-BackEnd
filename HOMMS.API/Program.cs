@@ -112,10 +112,8 @@ builder.Services.AddScoped<IBranchUserRoleRepository, BranchUserRoleRepository>(
 builder.Services.AddScoped<IBranchRoleManagementRepository, BranchRoleManagementRepository>();
 builder.Services.AddScoped<IBranchUserManagementRepository, BranchUserManagementRepository>();
 builder.Services.AddScoped<IDiseaseCategoryFoodRestrictionRepository, DiseaseCategoryFoodRestrictionRepository>();
-
- 
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
- 
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>(); 
 
 
 // Add Disease Category Repository
@@ -174,6 +172,17 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("locations:edit")));
     options.AddPolicy("Permission:locations:delete", policy =>
         policy.Requirements.Add(new PermissionRequirement("locations:delete")));
+    // Department
+    options.AddPolicy("Permission:Department:view", policy =>
+        policy.Requirements.Add(new PermissionRequirement("Department:view")));
+    options.AddPolicy("Permission:Department:add", policy =>
+        policy.Requirements.Add(new PermissionRequirement("Department:add")));
+    options.AddPolicy("Permission:Department:edit", policy =>
+        policy.Requirements.Add(new PermissionRequirement("Department:edit")));
+    options.AddPolicy("Permission:Department:delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("Department:delete")));
+
+
     // Add more policies for other permissions as needed
     //SystemLog
     options.AddPolicy("Permission:systemlog:view", policy =>
@@ -199,6 +208,10 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement("diseasecategories:edit")));
     options.AddPolicy("Permission:diseasecategories:delete", policy =>
         policy.Requirements.Add(new PermissionRequirement("diseasecategories:delete")));
+
+
+
+
 });
 
 // Register PrintUrlsHostedService
@@ -239,6 +252,7 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 
 builder.Services.AddScoped<IBranchRoleManagementService, BranchRoleManagementService>();
 builder.Services.AddScoped<IBranchUserManagementService, BranchUserManagementService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
 
 //builder.Services.AddScoped<IImageService, ImageService>();
