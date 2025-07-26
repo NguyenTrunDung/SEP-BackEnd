@@ -15,11 +15,13 @@ namespace HOMMS.Application.Implementations
     {
         private readonly IBranchUserManagementRepository _repository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWalletRepository _walletRepository;
         public BranchUserManagementService(IBranchUserManagementRepository repository
-            ,UserManager<ApplicationUser> userManager)
+            ,UserManager<ApplicationUser> userManager, IWalletRepository walletRepository)
         {
             _repository = repository;
             _userManager = userManager;
+            _walletRepository = walletRepository;
         }
 
         public async Task<IdentityResult> CreateUserAsync(CreateBranchUserRequest request)
@@ -46,6 +48,8 @@ namespace HOMMS.Application.Implementations
             await _repository.AddUserToBranchAsync(user.Id, request.BranchId);
             await _repository.AddUserToBranchRoleAsync(user.Id, request.BranchId, request.BranchRoleId);
             await _userManager.AddToRoleAsync(user, "Staff");
+            //create wallet
+            await _walletRepository.CreateNewWallet(user.Id, request.CreatedBy);
             return IdentityResult.Success;
         }
 

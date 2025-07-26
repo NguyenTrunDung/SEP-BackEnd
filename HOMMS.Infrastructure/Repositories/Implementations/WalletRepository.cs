@@ -444,5 +444,20 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
+        public async Task<UserWallet> CreateNewWallet(string userId, string createdBy)
+        {
+            var newWallet = new UserWallet
+            {
+                UserId = userId,
+                Amount = 0,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = createdBy,
+                IsDeleted = false
+            };
+            _dbContext.UserWallets.Add(newWallet);
+            await _dbContext.SaveChangesAsync();
+            return newWallet;
+        }
     }
 }
