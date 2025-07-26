@@ -16,6 +16,7 @@ namespace HOMMS.Domain.Dtos
         public string Password { get; set; }
         public int BranchId { get; set; }
         public int BranchRoleId { get; set; }
+        public string CreatedBy { get; set; }
     }
     public class UpdateUserRequest
     {
