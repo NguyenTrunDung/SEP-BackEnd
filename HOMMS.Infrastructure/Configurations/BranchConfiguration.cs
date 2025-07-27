@@ -35,15 +35,24 @@ namespace HOMMS.Infrastructure.Configurations
             builder.Property(b => b.Email)
                    .HasMaxLength(100);
                    
-            // Indexes
+            // Partial unique indexes for soft delete support
+            // Only enforce uniqueness for non-deleted records
             builder.HasIndex(b => b.Code)
-                   .IsUnique();
+                   .IsUnique()
+                   .HasFilter("[IsDeleted] = 0");
+                   
+            builder.HasIndex(b => b.Name)
+                   .IsUnique()
+                   .HasFilter("[IsDeleted] = 0");
                    
             // Relationships
             builder.HasMany(b => b.BranchUsers)
                    .WithOne(bu => bu.Branch)
                    .HasForeignKey(bu => bu.BranchId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            // Query filter for soft delete
+            builder.HasQueryFilter(b => !b.IsDeleted);
 
             // Seed data
             //builder.HasData(
