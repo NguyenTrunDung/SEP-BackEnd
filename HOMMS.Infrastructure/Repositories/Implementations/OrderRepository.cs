@@ -237,7 +237,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public async Task<List<Order>> GetOrdersByStatusPreparingAsync(int branchId)
         {
             return await _context.Orders
-                .Where(o => o.BranchId == branchId && o.Status == "Preparing")
+                .Where(o => o.BranchId == branchId && o.Status == "Confirmed")
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Food)
                         .ThenInclude(f => f.Category)
