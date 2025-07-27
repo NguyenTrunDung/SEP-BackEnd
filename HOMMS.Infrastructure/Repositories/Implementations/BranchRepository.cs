@@ -21,7 +21,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         /// <inheritdoc/>
         public async Task<IEnumerable<Branch>> GetActiveBranchesAsync()
         {
-            return await DbSet.Where(b => b.IsActive)
+            return await DbSet.Where(b => b.IsActive && !b.IsDeleted)
                              .OrderBy(b => b.Name)
                              .ToListAsync();
         }
@@ -32,7 +32,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             return await DbContext.Set<BranchUser>()
                                  .Where(bu => bu.UserId == userId)
                                  .Select(bu => bu.Branch)
-                                 .Where(b => b.IsActive)
+                                 .Where(b => b.IsActive && !b.IsDeleted)
                                  .OrderBy(b => b.Name)
                                  .ToListAsync();
         }
@@ -41,14 +41,16 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public async Task<Branch> GetUserDefaultBranchAsync(string userId)
         {
             var branchUser = await DbContext.Set<BranchUser>()
-                                          .Where(bu => bu.UserId == userId && bu.IsDefault)
+                                          .Include(bu => bu.Branch)
+                                          .Where(bu => bu.UserId == userId && bu.IsDefault && !bu.Branch.IsDeleted)
                                           .FirstOrDefaultAsync();
                                       
             if (branchUser == null)
             {
                 // If no default is set, get the first one
                 branchUser = await DbContext.Set<BranchUser>()
-                                          .Where(bu => bu.UserId == userId)
+                                          .Include(bu => bu.Branch)
+                                          .Where(bu => bu.UserId == userId && !bu.Branch.IsDeleted)
                                           .OrderBy(bu => bu.BranchId)
                                           .FirstOrDefaultAsync();
             }
@@ -178,6 +180,105 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             {
                 return false;
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> ExistsByCodeAsync(string code, int? excludeId = null)
+        {
+            var query = DbSet.Where(b => b.Code == code && !b.IsDeleted);
+            
+            if (excludeId.HasValue)
+            {
+                query = query.Where(b => b.Id != excludeId.Value);
+            }
+            
+            return await query.AnyAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> ExistsByNameAsync(string name, int? excludeId = null)
+        {
+            var query = DbSet.Where(b => b.Name == name && !b.IsDeleted);
+            
+            if (excludeId.HasValue)
+            {
+                query = query.Where(b => b.Id != excludeId.Value);
+            }
+            
+            return await query.AnyAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<Branch> GetByIdIncludingDeletedAsync(int id)
+        {
+            return await DbSet.IgnoreQueryFilters()
+                             .FirstOrDefaultAsync(b => b.Id == id);
+        }
+
+        /// <summary>
+        /// Override GetByIdAsync to exclude soft deleted branches
+        /// </summary>
+        public override async Task<Branch> GetByIdAsync(int id)
+        {
+            return await DbSet.Where(b => b.Id == id && !b.IsDeleted)
+                             .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// Override AddAsync to handle branch creation with proper audit trail
+        /// </summary>
+        public override async Task<Branch> AddAsync(Branch entity)
+        {
+            // Ensure BranchId is set for self-reference
+            entity.BranchId = 0; // Will be set after insert
+            
+            DbSet.Add(entity);
+            await DbContext.SaveChangesAsync();
+            
+            // Update BranchId to self-reference
+            entity.BranchId = entity.Id;
+            await DbContext.SaveChangesAsync();
+            
+            return entity;
+        }
+
+        /// <summary>
+        /// Soft delete a branch by setting IsDeleted flag
+        /// </summary>
+        public override async Task<bool> DeleteAsync(int id)
+        {
+            var branch = await GetByIdAsync(id);
+            if (branch == null)
+            {
+                return false;
+            }
+
+            branch.IsDeleted = true;
+            branch.DeletedAt = DateTime.UtcNow;
+            
+            await DbContext.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Restore a soft deleted branch
+        /// </summary>
+        public async Task<bool> RestoreAsync(int id, string restoredBy)
+        {
+            var branch = await GetByIdIncludingDeletedAsync(id);
+            if (branch == null || !branch.IsDeleted)
+            {
+                return false;
+            }
+
+            branch.IsDeleted = false;
+            branch.DeletedAt = null;
+            branch.DeletedBy = null;
+            branch.LastModifiedAt = DateTime.UtcNow;
+            branch.LastModifiedBy = restoredBy;
+            
+            await DbContext.SaveChangesAsync();
+            return true;
         }
     }
 } 

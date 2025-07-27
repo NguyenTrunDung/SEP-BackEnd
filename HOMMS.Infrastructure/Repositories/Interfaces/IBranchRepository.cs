@@ -53,5 +53,36 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="branchId">The branch ID</param>
         /// <returns>True if successful, false otherwise</returns>
         Task<bool> SetUserDefaultBranchAsync(string userId, int branchId);
+
+        /// <summary>
+        /// Checks if a branch with the given code exists (excluding soft deleted branches)
+        /// </summary>
+        /// <param name="code">Branch code to check</param>
+        /// <param name="excludeId">Branch ID to exclude from check (for updates)</param>
+        /// <returns>True if branch code exists, false otherwise</returns>
+        Task<bool> ExistsByCodeAsync(string code, int? excludeId = null);
+
+        /// <summary>
+        /// Checks if a branch with the given name exists (excluding soft deleted branches)
+        /// </summary>
+        /// <param name="name">Branch name to check</param>
+        /// <param name="excludeId">Branch ID to exclude from check (for updates)</param>
+        /// <returns>True if branch name exists, false otherwise</returns>
+        Task<bool> ExistsByNameAsync(string name, int? excludeId = null);
+
+        /// <summary>
+        /// Gets a branch by ID including soft deleted branches (for restoration)
+        /// </summary>
+        /// <param name="id">Branch ID</param>
+        /// <returns>Branch if found, null otherwise</returns>
+        Task<Branch> GetByIdIncludingDeletedAsync(int id);
+
+        /// <summary>
+        /// Restores a soft deleted branch
+        /// </summary>
+        /// <param name="id">Branch ID to restore</param>
+        /// <param name="restoredBy">User who is restoring the branch</param>
+        /// <returns>True if successful, false otherwise</returns>
+        Task<bool> RestoreAsync(int id, string restoredBy);
     }
 } 
