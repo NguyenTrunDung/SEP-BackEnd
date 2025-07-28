@@ -75,7 +75,7 @@ namespace HOMMS.API.Controllers.V1
        
         [HttpPut("{id}")]
         [Authorize(Policy = "Permission:Department:edit")]
-        public async Task<ActionResult<ApiResponseBase<DepartmentDto>>> UpdateDepartment(int id, [FromBody] UpdateDepartmentDto dto)
+        public async Task<ActionResult<ApiResponseBase<DepartmentDto>>> UpdateDepartment(int id, [FromBody] CreateDepartmentDto dto)
         {
             try
             {

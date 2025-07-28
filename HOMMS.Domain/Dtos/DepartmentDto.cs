@@ -36,12 +36,12 @@ namespace HOMMS.Domain.Dtos
     }
 
 
-    public class UpdateDepartmentDto: CreateDepartmentDto
-    {
+    //public class UpdateDepartmentDto: CreateDepartmentDto
+    //{
 
-        public int Id { get; set; }
+    //    public int Id { get; set; }
       
 
 
-    }
+    //}
 }

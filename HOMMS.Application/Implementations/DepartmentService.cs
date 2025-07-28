@@ -79,7 +79,7 @@ namespace HOMMS.Application.Implementations
             return await _repository.IsDepartmentNameUniqueAsync(branchId, name, excludeId);
         }
 
-        public async Task<DepartmentDto?> UpdateAsync(int id, UpdateDepartmentDto dto)
+        public async Task<DepartmentDto?> UpdateAsync(int id, CreateDepartmentDto dto)
         {
             var existingDep = await _repository.GetByIdAsync(id);
             if (existingDep == null)

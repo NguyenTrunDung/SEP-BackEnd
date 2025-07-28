@@ -21,7 +21,7 @@ namespace HOMMS.Application.Interfaces
         Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto);
 
         
-        Task<DepartmentDto?> UpdateAsync(int id, UpdateDepartmentDto dto);
+        Task<DepartmentDto?> UpdateAsync(int id, CreateDepartmentDto dto);
 
        
         Task<bool> DeleteAsync(int id);
