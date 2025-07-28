@@ -91,7 +91,14 @@ namespace HOMMS.Application.Implementations
             dto.BranchId = EnsureBranchId(dto.BranchId);
             var feed = await _repository.GetByIdAsync(id);
             if (feed == null) return null;
-            _mapper.Map(dto, feed);
+
+            // Manually update non-key properties to avoid modifying Id
+            feed.Star = dto.Star;
+            feed.CommentLines = dto.CommentLines;
+            feed.OrderId = dto.OrderId;
+            feed.BranchId = dto.BranchId;
+            feed.UserId = dto.UserId;
+
             await _repository.UpdateAsync(feed);
             return _mapper.Map<CommentDto>(feed);
 
