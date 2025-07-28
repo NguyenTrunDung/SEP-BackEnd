@@ -133,7 +133,7 @@ namespace HOMMS.Application.Profiles
             // Department
             CreateMap<Department, DepartmentDto>();
             CreateMap<CreateDepartmentDto, Department>();
-            CreateMap<UpdateDepartmentDto, Department>();
+           // CreateMap<UpdateDepartmentDto, Department>();
 
             // Feedback mappings
             CreateMap<Comment, CommentDto>();
