@@ -20,7 +20,11 @@ namespace HOMMS.Domain.Entities
 
         public virtual Branch? Branch { get; set; }
 
+        public int LocationId {  get; set; }
+        public virtual Location? Location { get; set; }
+
         public virtual ICollection<ApplicationUser> user { get; set; } = new List<ApplicationUser>();
+        public virtual ICollection<Patient> Patients { get; set; } = new List<Patient>();
 
     }
 }

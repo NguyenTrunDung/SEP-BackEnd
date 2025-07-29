@@ -137,7 +137,7 @@ namespace HOMMS.Application.Implementations
                     p.MedicalRecordNumber == entity.MedicalRecordNumber &&
                     p.Id != id);
 
-                if (exists) throw new DuplicateRecordException("Mã hồ sơ bệnh án đã tồn tại trong chi nhánh.");
+                if (exists) throw new DuplicateRecordException("The medical record number already exists in the branch.");
             }
             _mapper.Map(entity, pa);
             await _repository.UpdateAsync(pa);

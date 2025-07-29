@@ -16,8 +16,8 @@ namespace HOMMS.Domain.Dtos
         public int? Sort { get; set; }
         public bool IsActive { get; set; }
         public int BranchId { get; set; }
+        public int LocationId { get; set; }
 
-         
 
     }
 
@@ -30,8 +30,7 @@ namespace HOMMS.Domain.Dtos
         public int? Sort { get; set; }
         public bool IsActive { get; set; }
         public int BranchId { get; set; }
-
-
+        public int LocationId { get; set; }
 
     }
 

@@ -33,6 +33,11 @@ namespace HOMMS.Infrastructure.Configurations
                   .HasForeignKey(r => r.BranchId)
                   .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(r => r.Location)
+                .WithMany(b => b.department)
+                .HasForeignKey(r => r.LocationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasIndex(f => f.BranchId);
 
             // Audit columns

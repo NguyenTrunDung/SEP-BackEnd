@@ -9,6 +9,8 @@ namespace HOMMS.Domain.Dtos
     {
         public string Id { get; set; } = string.Empty;
         public int BranchId { get; set; }
+
+        public int departmentId { get; set; }
         public string MedicalRecordNumber { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public DateTime? DateOfBirth { get; set; }
@@ -22,8 +24,8 @@ namespace HOMMS.Domain.Dtos
         public bool IsActive { get; set; }
         public string? ExternalSystemId { get; set; }
         public DateTime? LastSyncAt { get; set; }
-        public string? Notes { get; set; }
-        
+        public string? Notes { get; set; }       
+
         // Related data for display
         public string? UserId { get; set; }
         public string BranchName { get; set; } = string.Empty;
@@ -46,7 +48,11 @@ namespace HOMMS.Domain.Dtos
         [Required]
         [StringLength(450)]
         public string Id { get; set; } = string.Empty; // External system ID
-        
+
+        public int BranchId { get; set; }
+
+        public int departmentId { get; set; }
+
         [Required]
         [StringLength(50)]
         public string MedicalRecordNumber { get; set; } = string.Empty;
@@ -67,7 +73,9 @@ namespace HOMMS.Domain.Dtos
         public string? BedNumber { get; set; }
         
         public DateTime? AdmissionDate { get; set; }
-        
+
+        public DateTime? DischargeDate { get; set; }
+
         [StringLength(100)]
         public string? AttendingPhysician { get; set; }
         
@@ -78,6 +86,9 @@ namespace HOMMS.Domain.Dtos
         
         [StringLength(1000)]
         public string? Notes { get; set; }
+
+
+       
     }
     
     /// <summary>
@@ -85,6 +96,9 @@ namespace HOMMS.Domain.Dtos
     /// </summary>
     public class UpdatePatientDto
     {
+        public int BranchId { get; set; }
+        public int departmentId { get; set; }
+
         [StringLength(50)]
         public string? MedicalRecordNumber { get; set; }
         
@@ -115,6 +129,8 @@ namespace HOMMS.Domain.Dtos
         
         [StringLength(1000)]
         public string? Notes { get; set; }
+
+       
     }
     
     /// <summary>
@@ -122,6 +138,9 @@ namespace HOMMS.Domain.Dtos
     /// </summary>
     public class PatientSyncDto
     {
+        public int BranchId { get; set; }
+        public int departmentId { get; set; }
+
         [Required]
         public string ExternalSystemId { get; set; } = string.Empty;
         
@@ -142,6 +161,8 @@ namespace HOMMS.Domain.Dtos
         public bool IsActive { get; set; } = true;
         public string? Notes { get; set; }
         public DateTime SyncTimestamp { get; set; } = DateTime.UtcNow;
+
+     
     }
     
     /// <summary>
@@ -150,6 +171,8 @@ namespace HOMMS.Domain.Dtos
     public class PatientListDto
     {
         public string Id { get; set; } = string.Empty;
+        public int BranchId { get; set; }
+        public int departmentId { get; set; }
         public string MedicalRecordNumber { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string? RoomNumber { get; set; }
@@ -163,6 +186,7 @@ namespace HOMMS.Domain.Dtos
         public string DisplayLocation => !string.IsNullOrEmpty(RoomNumber) 
             ? $"Room {RoomNumber}" + (!string.IsNullOrEmpty(BedNumber) ? $" - Bed {BedNumber}" : "")
             : "Not assigned";
+    
     }
     
     /// <summary>

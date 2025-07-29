@@ -249,7 +249,7 @@ namespace HOMMS.API.Controllers.V1
             }
             catch (Exception ex)
             {
-                return BadRequest(new { status = "error", message = ex.Message });
+                return BadRequest(new { status = "error", message = ex.InnerException?.Message });
             }
         }
 
@@ -267,7 +267,7 @@ namespace HOMMS.API.Controllers.V1
             }
             catch (DuplicateRecordException ex)
             {
-                return BadRequest(new { status = "error", message = ex.Message });
+                return BadRequest(new { status = "error", message = ex.InnerException?.Message });
             }
             catch (Exception ex)
             {
@@ -289,7 +289,7 @@ namespace HOMMS.API.Controllers.V1
             }
             catch (Exception ex)
             {
-                return BadRequest(new { status = "error", message = ex.Message });
+                return BadRequest(new { status = "error", message = ex.InnerException?.Message });
             }
         }
 
