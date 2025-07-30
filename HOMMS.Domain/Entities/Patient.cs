@@ -93,9 +93,14 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         [StringLength(1000)]
         public string? Notes { get; set; }
-        
+
+
+
+        public int? departmentId { get; set; }
+        public virtual Department? department { get; set; }
+
         // Navigation properties
-        
+
         /// <summary>
         /// Gets or sets the branch this patient belongs to
         /// </summary>

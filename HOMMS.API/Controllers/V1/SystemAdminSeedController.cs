@@ -148,6 +148,14 @@ namespace HOMMS.API.Controllers.V1
             return Ok("Disease category food restrictions seeded.");
         }
 
+
+        [HttpPost("Departments")]
+        public async Task<IActionResult> SeedDepartments()
+        {
+            await DepartmentSeedData.SeedDepartmentsAsync(_serviceProvider);
+            return Ok("Department seeded.");
+        }
+
         [HttpPost("clear-all-data")]
         public async Task<IActionResult> ClearAllData()
         {
@@ -176,6 +184,7 @@ namespace HOMMS.API.Controllers.V1
             await DiseaseCategorySeedData.SeedDiseaseCategoriesAsync(_serviceProvider);
             await DiseaseCategorySeedData.SeedPatientDiseaseCategoriesAsync(_serviceProvider);
             await DiseaseCategoryFoodRestrictionSeedData.SeedDiseaseCategoryFoodRestrictionsAsync(_serviceProvider);
+            await DepartmentSeedData.SeedDepartmentsAsync(_serviceProvider);
             return Ok("All seed data applied (full, with clear).");
         }
 

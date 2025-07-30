@@ -60,7 +60,15 @@ namespace HOMMS.Infrastructure.Configurations
                 .WithMany(x => x.Patients)
                 .HasForeignKey(x => x.BranchId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
+
+          
+            builder.HasOne(x => x.department)
+                .WithMany(x => x.Patients)
+                .HasForeignKey(x => x.departmentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+
             // Configure indexes
             builder.HasIndex(x => new { x.BranchId, x.MedicalRecordNumber })
                 .IsUnique()

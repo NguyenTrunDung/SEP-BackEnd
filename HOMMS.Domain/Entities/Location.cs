@@ -62,5 +62,7 @@ namespace HOMMS.Domain.Entities
         /// Gets or sets the branch navigation property
         /// </summary>
         public virtual Branch? Branch { get; set; }
+
+        public virtual ICollection<Department> department { get; set; } = new List<Department>();
     }
 } 
