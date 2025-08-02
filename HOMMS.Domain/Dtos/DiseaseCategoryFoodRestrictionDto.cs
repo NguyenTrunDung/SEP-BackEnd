@@ -71,9 +71,9 @@ namespace HOMMS.Domain.Dtos
         [Required]
         public int FoodId { get; set; }
         
-        [Required]
-        [Range(1, 4)]
-        public int RestrictionLevel { get; set; } = 3;
+        //[Required]
+        //[Range(1, 4)]
+        //public int RestrictionLevel { get; set; } = 3;
         
         [Required]
         [StringLength(500)]
@@ -91,9 +91,9 @@ namespace HOMMS.Domain.Dtos
     /// </summary>
     public class UpdateDiseaseCategoryFoodRestrictionDto
     {
-        [Required]
-        [Range(1, 4)]
-        public int RestrictionLevel { get; set; }
+        //[Required]
+        //[Range(1, 4)]
+        //public int RestrictionLevel { get; set; }
         
         [Required]
         [StringLength(500)]
