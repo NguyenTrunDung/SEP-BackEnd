@@ -64,7 +64,7 @@ namespace HOMMS.API.Controllers.V1
             try
             {
                 var created = await _departmentService.CreateAsync(dto);
-                return CreatedAtAction(nameof(GetDepartment), new { id = created.Id }, new ApiResponseBase<DepartmentDto>(created, "Area created successfully"));
+                return CreatedAtAction(nameof(GetDepartment), new { id = created.Id }, new ApiResponseBase<DepartmentDto>(created, "Department created successfully"));
             }
             catch (System.InvalidOperationException ex)
             {

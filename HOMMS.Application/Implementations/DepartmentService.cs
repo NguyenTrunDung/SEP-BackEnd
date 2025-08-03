@@ -20,18 +20,19 @@ namespace HOMMS.Application.Implementations
         private readonly ILocationRepository _locationRepository;
 
 
-        public DepartmentService(IUnitOfWork unitOfWork, IMapper mapper, IDepartmentRepository departmentRepository)
+        public DepartmentService(IUnitOfWork unitOfWork, IMapper mapper, IDepartmentRepository departmentRepository , ILocationRepository locationRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _repository = departmentRepository;
+            _locationRepository = locationRepository;
         }
 
         public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto)
         {
 
-            var area = await _locationRepository.GetByIdAsync(dto.LocationId);
-            if (area == null || area.BranchId != dto.BranchId)
+            var lo = await _locationRepository.GetByIdAsync(dto.LocationId);
+            if (lo == null || lo.BranchId != dto.BranchId)
             {
                 throw new InvalidOperationException("Invalid location or location does not belong to the specified branch.");
             }
@@ -95,8 +96,8 @@ namespace HOMMS.Application.Implementations
                 return null;
             }
 
-            var area = await _locationRepository.GetByIdAsync(dto.LocationId);
-            if (area == null || area.BranchId != dto.BranchId)
+            var lo = await _locationRepository.GetByIdAsync(dto.LocationId);
+            if (lo == null || lo.BranchId != dto.BranchId)
             {
                 throw new InvalidOperationException("Invalid location or location does not belong to the specified branch.");
             }
