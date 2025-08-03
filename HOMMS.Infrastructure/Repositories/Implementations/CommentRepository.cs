@@ -59,6 +59,12 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 
         }
 
-
+        public async Task<IEnumerable<Comment>> GetFeedbackByUserIdAndActruallBranchAsync(string UserId, int BranchId)
+        {
+            return await DbSet
+                 .Where(c => c.UserId == UserId && c.BranchId == BranchId)
+                 .OrderByDescending(f => f.CreatedAt)
+                 .ToListAsync();
+        }
     }
 }

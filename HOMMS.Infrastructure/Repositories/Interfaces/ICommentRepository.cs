@@ -18,7 +18,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
 
         Task<IEnumerable<Comment>> GetFeedbackByOrderIdAndBranchAsync(int OrderId, int BranchId);
         Task<IEnumerable<Comment>> GetFeedbackByUserIdAndBranchAsync(string UserId);
-
+        Task<IEnumerable<Comment>> GetFeedbackByUserIdAndActruallBranchAsync(string UserId, int BranchId);
     }
 }
 
