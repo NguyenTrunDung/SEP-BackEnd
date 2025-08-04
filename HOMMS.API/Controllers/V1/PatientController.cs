@@ -29,7 +29,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpGet("by-branch")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsByBranch([FromQuery] int branchId)
         {
             try
@@ -47,7 +47,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpGet("active-by-branch")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetActivePatientsByBranch([FromQuery] int branchId)
         {
 
@@ -60,7 +60,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpGet]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<PatientDto>>> GetById([FromQuery] string id)
         {
 
@@ -74,7 +74,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("by-medical-record-number")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<PatientDto>>> GetPatientByMedicalRecordNumber([FromQuery] int branchId, [FromQuery] string medicalRecordNumber)
         {
 
@@ -87,7 +87,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("with-disease-categories")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<PatientDto>>> GetPatientWithDiseaseCategories([FromQuery] string patientId)
         {
 
@@ -100,7 +100,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("by-physician")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsByPhysician([FromQuery] int branchId, [FromQuery] string physicianName)
         {
             var pa = await _patientService.GetPatientsByPhysicianAsync(branchId, physicianName);
@@ -113,7 +113,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpGet("by-external-id")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<PatientDto>>> GetPatientByExternalId([FromQuery] string externalSystemId)
         {
             var pa = await _patientService.GetPatientByExternalIdAsync(externalSystemId);
@@ -127,7 +127,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("by-room")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsByRoom([FromQuery] int branchId, [FromQuery] string roomNumber)
         {
             var pa = await _patientService.GetPatientsByRoomAsync(branchId, roomNumber);
@@ -142,7 +142,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("needing-sync")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsNeedingSync([FromQuery] int branchId, [FromQuery] DateTime lastSyncThreshold)
         {
             var pa = await _patientService.GetPatientsNeedingSyncAsync(branchId, lastSyncThreshold);
@@ -156,7 +156,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("dietary-supervision")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsRequiringDietarySupervision([FromQuery] int branchId)
         {
             var pa = await _patientService.GetPatientsRequiringDietarySupervisionAsync(branchId);
@@ -173,7 +173,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("with-disease-categories-by-branch")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsWithDiseaseCategoriesByBranch([FromQuery] int branchId)
         {
             var pa = await _patientService.GetPatientsWithDiseaseCategoriesByBranchAsync(branchId);
@@ -188,7 +188,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("recently-discharged")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetRecentlyDischargedPatients([FromQuery] int branchId, [FromQuery] DateTime fromDate)
         {
             var pa = await _patientService.GetRecentlyDischargedPatientsAsync(branchId, fromDate);
@@ -202,7 +202,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("search")]
-        [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> SearchPatients([FromQuery] int branchId, [FromQuery] string searchTerm)
         {
             var pa = await _patientService.SearchPatientsAsync(branchId, searchTerm);
@@ -216,7 +216,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("bulk-update")]
-        [Authorize(Policy = "Permission:Patient:edit")]
+        //[Authorize(Policy = "Permission:Patient:edit")]
         public async Task<ActionResult<int>> BulkUpdateLastSync([FromQuery] string patientIds, [FromQuery] DateTime syncTime)
         {
             try
@@ -238,7 +238,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpPost]
-        [Authorize(Policy = "Permission:Patient:add")]
+        //[Authorize(Policy = "Permission:Patient:add")]
         public async Task<ActionResult<ApiResponseBase<PatientDto>>> CreatePatient([FromBody] CreatePatientDto entity)
         {
             try
@@ -255,7 +255,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "Permission:Patient:edit")]
+        //[Authorize(Policy = "Permission:Patient:edit")]
         public async Task<ActionResult<ApiResponseBase<PatientDto>>> UpdatePatient(string id, [FromBody] UpdatePatientDto entity)
         {
             try
@@ -277,7 +277,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "Permission:Patient:delete")]
+        //[Authorize(Policy = "Permission:Patient:delete")]
         public async Task<ActionResult<ApiResponseBase<object>>> DeletePatient(string id)
         {
             try
