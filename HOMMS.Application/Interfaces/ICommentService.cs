@@ -17,6 +17,7 @@ namespace HOMMS.Application.Interfaces
         Task<IEnumerable<CommentDto>> GetAllFeedbackByBranchAsync(int BranchId);
         Task<IEnumerable<CommentDto>> GetFeedbackByOrderIdAndBranchAsync(int OrderId, int BranchId);
         Task<IEnumerable<CommentDto>> GetFeedbackByUserIdAndBranchAsync(string UserId);
+        Task<IEnumerable<CommentDto>> GetFeedbackByUserIdAndActruallBranchAsync(string UserId, int BranchId);
         Task<IEnumerable<CommentDto>> GetRatingByStarAndOrderAndBranchAsync(int star, int OrderId, int BranchId);
 
         Task<CommentDto> CreateFeedbackAsync(CommentDto dto);

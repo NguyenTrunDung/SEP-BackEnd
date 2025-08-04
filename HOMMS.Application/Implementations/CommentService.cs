@@ -117,5 +117,11 @@ namespace HOMMS.Application.Implementations
             var feed = await _repository.GetFeedbackByUserIdAndBranchAsync(UserId);
             return _mapper.Map<IEnumerable<CommentDto>>(feed);
         }
+
+        public async Task<IEnumerable<CommentDto>> GetFeedbackByUserIdAndActruallBranchAsync(string UserId, int BranchId)
+        {
+            var feed = await _repository.GetFeedbackByUserIdAndActruallBranchAsync(UserId, BranchId);
+            return _mapper.Map<IEnumerable<CommentDto>>(feed);
+        }
     }
 }

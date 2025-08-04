@@ -80,6 +80,16 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<List<CommentDto>>(feedsDto, "Feedback retrieved successfully", "success", count));
         }
 
+        [HttpGet("By-User-Branch")]
+        public async Task<ActionResult<ApiResponseBase<List<CommentDto>>>> GetFeedbackByUserIdAndActruallBranchAsync([FromQuery] string UserId, [FromQuery] int branchId)
+        {
+            var feed = await _feedbackService.GetFeedbackByUserIdAndActruallBranchAsync(UserId,branchId);
+            if (feed == null) return NotFound(new ApiResponseBase<List<CommentDto>>(null, "Feedback not found", "error", 0));
+            var feedsDto = _mapper.Map<List<CommentDto>>(feed);
+            var count = feedsDto.Count;
+            return Ok(new ApiResponseBase<List<CommentDto>>(feedsDto, "Feedback retrieved successfully", "success", count));
+        }
+
 
         [HttpGet("By-Star")]
         public async Task<ActionResult<ApiResponseBase<List<CommentDto>>>> GetAllFeedbackByBranchAndStar([FromQuery] int star, [FromQuery] int OrderId, [FromQuery] int branchId)

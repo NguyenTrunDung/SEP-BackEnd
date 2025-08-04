@@ -74,7 +74,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("by-medical-record-number")]
-       // [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<PatientDto>>> GetPatientByMedicalRecordNumber([FromQuery] int branchId, [FromQuery] string medicalRecordNumber)
         {
 
@@ -100,7 +100,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("by-physician")]
-       // [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsByPhysician([FromQuery] int branchId, [FromQuery] string physicianName)
         {
             var pa = await _patientService.GetPatientsByPhysicianAsync(branchId, physicianName);
@@ -127,7 +127,7 @@ namespace HOMMS.API.Controllers.V1
 
 
         [HttpGet("by-room")]
-       // [Authorize(Policy = "Permission:Patient:view")]
+        //[Authorize(Policy = "Permission:Patient:view")]
         public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsByRoom([FromQuery] int branchId, [FromQuery] string roomNumber)
         {
             var pa = await _patientService.GetPatientsByRoomAsync(branchId, roomNumber);

@@ -61,7 +61,7 @@ namespace HOMMS.API.Controllers.V1
         [HttpPost]
 
         [Authorize(Policy = "Permission:systemlog:view")]
-        public async Task<ActionResult<ApiResponseBase<CommentDto>>> AddSystemLog([FromForm] AddSystemLogDto dto)
+        public async Task<ActionResult<ApiResponseBase<SystemLogDto>>> AddSystemLog([FromForm] AddSystemLogDto dto)
 
         {
            var sys = await _systemLogService.AddSystemLog(dto);
