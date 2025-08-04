@@ -145,6 +145,8 @@ namespace HOMMS.Domain.Dtos
         /// Gets or sets the set dish details
         /// </summary>
         public object? SetDishDetails { get; set; }
+
+        public List<CommentDto>? Comments { get; set; }
     }
 
     /// <summary>

@@ -20,11 +20,11 @@ namespace HOMMS.Application.Interfaces
         Task<IEnumerable<CommentDto>> GetFeedbackByUserIdAndActruallBranchAsync(string UserId, int BranchId);
         Task<IEnumerable<CommentDto>> GetRatingByStarAndOrderAndBranchAsync(int star, int OrderId, int BranchId);
 
-        Task<CommentDto> CreateFeedbackAsync(CommentDto dto);
-        Task<CommentDto> UpdateFeedbackAsync(int id, CommentDto dto);
+        Task<CommentDto> CreateFeedbackAsync(CRUDCommentDto dto);
+        Task<CommentDto> UpdateFeedbackAsync(int id, CRUDCommentDto dto);
         Task<bool> DeleteFeedbackAsync(int id);
 
-        Task<bool> CheckDuplicateAsync(string UserId, int OrderId, int BranchId);
+        Task<bool> CheckDuplicateAsync(string UserId, int? OrderId, int? FoodId, int BranchId);
 
 
 

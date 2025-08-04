@@ -18,7 +18,7 @@ namespace HOMMS.Domain.Dtos
        
         public string? CommentLines { get; set; }
 
-
+        public int FoodId { get; set; }
 
         public int OrderId { get; set; }
         
@@ -29,11 +29,33 @@ namespace HOMMS.Domain.Dtos
         public int BranchId { get; set; }
 
 
-   
+
+    }
+
+
+    public class CRUDCommentDto
+    {
+
+        
+
+        public int? Star { get; set; }
+
+
+        public string? CommentLines { get; set; }
+
+        public int? FoodId { get; set; }
+
+        public int? OrderId { get; set; }
+
+
+        public string UserId { get; set; }
+
+
+        public int BranchId { get; set; }
 
 
 
     }
 
-    
+
 }

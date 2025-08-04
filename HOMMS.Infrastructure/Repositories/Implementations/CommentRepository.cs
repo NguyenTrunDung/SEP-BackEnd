@@ -51,11 +51,11 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                   .ToListAsync();
         }
 
-        public async Task<Comment> CheckDuplicateAsync(string UserId, int OrderId, int BranchId)
+        public async Task<Comment> CheckDuplicateAsync(string UserId, int? OrderId, int? FoodId, int BranchId)
         {
             return await DbSet
                   .AsNoTracking()
-                  .FirstOrDefaultAsync(c => c.BranchId == BranchId && c.UserId == UserId && c.OrderId == OrderId);
+                  .FirstOrDefaultAsync(c => c.BranchId == BranchId && c.UserId == UserId && ((OrderId != null && c.OrderId == OrderId) || (FoodId != null && c.FoodId == FoodId)));
                 
         }
 

@@ -12,7 +12,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
     {
 
         Task<IEnumerable<Comment>> GetRatingByStarAndOrderAndBranchAsync(int star, int OrderId, int BranchId);
-        Task<Comment> CheckDuplicateAsync(string UserId, int OrderId, int BranchId);
+        Task<Comment> CheckDuplicateAsync(string UserId, int? OrderId, int? FoodId, int BranchId);
 
         Task<IEnumerable<Comment>> GetAllFeedbackByBranchAsync(int BranchId);
 

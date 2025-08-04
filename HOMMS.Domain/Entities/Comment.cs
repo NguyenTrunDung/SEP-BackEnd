@@ -15,9 +15,10 @@ namespace HOMMS.Domain.Entities
         [StringLength(255)]
         public string? CommentLines { get; set; }
 
+        public int? FoodId { get; set; }
+        public virtual Food? Food { get; set; }
 
-
-        public int OrderId { get; set; }
+        public int? OrderId { get; set; }
         public virtual Order? Order { get; set; }
 
 
