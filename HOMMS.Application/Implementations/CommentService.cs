@@ -72,7 +72,7 @@ namespace HOMMS.Application.Implementations
 
         public async Task<IEnumerable<CommentDto>> GetAllFeedbackAsync()
         {
-            var feed = await _repository.GetAllAsync();
+            var feed = await _repository.GetAllFeedbackAsync();
             return _mapper.Map<IEnumerable<CommentDto>>(feed);
         }
 
@@ -80,7 +80,7 @@ namespace HOMMS.Application.Implementations
 
         public async Task<CommentDto> GetFeedbackByIdAsync(int id)
         {
-            var feed = await _repository.GetByIdAsync(id);
+            var feed = await _repository.GetFeedbackByIdAsync(id);
             return _mapper.Map<CommentDto>(feed);
         }
 
