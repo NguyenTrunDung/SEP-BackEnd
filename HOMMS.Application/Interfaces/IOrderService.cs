@@ -54,6 +54,7 @@ namespace HOMMS.Application.Interfaces
             DateTime? endReceiveDate = null,
             string? receiveTime = null,
             string? status = null,
+            bool? IsPatientOrder = null,
             string? customerName = null,
             string? customerPhone = null,
             int? minTotal = null,

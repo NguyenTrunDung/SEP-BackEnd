@@ -131,7 +131,6 @@ namespace HOMMS.Application.Implementations
         public async Task<OrderDto> AddPatientOrderAsync(CreatePatientOrderDto entity)
         {
             var or = _mapper.Map<Order>(entity);
-            var pa = await _patientRepository.GetByIdAsync(entity.PatientId);
             var saved = await _orderRepository.AddAsync(or);        
             return _mapper.Map<OrderDto>(or);
         }
@@ -182,6 +181,7 @@ namespace HOMMS.Application.Implementations
             DateTime? endReceiveDate = null,
             string? receiveTime = null,
             string? status = null,
+            bool? IsPatientOrder = null,
             string? customerName = null,
             string? customerPhone = null,
             int? minTotal = null,
@@ -198,6 +198,7 @@ namespace HOMMS.Application.Implementations
                 endReceiveDate,
                 receiveTime,
                 status,
+                IsPatientOrder,
                 customerName,
                 customerPhone,
                 minTotal,

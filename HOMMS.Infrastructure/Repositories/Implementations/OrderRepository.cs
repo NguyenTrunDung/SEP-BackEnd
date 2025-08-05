@@ -158,6 +158,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             DateTime? endReceiveDate = null,
             string? receiveTime = null,
             string? status = null,
+            bool? IsPatientOrder = null,
             string? customerName = null,
             string? customerPhone = null,
             int? minTotal = null,
@@ -180,6 +181,12 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                     (o.ReceiveTime != null && o.ReceiveTime.Contains(keyword))
                 );
             }
+
+
+            if (IsPatientOrder == true)
+                query = query.Where(o => o.IsPatientOrder == true);
+
+
 
             // Apply date filters
             if (startOrderDate.HasValue)
