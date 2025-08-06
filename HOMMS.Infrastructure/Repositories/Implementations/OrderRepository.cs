@@ -157,17 +157,18 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             DateTime? startReceiveDate = null,
             DateTime? endReceiveDate = null,
             string? receiveTime = null,
-            string? status = null,
+
             bool? IsPatientOrder = null,
             string? customerName = null,
             string? customerPhone = null,
             int? minTotal = null,
             int? maxTotal = null,
             string? code = null,
-            string? keyword = null,
-            bool? isPaid = null)
+            string? keyword = null)
         {
             var query = _context.Orders.Where(o => o.BranchId == branchId);
+
+
 
             // Apply keyword search if provided
             if (!string.IsNullOrWhiteSpace(keyword))
@@ -177,16 +178,22 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                     (o.Code != null && o.Code.Contains(keyword)) ||
                     (o.CustomerName != null && o.CustomerName.Contains(keyword)) ||
                     (o.CustomerPhone != null && o.CustomerPhone.Contains(keyword)) ||
-                    (o.Status != null && o.Status.Contains(keyword)) ||
+
                     (o.ReceiveTime != null && o.ReceiveTime.Contains(keyword))
                 );
             }
 
 
-            if (IsPatientOrder == true)
+            if (IsPatientOrder == true) {
                 query = query.Where(o => o.IsPatientOrder == true);
+            }
+            else
+            {
+                query = query.Where(o => o.IsPatientOrder == false);
+            }
 
-
+                query = query.Where(o => o.Status == "Completed" && o.IsPaid == true);
+           
 
             // Apply date filters
             if (startOrderDate.HasValue)
@@ -204,8 +211,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             if (!string.IsNullOrWhiteSpace(receiveTime))
                 query = query.Where(o => o.ReceiveTime != null && o.ReceiveTime.Contains(receiveTime));
 
-            if (!string.IsNullOrWhiteSpace(status))
-                query = query.Where(o => o.Status == status);
+             
+               
 
             if (!string.IsNullOrWhiteSpace(customerName))
                 query = query.Where(o => o.CustomerName != null && o.CustomerName.Contains(customerName));
@@ -221,9 +228,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             if (!string.IsNullOrWhiteSpace(code))
                 query = query.Where(o => o.Code != null && o.Code.Contains(code));
 
-            // Apply payment status filter
-            if (isPaid.HasValue)
-                query = query.Where(o => o.IsPaid == isPaid.Value);
+
+               
 
             // Apply Include statements at the end to load related entities
             return await query
