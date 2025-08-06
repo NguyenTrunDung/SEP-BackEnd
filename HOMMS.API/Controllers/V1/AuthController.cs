@@ -190,6 +190,30 @@ namespace HOMMS.API.Controllers.V1
             return Ok("Password reset successful. You can now login with your new password.");
         }
 
+
+
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+                return BadRequest("User not found.");
+
+            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("Password reset successful. You can now login with your new password.");
+        }
+
+
+
         //-------------------------------------------------------------//
 
         //Login with google
