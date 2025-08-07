@@ -168,7 +168,7 @@ namespace HOMMS.API.Controllers.V1
 
 
             //Send Email
-            var confirmationLink = GenerateOtp(6);
+            var confirmationLink =  new Random().Next(100000, 999999).ToString();
             var message = new MessageDto(user.Email, "Confirmation OTP", $"<h2>Xác nhận tài khoản</h2><p>Mã OTP của bạn là:</p><a>{confirmationLink}</a>");
 
             await _emailVerifyService.SendEmailAsync(message);
@@ -180,25 +180,6 @@ namespace HOMMS.API.Controllers.V1
         }
 
 
-        public static string GenerateOtp(int length = 6)
-        {
-            const string digits = "0123456789";
-            var otp = new char[length];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                byte[] data = new byte[1];
-                for (int i = 0; i < length; i++)
-                {
-                    do
-                    {
-                        rng.GetBytes(data);
-                    }
-                    while (data[0] >= digits.Length * (byte.MaxValue / digits.Length));
-                    otp[i] = digits[data[0] % digits.Length];
-                }
-            }
-            return new string(otp);
-        }
 
 
 
