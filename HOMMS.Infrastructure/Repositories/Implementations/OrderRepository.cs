@@ -29,6 +29,14 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             return await DbSet.Where(o => o.BranchId == branchId && (o.Status == "Preparing" || o.Status == "Completed"))
                 .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Food)
+                        .ThenInclude(f => f.Category)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Menu)
+                .Include(o => o.Patient)
+                .Include(o => o.Branch)
+                .Include(o => o.Location)
+
                 .OrderBy(o => o.Status == "Completed")      //Ensures "Preparing" orders come first
                 .ThenByDescending(o => o.OrderDate)         //Sorts by lastest date
                 .ToListAsync();
@@ -54,6 +62,15 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             return await _context.Orders
                                  .Where(o => o.BranchId == branchId)
+                                 .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Food)
+                        .ThenInclude(f => f.Category)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Menu)
+                .Include(o => o.Patient)
+                .Include(o => o.Branch)
+                .Include(o => o.Location)
+                .OrderBy(o => o.OrderDate)
                                  .ToListAsync();
         }
 
@@ -107,16 +124,33 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 query = query.Where(o => o.Total.HasValue && o.Total.Value <= maxTotal.Value);
 
             // Lọc theo Code (tìm kiếm chứa)
-            if (!string.IsNullOrWhiteSpace(code))
+            if (!string.IsNullOrWhiteSpace(code)) 
                 query = query.Where(o => o.Code != null && o.Code.Contains(code));
 
-            return await query.ToListAsync();
+            return await query.Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Food)
+                        .ThenInclude(f => f.Category)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Menu)
+                .Include(o => o.Patient)
+                .Include(o => o.Branch)
+                .Include(o => o.Location)
+                .ToListAsync();
         }
 
         public async Task<List<Order>> SearchOrdersAsync(string keyword)
         {
             if (string.IsNullOrWhiteSpace(keyword))
-                return await _context.Orders.ToListAsync();
+                return await _context.Orders
+                    .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Food)
+                        .ThenInclude(f => f.Category)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Menu)
+                .Include(o => o.Patient)
+                .Include(o => o.Branch)
+                .Include(o => o.Location)
+                .ToListAsync();
 
             keyword = keyword.Trim();
 
@@ -128,6 +162,15 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                                      (o.Status != null && o.Status.Contains(keyword)) ||
                                      (o.ReceiveTime != null && o.ReceiveTime.Contains(keyword))
                                  )
+                                 .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Food)
+                        .ThenInclude(f => f.Category)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Menu)
+                .Include(o => o.Patient)
+                .Include(o => o.Branch)
+                .Include(o => o.Location)
+          
                                  .ToListAsync();
         }
 
@@ -184,7 +227,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             }
 
 
-            if (IsPatientOrder == true) {
+            if (IsPatientOrder == true)
+            {
                 query = query.Where(o => o.IsPatientOrder == true);
             }
             else
@@ -192,8 +236,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 query = query.Where(o => o.IsPatientOrder == false);
             }
 
-                query = query.Where(o => o.Status == "Completed" && o.IsPaid == true);
-           
+            query = query.Where(o => o.Status == "Completed" && o.IsPaid == true);
+
 
             // Apply date filters
             if (startOrderDate.HasValue)
@@ -211,8 +255,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             if (!string.IsNullOrWhiteSpace(receiveTime))
                 query = query.Where(o => o.ReceiveTime != null && o.ReceiveTime.Contains(receiveTime));
 
-             
-               
+
+
 
             if (!string.IsNullOrWhiteSpace(customerName))
                 query = query.Where(o => o.CustomerName != null && o.CustomerName.Contains(customerName));
@@ -229,7 +273,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 query = query.Where(o => o.Code != null && o.Code.Contains(code));
 
 
-               
+
 
             // Apply Include statements at the end to load related entities
             return await query
@@ -250,7 +294,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public async Task<List<Order>> GetOrdersByStatusPreparingAsync(int branchId)
         {
             return await _context.Orders
-                .Where(o => o.BranchId == branchId && o.Status == "Confirmed")
+                .Where(o => o.BranchId == branchId && o.Status == "Preparing")
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Food)
                         .ThenInclude(f => f.Category)
