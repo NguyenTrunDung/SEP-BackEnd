@@ -1,26 +1,26 @@
-using HOMMS.Domain.Entities;
 using Asp.Versioning;
-
 using HOMMS.Application.Interfaces;
+using HOMMS.Common.Constants;
 using HOMMS.Common.Helpers;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
+using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Data;
+using HOMMS.Infrastructure.Data;
+using HOMMS.Infrastructure.Seeds;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Graph.Models;
-using System.Threading.Tasks;
-using HOMMS.Infrastructure.Data;
-using HOMMS.Common.Constants;
-using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using HOMMS.Infrastructure.Seeds;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Graph.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -166,10 +166,42 @@ namespace HOMMS.API.Controllers.V1
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
+
+            //Send Email
+            var confirmationLink = GenerateOtp(6);
+            var message = new MessageDto(user.Email, "Confirmation OTP", $"<h2>Xác nhận tài khoản</h2><p>Mã OTP của bạn là:</p><a>{confirmationLink}</a>");
+
+            await _emailVerifyService.SendEmailAsync(message);
+
+
             // In a real application, send email with reset link
             // For demo purposes, we'll just return the token
-            return Ok(new { Message = "Password reset token generated successfully.", Token = token });
+            return Ok(new { Message = "Password reset token generated successfully.", Token = token , OTP= confirmationLink });
         }
+
+
+        public static string GenerateOtp(int length = 6)
+        {
+            const string digits = "0123456789";
+            var otp = new char[length];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] data = new byte[1];
+                for (int i = 0; i < length; i++)
+                {
+                    do
+                    {
+                        rng.GetBytes(data);
+                    }
+                    while (data[0] >= digits.Length * (byte.MaxValue / digits.Length));
+                    otp[i] = digits[data[0] % digits.Length];
+                }
+            }
+            return new string(otp);
+        }
+
+
+
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
