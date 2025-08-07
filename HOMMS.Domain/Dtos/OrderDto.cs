@@ -63,8 +63,8 @@ namespace HOMMS.Domain.Dtos
     /// </summary>
     public class UpdateOrderDto
     {
-      
-        public bool IsPatientOrder { get; set; }
+
+        public bool IsPatientOrder { get; set; } = false;
 
         public DateTime OrderDate { get; set; }
         public DateTime? ReceiveDate { get; set; }
@@ -102,18 +102,52 @@ namespace HOMMS.Domain.Dtos
     /// </summary>
     public class CreatePatientOrderDto
     {
-        [Required]
-        public string PatientId { get; set; } = string.Empty;
-        
+      
+        public int BranchId { get; set; }
+        public string? UserId { get; set; }
+        public string? PatientId { get; set; }
+        public bool IsPatientOrder { get; set; } = true;
+
+        public DateTime OrderDate { get; set; }
         public DateTime? ReceiveDate { get; set; }
         public string? ReceiveTime { get; set; }
         public string? ReceiveType { get; set; }
-        public OrderPaymentMethod PaymentMethod { get; set; } = OrderPaymentMethod.Cash;
+        public string? Type { get; set; }
+        public string? Status { get; set; }
+
+        // Customer information
+        public string? CustomerName { get; set; }
+        public string? CustomerPhone { get; set; }
+        public string? CustomerAddress { get; set; }
+
+        // Pricing
+        public int? Total { get; set; }
+        public int? ShippingFee { get; set; }
+        public int? FoodToolFee { get; set; }
+        public OrderPaymentMethod PaymentMethod { get; set; }
+        public bool IsPaid { get; set; }
         public long? WalletAmountUsed { get; set; }
+
+        public string? Code { get; set; }
         public string? Note { get; set; }
-        
-        [Required]
-        public List<CreateOrderDetailDto> OrderDetails { get; set; } = new List<CreateOrderDetailDto>();
+
+        // Patient-specific information (when IsPatientOrder = true)
+        public string? PatientName { get; set; }
+        public string? PatientMedicalRecordNumber { get; set; }
+        public string? PatientRoomNumber { get; set; }
+        public string? PatientBedNumber { get; set; }
+        public string? AttendingPhysician { get; set; }
+        public bool RequiresDietarySupervision { get; set; }
+
+        // Related data
+        public string BranchName { get; set; } = string.Empty;
+        public List<OrderDetailsDto> OrderDetails { get; set; } = new List<OrderDetailsDto>();
+
+        // Computed properties
+        public string OrderTypeDisplay => IsPatientOrder ? "Đơn hàng bệnh nhân" : "Đơn hàng khách hàng";
+        public string LocationDisplay => !string.IsNullOrEmpty(PatientRoomNumber)
+            ? $"Phòng {PatientRoomNumber}" + (!string.IsNullOrEmpty(PatientBedNumber) ? $" - Giường {PatientBedNumber}" : "")
+            : CustomerAddress ?? "";
     }
     
     /// <summary>
@@ -125,7 +159,7 @@ namespace HOMMS.Domain.Dtos
         public int FoodId { get; set; }
         
         [Required]
-        [Range(1, int.MaxValue)]
+       
         public int Quantity { get; set; }
         
         public string? Note { get; set; }

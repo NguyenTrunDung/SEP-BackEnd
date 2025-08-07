@@ -29,21 +29,26 @@ namespace HOMMS.Application.Implementations
         {
             var rev = await _revenueRepository.GetRevenueByDayAsync(branchId, date);
 
-            var ven = new ChartOrderDto
-            {
-                Date = date.ToString("dd/MM"),
-                OrderCount = rev.Count(),
-                TotalAmount = rev.Sum(o => o.Total ?? 0),
-                QuantityFood = rev.Sum(o => o.OrderDetails.Sum(od => od.Qty))
-            };
-                
+            var ven = rev
+                .GroupBy(r => r.OrderDate.Hour)
+                .SelectMany(g => g.Select(e =>
+
+                new ChartOrderDto
+                {
+                    Date = $"{date:dd/MM} {g.Key:D2}:00",
+                    OrderCount = 1,
+                    TotalAmount = e.Total ?? 0,
+                    QuantityFood = e.OrderDetails.Sum(re => re.Qty),
+                }))
+                .OrderBy(c => DateTime.ParseExact(c.Date, "dd/MM HH:mm", null))
+                .ToList(); // Explicitly convert to List<ChartOrderDto>
 
             var nue = new RevenueDto
             {
                 Order = rev.Count(),
                 Total = rev.Sum(o => o.Total ?? 0),
                 QuantityFood = rev.Sum(r => r.OrderDetails.Sum(re => re.Qty)),
-                ChartOrders = new List<ChartOrderDto> { ven }
+                ChartOrders = ven // No error now as ven is explicitly a List<ChartOrderDto>
             };
 
             return new List<RevenueDto> { nue };
@@ -83,15 +88,15 @@ namespace HOMMS.Application.Implementations
 
             var ven = rev
                 .Where(r => r.OrderDate.Year == date.Year)
-                .GroupBy(r => r.OrderDate.Month )
+                .GroupBy(r => r.OrderDate.Date)
               .Select(e => new ChartOrderDto
               {
-                  Date = new DateTime(date.Year, e.Key, 1).ToString("MM/yyyy"),
+                  Date = e.Key.ToString("dd/MM"),
                   OrderCount = e.Count(),
                   TotalAmount = e.Sum(o => o.Total ?? 0),
                   QuantityFood = e.Sum(o => o.OrderDetails.Sum(od => od.Qty))
               })
-                .OrderBy(c => DateTime.ParseExact(c.Date, "MM/yyyy", null))
+                .OrderBy(c => DateTime.ParseExact(c.Date, "dd/MM", null))
                 .ToList();
 
             var nue = new RevenueDto
@@ -112,15 +117,15 @@ namespace HOMMS.Application.Implementations
             var rev = await _revenueRepository.GetRevenueByYearAsync(branchId, date);
 
             var ven = rev
-                .GroupBy(r => r.OrderDate.Year)
+                .GroupBy(r => r.OrderDate.Date)
                .Select(e => new ChartOrderDto
                {
-                   Date = e.Key.ToString(),
+                   Date = e.Key.ToString("dd/MM"),
                    OrderCount = e.Count(),
                    TotalAmount = e.Sum(o => o.Total ?? 0),
                    QuantityFood = e.Sum(o => o.OrderDetails.Sum(od => od.Qty))
                })
-                .OrderBy(c => int.Parse(c.Date))
+               .OrderBy(c => DateTime.ParseExact(c.Date, "dd/MM", null))
                 .ToList();
 
             var nue = new RevenueDto

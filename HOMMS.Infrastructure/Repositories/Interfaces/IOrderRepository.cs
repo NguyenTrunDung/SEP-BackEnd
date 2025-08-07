@@ -55,14 +55,14 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
             DateTime? startReceiveDate = null,
             DateTime? endReceiveDate = null,
             string? receiveTime = null,
-            string? status = null,
+            
+            bool? IsPatientOrder = null,
             string? customerName = null,
             string? customerPhone = null,
             int? minTotal = null,
             int? maxTotal = null,
             string? code = null,
-            string? keyword = null,
-            bool? isPaid = null
+            string? keyword = null
         );
 
         /// <summary>

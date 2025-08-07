@@ -190,6 +190,30 @@ namespace HOMMS.API.Controllers.V1
             return Ok("Password reset successful. You can now login with your new password.");
         }
 
+
+
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+                return BadRequest("User not found.");
+
+            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("Password reset successful. You can now login with your new password.");
+        }
+
+
+
         //-------------------------------------------------------------//
 
         //Login with google
@@ -316,6 +340,9 @@ namespace HOMMS.API.Controllers.V1
             if (!string.IsNullOrEmpty(model.ProfilePictureUrl))
                 user.ProfilePictureUrl = model.ProfilePictureUrl;
 
+            if (model.DepartmentId.HasValue)
+                user.DepartmentId = model.DepartmentId;
+
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
@@ -330,6 +357,7 @@ namespace HOMMS.API.Controllers.V1
             public string? Address { get; set; }
             public string? PhoneNumber { get; set; }
             public string? ProfilePictureUrl { get; set; }
+            public int? DepartmentId { get; set; }
         }
 
         //-------------------------------------------------//
@@ -353,7 +381,8 @@ namespace HOMMS.API.Controllers.V1
                 LastName = user.LastName ?? string.Empty, // Fix for CS8601: Ensure non-null value
                 Address = user.Address, // Nullable, no fix needed
                 PhoneNumber = user.PhoneNumber, // Nullable, no fix needed
-                ProfilePictureUrl = user.ProfilePictureUrl // Nullable, no fix needed
+                ProfilePictureUrl = user.ProfilePictureUrl ,// Nullable, no fix needed
+                Department = user.DepartmentId
             });
         }
 

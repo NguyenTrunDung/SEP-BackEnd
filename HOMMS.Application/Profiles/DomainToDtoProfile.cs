@@ -138,7 +138,8 @@ namespace HOMMS.Application.Profiles
             // Feedback mappings
             CreateMap<Comment, CommentDto>();
             CreateMap<CommentDto, Comment>();
-
+            CreateMap<Comment, CRUDCommentDto>();
+            CreateMap<CRUDCommentDto, Comment>();
 
 
             // DiseaseCategoryFoodRestriction mappings
