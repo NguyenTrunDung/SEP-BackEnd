@@ -109,5 +109,10 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         [NotMapped]
         public int? CurrentPrice => PriceForGuest;
+
+
+        public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+
     }
 } 

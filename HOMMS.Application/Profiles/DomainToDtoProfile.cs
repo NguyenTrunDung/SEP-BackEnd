@@ -119,6 +119,10 @@ namespace HOMMS.Application.Profiles
             CreateMap<UpdatePatientDto, Patient>();
 
             CreateMap<PatientDiseaseCategory, PatientDiseaseCategoryDto>();
+            CreateMap<PatientDiseaseCategoryDto, PatientDiseaseCategory>();
+            CreateMap<PatientDiseaseCategory, CRUDPatientDiseaseCategoryDto>();
+            CreateMap<CRUDPatientDiseaseCategoryDto, PatientDiseaseCategory>();
+
 
             // Area mappings
             CreateMap<Area, AreaDto>();
@@ -138,7 +142,8 @@ namespace HOMMS.Application.Profiles
             // Feedback mappings
             CreateMap<Comment, CommentDto>();
             CreateMap<CommentDto, Comment>();
-
+            CreateMap<Comment, CRUDCommentDto>();
+            CreateMap<CRUDCommentDto, Comment>();
 
 
             // DiseaseCategoryFoodRestriction mappings

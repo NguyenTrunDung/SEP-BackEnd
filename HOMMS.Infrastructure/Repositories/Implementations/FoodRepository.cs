@@ -23,6 +23,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             return await DbSet
                 .Where(f => f.BranchId == branchId)
+                .Include(f => f.Comments)
                 .OrderBy(f => f.Sort)
                 .ToListAsync();
         }
@@ -32,6 +33,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             return await DbSet
                 .Where(f => f.BranchId == branchId && f.CategoryId == categoryId)
+                 .Include(f => f.Comments)
                 .OrderBy(f => f.Sort)
                 .ToListAsync();
         }
@@ -41,6 +43,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             return await DbSet
                 .Include(f => f.Category)
+                 .Include(f => f.Comments)
                 .FirstOrDefaultAsync(f => f.Id == foodId);
         }
 
@@ -50,6 +53,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
             return await DbSet
                 .Where(f => f.BranchId == branchId)
                 .Include(f => f.Category)
+                 .Include(f => f.Comments)
                 .OrderBy(f => f.Category.Sort)
                 .ThenBy(f => f.Sort)
                 .ThenByDescending(f => f.CreatedAt)
@@ -118,7 +122,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public async Task<IEnumerable<Food>> GetFoodWithDiseaseCategoryFoodRestrictionAsync(int branchId, int categoryId)
         {
             var foods = await DbContext.Set<DiseaseCategoryFoodRestriction>()
-                .Where(fo => fo.DiseaseCategoryId == categoryId && fo.IsActive&& fo.BranchId == branchId)
+                .Where(fo => fo.DiseaseCategoryId == categoryId && fo.IsActive && fo.BranchId == branchId)
                 .Select(r => r.Food)
                 .Where(f => !f.IsDeleted)
                 .Distinct()
@@ -151,8 +155,9 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             var maxSort = await DbSet
                 .Where(f => f.BranchId == branchId)
+                .Include(f => f.Comments)
                 .MaxAsync(f => (int?)f.Sort);
-            
+
             return maxSort ?? 0;
         }
 

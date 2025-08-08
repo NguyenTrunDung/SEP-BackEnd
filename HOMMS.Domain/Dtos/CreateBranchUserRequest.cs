@@ -15,6 +15,7 @@ namespace HOMMS.Domain.Dtos
         public string? PhoneNumber { get; set; }
         public string Password { get; set; }
         public int BranchId { get; set; }
+        public int? DepartmentId { get; set; }
         public int BranchRoleId { get; set; }
         public string CreatedBy { get; set; }
     }
@@ -22,6 +23,7 @@ namespace HOMMS.Domain.Dtos
     {
         public string UserId { get; set; }
         public int BranchId { get; set; }
+        public int? DepartmentId { get; set; }
         public int BranchRoleId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -33,6 +35,7 @@ namespace HOMMS.Domain.Dtos
     {
         public string UserId { get; set; }
         public int BranchId { get; set; }
+        public int? DepartmentId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }
