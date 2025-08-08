@@ -106,7 +106,7 @@ namespace HOMMS.Application.Implementations
                     Date = e.Key.ToString("dd/MM"),
                     OrderCount = e.Count(),
                     TotalAmount = e.Sum(o => o.Total ?? 0),
-                    QuantityFood = e.Sum(o => o.OrderDetails.Sum(od => od.Qty))
+                    QuantityFood = e.Sum(o => o.OrderDetails?.Sum(od => od.Qty) ?? 0)
                 })
                 .OrderBy(c => DateTime.ParseExact(c.Date, "dd/MM", CultureInfo.InvariantCulture))
                 .ToList();
@@ -115,7 +115,7 @@ namespace HOMMS.Application.Implementations
             {
                 Order = rev.Count(),
                 Total = rev.Sum(o => o.Total ?? 0),
-                QuantityFood = rev.Sum(r => r.OrderDetails.Sum(re => re.Qty)),
+                QuantityFood = rev.Sum(r => r.OrderDetails?.Sum(re => re.Qty)??0),
                 ChartOrders = ven
             };
 
@@ -143,7 +143,7 @@ namespace HOMMS.Application.Implementations
             {
                 Order = rev.Count(),
                 Total = rev.Sum(o => o.Total ?? 0),
-                QuantityFood = rev.Sum(r => r.OrderDetails.Sum(re => re.Qty)),
+                QuantityFood = rev.Sum(r => r.OrderDetails?.Sum(re => re.Qty) ?? 0),
                 ChartOrders = ven
             };
 
@@ -171,7 +171,7 @@ namespace HOMMS.Application.Implementations
             {
                 Order = rev.Count(),
                 Total = rev.Sum(o => o.Total ?? 0),
-                QuantityFood = rev.Sum(r => r.OrderDetails.Sum(re => re.Qty)),
+                QuantityFood = rev.Sum(r => r.OrderDetails?.Sum(re => re.Qty) ?? 0),
                 ChartOrders = ven
             };
 

@@ -119,6 +119,10 @@ namespace HOMMS.Application.Profiles
             CreateMap<UpdatePatientDto, Patient>();
 
             CreateMap<PatientDiseaseCategory, PatientDiseaseCategoryDto>();
+            CreateMap<PatientDiseaseCategoryDto, PatientDiseaseCategory>();
+            CreateMap<PatientDiseaseCategory, CRUDPatientDiseaseCategoryDto>();
+            CreateMap<CRUDPatientDiseaseCategoryDto, PatientDiseaseCategory>();
+
 
             // Area mappings
             CreateMap<Area, AreaDto>();

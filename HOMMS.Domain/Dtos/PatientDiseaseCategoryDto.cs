@@ -37,7 +37,47 @@ namespace HOMMS.Domain.Dtos
         public string AssignedByUserName => CreatedBy ?? "System";
         public string LastModifiedByUserName => LastModifiedBy ?? CreatedBy ?? "System";
     }
-    
+
+
+     
+
+
+    public class CRUDPatientDiseaseCategoryDto
+    {
+         
+        public int BranchId { get; set; }
+        public string PatientId { get; set; } = string.Empty;
+        public int DiseaseCategoryId { get; set; }
+
+        public DateTime? DiagnosedDate { get; set; }
+        public int? PatientSeverityLevel { get; set; }
+        public string? PatientSpecificNotes { get; set; }
+        public bool IsActive { get; set; } = true;
+        public DateTime? ExpiryDate { get; set; }
+
+        // Audit information - who assigned and modified this disease category
+        public DateTime CreatedAt { get; set; }
+        public string? CreatedBy { get; set; }
+        public DateTime? LastModifiedAt { get; set; }
+        public string? LastModifiedBy { get; set; }
+
+        // Display properties
+        public string PatientName { get; set; } = string.Empty;
+        public string PatientCode { get; set; } = string.Empty;
+        public string DiseaseCategoryName { get; set; } = string.Empty;
+        public string DiseaseCategoryCode { get; set; } = string.Empty;
+        public string? RoomNumber { get; set; }
+        public string? BedNumber { get; set; }
+
+        // Computed display properties
+        public string AssignedByUserName => CreatedBy ?? "System";
+        public string LastModifiedByUserName => LastModifiedBy ?? CreatedBy ?? "System";
+    }
+
+
+     
+
+
     /// <summary>
     /// DTO for assigning disease categories to patients
     /// </summary>
