@@ -18,6 +18,16 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
         }
 
+        /// <summary>
+        /// Checks if category 14 should be hidden based on current time (after 11:00 AM)
+        /// </summary>
+        private bool ShouldHideCategory14()
+        {
+            var currentTime = DateTime.Now.TimeOfDay;
+            var cutoffTime = new TimeSpan(11, 0, 0); // 11:00 AM
+            return currentTime > cutoffTime;
+        }
+
         /// <inheritdoc/>
         public async Task<IEnumerable<Food>> GetFoodsByBranchAsync(int branchId)
         {
@@ -62,62 +72,79 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
 
         public async Task<IEnumerable<Food>> GetFoodsByBranchAndDateAsync(int branchId, DateTime date)
         {
-            // Get all foods available in menus for the branch and date
-            var menus = await DbContext.Set<Menu>()
+            // Get all foods available in menus for the branch and date with proper includes and ordering
+            var foods = await DbContext.Set<Menu>()
                 .Where(m => m.BranchId == branchId && m.Date.Date == date.Date)
                 .Include(m => m.MenuDetails)
                     .ThenInclude(md => md.Food)
-                .ToListAsync();
-
-            var foods = menus
+                        .ThenInclude(f => f.Category)
+                .Include(m => m.MenuDetails)
+                    .ThenInclude(md => md.Food)
+                        .ThenInclude(f => f.Comments)
                 .SelectMany(m => m.MenuDetails)
                 .Where(md => md.Status == true && md.Food != null)
                 .Select(md => md.Food)
                 .Distinct()
-                .ToList();
+                .OrderBy(f => f.Category.Sort ?? int.MaxValue)
+                .ThenBy(f => f.Sort ?? int.MaxValue)
+                .ToListAsync();
+
+            // Filter out foods from category ID 14 if current time is after 11:00 AM
+            if (ShouldHideCategory14())
+            {
+                foods = foods.Where(f => f.CategoryId != 14).ToList();
+            }
 
             return foods;
         }
 
         public async Task<IEnumerable<FoodCategory>> GetCategoriesByBranchAndDateAsync(int branchId, DateTime date)
         {
-            // Get all categories of foods available in menus for the branch and date
-            var menus = await DbContext.Set<Menu>()
+            // Get all categories of foods available in menus for the branch and date with proper ordering
+            var categories = await DbContext.Set<Menu>()
                 .Where(m => m.BranchId == branchId && m.Date.Date == date.Date)
                 .Include(m => m.MenuDetails)
                     .ThenInclude(md => md.Food)
                         .ThenInclude(f => f.Category)
-                .ToListAsync();
-
-            var categories = menus
                 .SelectMany(m => m.MenuDetails)
                 .Where(md => md.Status == true && md.Food != null && md.Food.Category != null)
                 .Select(md => md.Food.Category)
                 .Distinct()
-                .ToList();
+                .OrderBy(c => c.Sort ?? int.MaxValue)
+                .ToListAsync();
+
+            // Filter out category ID 14 if current time is after 11:00 AM
+            if (ShouldHideCategory14())
+            {
+                categories = categories.Where(c => c.Id != 14).ToList();
+            }
 
             return categories;
         }
 
         public async Task<IEnumerable<Food>> GetFoodsByBranchCategoryAndDateAsync(int branchId, int categoryId, DateTime date)
         {
-            // Get all foods in a category available in menus for the branch and date
-            var menus = await DbContext.Set<Menu>()
+            // If requesting category 14 and it's after 11:00 AM, return empty list
+            if (categoryId == 14 && ShouldHideCategory14())
+            {
+                return new List<Food>();
+            }
+
+            // Get all foods in a category available in menus for the branch and date with proper ordering
+            var foods = await DbContext.Set<Menu>()
                 .Where(m => m.BranchId == branchId && m.Date.Date == date.Date)
                 .Include(m => m.MenuDetails)
                     .ThenInclude(md => md.Food)
-                .ToListAsync();
-
-            var foods = menus
+                        .ThenInclude(f => f.Comments)
                 .SelectMany(m => m.MenuDetails)
                 .Where(md => md.Status == true && md.Food != null && md.Food.CategoryId == categoryId)
                 .Select(md => md.Food)
                 .Distinct()
-                .ToList();
+                .OrderBy(f => f.Sort ?? int.MaxValue)
+                .ToListAsync();
 
             return foods;
         }
-
 
         public async Task<IEnumerable<Food>> GetFoodWithDiseaseCategoryFoodRestrictionAsync(int branchId, int categoryId)
         {
@@ -128,17 +155,15 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .Distinct()
                 .ToListAsync();
 
-
-
             return foods;
         }
-
 
         public async Task AddAndSaveAsync(Food food)
         {
             await DbSet.AddAsync(food);
             await DbContext.SaveChangesAsync();
         }
+
         public async Task<Food?> FindByIdAsync(int id)
         {
             return await DbSet.FirstOrDefaultAsync(f => f.Id == id);
@@ -160,6 +185,5 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
 
             return maxSort ?? 0;
         }
-
     }
 }
