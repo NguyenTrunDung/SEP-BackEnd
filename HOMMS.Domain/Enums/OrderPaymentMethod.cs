@@ -8,21 +8,21 @@ namespace HOMMS.Domain.Enums
         /// <summary>
         /// Cash payment on delivery/pickup
         /// </summary>
-        Cash = 1,
+      //  Cash = 1,
         
         /// <summary>
         /// Payment from user wallet balance
         /// </summary>
-        Wallet = 2,
+        Wallet = 1,
         
         /// <summary>
         /// Free order (promotional, staff meal, etc.)
         /// </summary>
-        Free = 3,
+       // Free = 3,
 
         /// <summary>
         /// Online payment via VNPay gateway
         /// </summary>
-        Vnpay = 4
+        Vnpay = 2
     }
 } 

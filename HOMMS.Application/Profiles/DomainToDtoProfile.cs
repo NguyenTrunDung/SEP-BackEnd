@@ -69,28 +69,77 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
                 .ForMember(dest => dest.Food, opt => opt.MapFrom(src => src.Food));
 
-            // MenuDetail -> MenuDetailDto (existing mapping)
+            // MenuDetail -> MenuDetailDto (existing mapping) - FIXED: Consistent Qty mapping
             CreateMap<MenuDetail, MenuDetailDto>()
-                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Qty));
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Qty ?? 0));
+
+            // MenuDetailDto -> MenuDetail (reverse mapping) - ADDED: Missing reverse mapping
+            CreateMap<MenuDetailDto, MenuDetail>()
+                .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.LastModifiedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore());
 
             // Branch -> BranchDto
             CreateMap<Branch, BranchDto>();
 
             // Order -> OrderDto
-            CreateMap<Order, OrderDto>();
-            CreateMap<OrderDtoV2, Order>();
+            CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails));
+            CreateMap<OrderDtoV2, Order>()
+                .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails))
+                .ForMember(dest => dest.BranchId, opt => opt.MapFrom(src => src.BranchId))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.PatientId))
+                .ForMember(dest => dest.IsPatientOrder, opt => opt.MapFrom(src => src.IsPatientOrder))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate))
+                .ForMember(dest => dest.ReceiveDate, opt => opt.MapFrom(src => src.ReceiveDate))
+                .ForMember(dest => dest.ReceiveTime, opt => opt.MapFrom(src => src.ReceiveTime))
+                .ForMember(dest => dest.ReceiveType, opt => opt.MapFrom(src => src.ReceiveType))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.CustomerName))
+                .ForMember(dest => dest.CustomerPhone, opt => opt.MapFrom(src => src.CustomerPhone))
+                .ForMember(dest => dest.CustomerAddress, opt => opt.MapFrom(src => src.CustomerAddress))
+                .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total))
+                .ForMember(dest => dest.ShippingFee, opt => opt.MapFrom(src => src.ShippingFee))
+                .ForMember(dest => dest.FoodToolFee, opt => opt.MapFrom(src => src.FoodToolFee))
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentMethod))
+                .ForMember(dest => dest.IsPaid, opt => opt.MapFrom(src => src.IsPaid))
+                .ForMember(dest => dest.WalletAmountUsed, opt => opt.MapFrom(src => src.WalletAmountUsed))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
+                .ForMember(dest => dest.LocationId, opt => opt.MapFrom(src => src.LocationId));
             CreateMap<Order, CreatePatientOrderDto>();
 
-            CreateMap<CreatePatientOrderDto, Order>();
-            CreateMap<CreateOrderDetailDto, OrderDetails>();
+            CreateMap<CreatePatientOrderDto, Order>()
+                .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails));
+            
+            // FIXED: Consistent Qty/Quantity mapping for CreateOrderDetailDto
+            CreateMap<CreateOrderDetailDto, OrderDetails>()
+                .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.LastModifiedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderId, opt => opt.Ignore())
+                .ForMember(dest => dest.Price, opt => opt.Ignore())
+                .ForMember(dest => dest.Total, opt => opt.Ignore())
+                .ForMember(dest => dest.Order, opt => opt.Ignore())
+                .ForMember(dest => dest.Food, opt => opt.Ignore())
+                .ForMember(dest => dest.Menu, opt => opt.Ignore());
+            
             CreateMap<UpdateOrderDto, Order>();
 
-            // OrderDetail -> OrderDetailDto
+            // OrderDetail -> OrderDetailDto - FIXED: Consistent Qty mapping
             CreateMap<OrderDetails, OrderDetailsDto>()
                 .ForMember(dest => dest.MenuId, opt => opt.MapFrom(src => src.MenuId))
                 .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
                 .ForMember(dest => dest.FoodId, opt => opt.MapFrom(src => src.FoodId))
-                .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Qty))
+                .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Qty ?? 0)) // FIXED: Handle null Qty
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
                 .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
@@ -102,7 +151,25 @@ namespace HOMMS.Application.Profiles
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.LastModifiedAt))
                 .ForMember(dest => dest.Food, opt => opt.MapFrom(src => src.Food));
-            CreateMap<OrderDetailsDto, OrderDetails>();
+            
+            // OrderDetailsDto -> OrderDetails (reverse mapping) - IMPROVED: Better null handling
+            CreateMap<OrderDetailsDto, OrderDetails>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Qty, opt => opt.MapFrom(src => src.Qty ?? 0)) // FIXED: Handle null Qty
+                .ForMember(dest => dest.FoodId, opt => opt.MapFrom(src => src.FoodId))
+                .ForMember(dest => dest.MenuId, opt => opt.MapFrom(src => src.MenuId))
+                .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total))
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.LastModifiedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.Food, opt => opt.MapFrom(src => src.Food))
+                // Ignore properties that don't exist on the entity
+                .ForMember(dest => dest.Order, opt => opt.Ignore())
+                .ForMember(dest => dest.Menu, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore());
 
             // SystemLog ->  SystemLogDto
             CreateMap<SystemLog, SystemLogDto>();

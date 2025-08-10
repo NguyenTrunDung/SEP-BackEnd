@@ -134,6 +134,17 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         //add order with location
         public async Task<Order> AddOrderV2Async(Order order)
         {
+            // Log the incoming order details
+            Console.WriteLine($"[OrderRepository.AddOrderV2Async] Incoming Order OrderDetails Count: {order?.OrderDetails?.Count ?? 0}");
+            if (order?.OrderDetails != null)
+            {
+                Console.WriteLine("[OrderRepository.AddOrderV2Async] Incoming Order OrderDetails Details:");
+                foreach (var detail in order.OrderDetails)
+                {
+                    Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                }
+            }
+
             if (order.LocationId.HasValue)
             {
                 var location = await _context.Locations.FindAsync(order.LocationId.Value);
@@ -143,6 +154,18 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
 
             await DbSet.AddAsync(order);
             await _context.SaveChangesAsync();
+            
+            // Log the saved order details
+            Console.WriteLine($"[OrderRepository.AddOrderV2Async] Saved Order OrderDetails Count: {order?.OrderDetails?.Count ?? 0}");
+            if (order?.OrderDetails != null)
+            {
+                Console.WriteLine("[OrderRepository.AddOrderV2Async] Saved Order OrderDetails Details:");
+                foreach (var detail in order.OrderDetails)
+                {
+                    Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                }
+            }
+            
             return order;
         }
 

@@ -189,6 +189,19 @@ namespace HOMMS.API.Controllers.V1
                 Console.WriteLine($"[AddOrderV2] DTO PaymentMethod: {dto?.PaymentMethod}");
                 Console.WriteLine($"[AddOrderV2] DTO Status: {dto?.Status}");
                 Console.WriteLine($"[AddOrderV2] DTO OrderDetails Count: {dto?.OrderDetails?.Count ?? 0}");
+                Console.WriteLine($"[AddOrderV2] DTO OrderDetails Object debug: {dto?.OrderDetails}");
+
+
+
+                // Log detailed order details information
+                if (dto?.OrderDetails != null)
+                {
+                    Console.WriteLine("[AddOrderV2] DTO OrderDetails Details:");
+                    foreach (var detail in dto.OrderDetails)
+                    {
+                        Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                    }
+                }
 
                 // Validate the DTO
                 if (dto == null)
@@ -231,8 +244,17 @@ namespace HOMMS.API.Controllers.V1
 
                 // Call the service
                 var orderResult = await _orderService.AddOrderV2Async(dto);
-
+                
+                // Log the result to see what was returned
                 Console.WriteLine($"[AddOrderV2] Service returned successfully. Order ID: {orderResult?.Id}");
+                if (orderResult?.OrderDetails != null)
+                {
+                    Console.WriteLine("[AddOrderV2] Result OrderDetails Details:");
+                    foreach (var detail in orderResult.OrderDetails)
+                    {
+                        Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                    }
+                }
 
                 return Ok(new ApiResponseBase<OrderDto>(orderResult, "Add order v2 successfully"));
             }

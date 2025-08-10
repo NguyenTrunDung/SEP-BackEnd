@@ -162,9 +162,42 @@ namespace HOMMS.Application.Implementations
         //add order with location
         public async Task<OrderDto> AddOrderV2Async(OrderDtoV2 dto)
         {
+            // Log the incoming DTO order details
+            Console.WriteLine($"[OrderService.AddOrderV2Async] Incoming DTO OrderDetails Count: {dto?.OrderDetails?.Count ?? 0}");
+            if (dto?.OrderDetails != null)
+            {
+                Console.WriteLine("[OrderService.AddOrderV2Async] Incoming DTO OrderDetails Details:");
+                foreach (var detail in dto.OrderDetails)
+                {
+                    Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                }
+            }
+
             var order = _mapper.Map<Order>(dto);
+            
+            // Log the mapped Order entity order details
+            Console.WriteLine($"[OrderService.AddOrderV2Async] Mapped Order OrderDetails Count: {order?.OrderDetails?.Count ?? 0}");
+            if (order?.OrderDetails != null)
+            {
+                Console.WriteLine("[OrderService.AddOrderV2Async] Mapped Order OrderDetails Details:");
+                foreach (var detail in order.OrderDetails)
+                {
+                    Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                }
+            }
 
             var result = await _orderRepository.AddOrderV2Async(order);
+            
+            // Log the result from repository
+            Console.WriteLine($"[OrderService.AddOrderV2Async] Repository Result OrderDetails Count: {result?.OrderDetails?.Count ?? 0}");
+            if (result?.OrderDetails != null)
+            {
+                Console.WriteLine("[OrderService.AddOrderV2Async] Repository Result OrderDetails Details:");
+                foreach (var detail in result.OrderDetails)
+                {
+                    Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                }
+            }
 
             return _mapper.Map<OrderDto>(result);
         }
