@@ -144,7 +144,7 @@ namespace HOMMS.Application.Implementations
                 if (!order.IsPaid) // tránh cập nhật lại đơn đã thanh toán
                 {
                     order.IsPaid = true; // Cập nhật trạng thái đơn hàng
-                    order.Status = "Pending";
+                    order.Status = "Completed";
                     order.PaymentMethod = OrderPaymentMethod.Vnpay;
                     await _unitOfWork.SaveChangesAsync();
                 }
