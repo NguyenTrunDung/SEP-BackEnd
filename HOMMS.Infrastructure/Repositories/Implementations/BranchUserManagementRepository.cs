@@ -69,6 +69,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                             equals new {bur.UserId, bur.BranchId }
                           join br in _context.BranchRoles on bur.BranchRoleId equals br.Id
                           where !bu.IsDeleted && bu.BranchId == branchId
+                          orderby bu.CreatedAt descending
                           select new UserDto
                           {
                               UserId = u.Id,

@@ -2,6 +2,7 @@
 using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
+using HOMMS.Domain.Enums;
 using HOMMS.Infrastructure.Repositories.Implementations;
 using HOMMS.Infrastructure.Repositories.Interfaces;
 using Microsoft.Graph.Models;
@@ -19,13 +20,15 @@ namespace HOMMS.Application.Implementations
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
         private readonly IPatientRepository _patientRepository;
+        private readonly IUserWalletService _userWalletService;
 
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderRepository orderRepository, IPatientRepository patientRepository)
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderRepository orderRepository, IPatientRepository patientRepository, IUserWalletService userWalletService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _orderRepository = orderRepository;
             _patientRepository = patientRepository;
+            _userWalletService = userWalletService;
         }
 
         public async Task<IEnumerable<OrderDto>> GetOrderListByChefAsync(int branchId)
@@ -173,6 +176,26 @@ namespace HOMMS.Application.Implementations
                 }
             }
 
+            // Handle wallet payment processing
+            if (dto.PaymentMethod == OrderPaymentMethod.Wallet && !string.IsNullOrEmpty(dto.UserId))
+            {
+                Console.WriteLine($"[OrderService.AddOrderV2Async] Processing wallet payment for user {dto.UserId}, amount: {dto.Total}");
+                
+                // Check if user has sufficient balance
+                var hasSufficientBalance = await _userWalletService.HasSufficientBalanceAsync(dto.UserId, dto.Total ?? 0m);
+                if (!hasSufficientBalance)
+                {
+                    var currentBalance = await _userWalletService.GetWalletBalanceAsync(dto.UserId);
+                    throw new InvalidOperationException($"Số dư không đủ. Cần: {dto.Total}, Số dư hiện tại: {currentBalance}");
+                }
+
+                // Set order as paid since wallet payment is immediate
+                dto.IsPaid = true;
+                dto.Status = "Confirmed";
+                
+                Console.WriteLine($"[OrderService.AddOrderV2Async] Wallet payment validation passed. Order will be marked as paid.");
+            }
+
             var order = _mapper.Map<Order>(dto);
             
             // Log the mapped Order entity order details
@@ -196,6 +219,31 @@ namespace HOMMS.Application.Implementations
                 foreach (var detail in result.OrderDetails)
                 {
                     Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                }
+            }
+
+            // Process wallet deduction after order is successfully created
+            if (dto.PaymentMethod == OrderPaymentMethod.Wallet && !string.IsNullOrEmpty(dto.UserId) && result != null)
+            {
+                try
+                {
+                    Console.WriteLine($"[OrderService.AddOrderV2Async] Deducting {dto.Total} from wallet for order {result.Id}");
+                    var deductionSuccess = await _userWalletService.DeductForOrderAsync(dto.UserId, dto.Total ?? 0m, result.Id, dto.BranchId);
+                    
+                    if (deductionSuccess)
+                    {
+                        Console.WriteLine($"[OrderService.AddOrderV2Async] Successfully deducted {dto.Total} from wallet for order {result.Id}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[OrderService.AddOrderV2Async] WARNING: Failed to deduct from wallet for order {result.Id}");
+                        // Note: Order was created but wallet deduction failed - this should be handled by a compensation mechanism
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[OrderService.AddOrderV2Async] ERROR: Failed to deduct from wallet for order {result.Id}: {ex.Message}");
+                    // Note: Order was created but wallet deduction failed - this should be handled by a compensation mechanism
                 }
             }
 

@@ -27,9 +27,10 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         /// <returns>A list of orders for a chef</returns>
         public async Task<IEnumerable<Order>> GetOrderListByChefAsync(int branchId)
         {
-            return await DbSet.Where(o => o.BranchId == branchId && (o.Status == "Preparing" || o.Status == "Completed"))
+            return await DbSet.Where(o => o.BranchId == branchId && (o.Status == "Confirmed"))
                 .Include(o => o.OrderDetails)
-                .OrderBy(o => o.Status == "Completed")      //Ensures "Preparing" orders come first
+                   .ThenInclude(o => o.Food)
+                .OrderBy(o => o.Status == "Confirmed")      //Ensures "Confirmed" orders come first
                 .ThenByDescending(o => o.OrderDate)         //Sorts by lastest date
                 .ToListAsync();
         }
@@ -43,9 +44,9 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         public async Task<bool> UpdateOrderStatusByChefAsync(int orderId)
         {
             var order = await DbSet.FindAsync(orderId);
-            if (order == null || order.Status != "Preparing") return false;     //Validate order exists and is in "Preparing" status
+            if (order == null || order.Status != "Confirmed") return false;     //Validate order exists and is in "Confirmed" status
 
-            order.Status = "Completed";
+            order.Status = "Delivered";
             await DbContext.SaveChangesAsync();
             return true;
         }
@@ -258,6 +259,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .Include(o => o.Patient)
                 .Include(o => o.Branch)
                 .Include(o => o.Location)
+                .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
         }
 
