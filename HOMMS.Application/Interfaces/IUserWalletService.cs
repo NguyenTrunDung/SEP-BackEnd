@@ -7,7 +7,7 @@ namespace HOMMS.Application.Interfaces
 {
     /// <summary>
     /// Service interface for managing user wallet operations
-    /// All amounts are in VND (Vietnamese Dong) - whole numbers only
+    /// All amounts are in VND (Vietnamese Dong) - decimal type for precision
     /// </summary>
     public interface IUserWalletService
     {
@@ -15,8 +15,8 @@ namespace HOMMS.Application.Interfaces
         /// Gets the current wallet balance for a user in VND
         /// </summary>
         /// <param name="userId">The user ID</param>
-        /// <returns>The current wallet balance in VND</returns>
-        Task<long> GetWalletBalanceAsync(string userId);
+        /// <returns>The current wallet balance in VND as decimal</returns>
+        Task<decimal> GetWalletBalanceAsync(string userId);
         
         /// <summary>
         /// Deposits money to a user's wallet
@@ -27,7 +27,7 @@ namespace HOMMS.Application.Interfaces
         /// <param name="depositedByUserId">ID of the user making the deposit</param>
         /// <param name="branchId">The branch ID where transaction occurs</param>
         /// <returns>The transaction record</returns>
-        Task<UserWalletTransaction> DepositAsync(string userId, long amount, string description, 
+        Task<UserWalletTransaction> DepositAsync(string userId, decimal amount, string description, 
             string depositedByUserId, int branchId);
         
         /// <summary>
@@ -38,7 +38,7 @@ namespace HOMMS.Application.Interfaces
         /// <param name="orderId">The order ID</param>
         /// <param name="branchId">The branch ID</param>
         /// <returns>True if successful, false if insufficient balance</returns>
-        Task<bool> DeductForOrderAsync(string userId, long amount, int orderId, int branchId);
+        Task<bool> DeductForOrderAsync(string userId, decimal amount, int orderId, int branchId);
         
         /// <summary>
         /// Checks if a user has sufficient wallet balance for an amount
@@ -46,7 +46,7 @@ namespace HOMMS.Application.Interfaces
         /// <param name="userId">The user ID</param>
         /// <param name="amount">The amount to check in VND</param>
         /// <returns>True if sufficient balance, false otherwise</returns>
-        Task<bool> HasSufficientBalanceAsync(string userId, long amount);
+        Task<bool> HasSufficientBalanceAsync(string userId, decimal amount);
         
         /// <summary>
         /// Gets deposit history for a user

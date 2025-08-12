@@ -18,11 +18,10 @@ namespace HOMMS.Domain.Entities
         public string Name { get; set; } = string.Empty;
         
         /// <summary>
-        /// Gets or sets the code of the branch (short identifier)
+        /// Gets or sets the code of the branch (short identifier) - Optional
         /// </summary>
-        [Required]
         [StringLength(20)]
-        public string Code { get; set; } = string.Empty;
+        public string? Code { get; set; }
         
         /// <summary>
         /// Gets or sets the address of the branch
@@ -39,17 +38,18 @@ namespace HOMMS.Domain.Entities
         /// <summary>
         /// Gets or sets the contact phone number for the branch
         /// </summary>
+        [Required]
         [StringLength(20)]
-        public string? Phone { get; set; }
+        public string Phone { get; set; } = string.Empty;
         
         /// <summary>
-        /// Gets or sets the contact email for the branch
+        /// Gets or sets the contact email for the branch - Optional
         /// </summary>
         [StringLength(100)]
         public string? Email { get; set; }
         
         /// <summary>
-        /// Gets or sets the description of the branch
+        /// Gets or sets the description of the branch - Optional
         /// </summary>
         [StringLength(500)]
         public string? Description { get; set; }
@@ -90,12 +90,8 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         public virtual ICollection<BranchRole> BranchRoles { get; set; } = new HashSet<BranchRole>();
 
-
-
-
         public virtual ICollection<SystemLog> SystemLogs { get; set; } = new HashSet<SystemLog>();
 
-        
         /// <summary>
         /// Gets or sets the navigation property for disease categories belonging to this branch
         /// </summary>
@@ -106,12 +102,8 @@ namespace HOMMS.Domain.Entities
         /// </summary>
         public virtual ICollection<Patient> Patients { get; set; } = new HashSet<Patient>();
 
- 
-
-
         public virtual ICollection<Comment> comment { get; set; } = new List<Comment>();
 
         public virtual ICollection<Department> department { get; set; } = new List<Department>();
-
     }
 } 

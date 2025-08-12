@@ -295,5 +295,34 @@ namespace HOMMS.API.Controllers.V1
             
             return Ok(new ApiResponseBase<BranchDto>(branchDto, "Current branch retrieved successfully"));
         }
+
+        /// <summary>
+        /// Checks if a branch name is available for use
+        /// </summary>
+        /// <param name="name">Branch name to check</param>
+        /// <param name="excludeId">Branch ID to exclude from check (for updates)</param>
+        /// <returns>True if name is available</returns>
+        [HttpGet("check-name-availability")]
+        public async Task<ActionResult<ApiResponseBase<object>>> CheckNameAvailability(
+            [FromQuery] string name, 
+            [FromQuery] int? excludeId = null)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return BadRequest(new ApiResponseBase<object>(null, "Name parameter is required", "error"));
+                }
+
+                var isAvailable = await _branchService.IsBranchNameAvailableAsync(name, excludeId);
+                var message = isAvailable ? "Branch name is available" : "Branch name already exists";
+                
+                return Ok(new ApiResponseBase<object>(isAvailable, message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponseBase<object>(null, $"Error checking name availability: {ex.Message}", "error"));
+            }
+        }
     }
 } 

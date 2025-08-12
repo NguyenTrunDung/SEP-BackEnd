@@ -48,6 +48,7 @@ namespace HOMMS.Application.Implementations
             await _repository.AddUserToBranchAsync(user.Id, request.BranchId);
             await _repository.AddUserToBranchRoleAsync(user.Id, request.BranchId, request.BranchRoleId);
             await _userManager.AddToRoleAsync(user, "Staff");
+            
             //create wallet
             await _walletRepository.CreateNewWallet(user.Id, request.CreatedBy);
             return IdentityResult.Success;

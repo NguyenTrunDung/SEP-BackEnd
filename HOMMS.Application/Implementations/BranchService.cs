@@ -66,6 +66,17 @@ namespace HOMMS.Application.Implementations
         public int GetCurrentBranchId() => _branchContext.GetCurrentBranchId();
         public void SetCurrentBranchId(int branchId) => _branchContext.SetCurrentBranchId(branchId);
         
+        /// <summary>
+        /// Checks if a branch name is available (not used by another branch)
+        /// </summary>
+        /// <param name="name">Branch name to check</param>
+        /// <param name="excludeId">Branch ID to exclude from check (for updates)</param>
+        /// <returns>True if name is available, false if already taken</returns>
+        public async Task<bool> IsBranchNameAvailableAsync(string name, int? excludeId = null)
+        {
+            return !await _unitOfWork.BranchRepository.ExistsByNameAsync(name, excludeId);
+        }
+
         // New methods for controller support
         public async Task<List<BranchDto>> GetBranchesForUserAsync(string userId, bool isSystemAdmin)
         {
@@ -137,12 +148,7 @@ namespace HOMMS.Application.Implementations
         // CRUD operations
         public async Task<BranchDto> CreateBranchAsync(CreateBranchDto createDto, string createdBy)
         {
-            // Validate business rules - now with partial unique indexes, this should work correctly
-            if (await _unitOfWork.BranchRepository.ExistsByCodeAsync(createDto.Code))
-            {
-                throw new InvalidOperationException($"Branch with code '{createDto.Code}' already exists.");
-            }
-
+            // Validate business rules - only check Name uniqueness
             if (await _unitOfWork.BranchRepository.ExistsByNameAsync(createDto.Name))
             {
                 throw new InvalidOperationException($"Branch with name '{createDto.Name}' already exists.");
@@ -177,12 +183,7 @@ namespace HOMMS.Application.Implementations
                 throw new InvalidOperationException($"Branch with ID '{id}' not found.");
             }
 
-            // Validate business rules - now with partial unique indexes, this should work correctly
-            if (await _unitOfWork.BranchRepository.ExistsByCodeAsync(updateDto.Code, id))
-            {
-                throw new InvalidOperationException($"Branch with code '{updateDto.Code}' already exists.");
-            }
-
+            // Validate business rules - only check Name uniqueness
             if (await _unitOfWork.BranchRepository.ExistsByNameAsync(updateDto.Name, id))
             {
                 throw new InvalidOperationException($"Branch with name '{updateDto.Name}' already exists.");
@@ -236,12 +237,7 @@ namespace HOMMS.Application.Implementations
                 return false;
             }
 
-            // Check if there's already an active branch with the same code or name
-            if (await _unitOfWork.BranchRepository.ExistsByCodeAsync(deletedBranch.Code))
-            {
-                throw new InvalidOperationException($"Cannot restore branch. Another active branch with code '{deletedBranch.Code}' already exists.");
-            }
-
+            // Check if there's already an active branch with the same name
             if (await _unitOfWork.BranchRepository.ExistsByNameAsync(deletedBranch.Name))
             {
                 throw new InvalidOperationException($"Cannot restore branch. Another active branch with name '{deletedBranch.Name}' already exists.");

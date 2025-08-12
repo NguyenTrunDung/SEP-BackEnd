@@ -183,8 +183,15 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         }
 
         /// <inheritdoc/>
+        [Obsolete("Code is now optional and not used for uniqueness validation. Use ExistsByNameAsync instead.")]
         public async Task<bool> ExistsByCodeAsync(string code, int? excludeId = null)
         {
+            // Handle null/empty code since it's now optional
+            if (string.IsNullOrEmpty(code))
+            {
+                return false; // Empty/null codes don't conflict
+            }
+            
             var query = DbSet.Where(b => b.Code == code && !b.IsDeleted);
             
             if (excludeId.HasValue)

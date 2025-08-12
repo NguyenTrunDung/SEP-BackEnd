@@ -27,6 +27,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                         join b in _dbContext.Branches on bu.BranchId equals b.Id
                         join u in _dbContext.Users on bur.UserId equals u.Id
                         where br.Name == roleName
+                        orderby bur.CreatedAt descending
                         select new UserByRoleDto
                         {
                             Id = u.Id,

@@ -27,7 +27,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpGet]
-        [Authorize(Policy = "Permission:foodcategories:view")]
+       // [Authorize(Policy = "Permission:foodcategories:view")]
         public async Task<ActionResult<ApiResponseBase<IEnumerable<FoodCategoryDto>>>> GetCategories([FromQuery] int branchId)
         {
             var categories = await _foodCategoryService.GetCategoriesByBranchAsync(branchId);
@@ -36,7 +36,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "Permission:foodcategories:view")]
+       // [Authorize(Policy = "Permission:foodcategories:view")]
         public async Task<ActionResult<ApiResponseBase<FoodCategoryDto>>> GetCategory(int id)
         {
             var category = await _foodCategoryService.GetByIdAsync(id);
@@ -46,7 +46,7 @@ namespace HOMMS.API.Controllers.V1
         }
 
         [HttpPost]
-        [Authorize(Policy = "Permission:foodcategories:add")]
+        //[Authorize(Policy = "Permission:foodcategories:add")]
         public async Task<ActionResult<ApiResponseBase<FoodCategoryDto>>> CreateCategory([FromBody] FoodCategoryDto dto)
         {
             try

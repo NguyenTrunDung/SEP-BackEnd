@@ -33,7 +33,7 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<List<OrderDto>>(orderList, "Chef order list retrieved successfully", "success", totalCount));
         }
 
-        [HttpPut("chef/status/{orderId}")]
+        [HttpPatch("chef/status/{orderId}")]
         //[Authorize(Policy = "Permission:kitchen:status")]
         public async Task<IActionResult> UpdateOrderStatusByChefAsync(int orderId)
         {
@@ -51,6 +51,7 @@ namespace HOMMS.API.Controllers.V1
             [FromQuery] DateTime? endReceiveDate,
             [FromQuery] string? receiveTime,
             [FromQuery] string? status,
+            [FromQuery] bool? IsPatientOrder,
             [FromQuery] string? customerName,
             [FromQuery] string? customerPhone,
             [FromQuery] int? minTotal,
@@ -67,6 +68,7 @@ namespace HOMMS.API.Controllers.V1
                 endReceiveDate,
                 receiveTime,
                 status,
+                IsPatientOrder,
                 customerName,
                 customerPhone,
                 minTotal,
@@ -159,6 +161,20 @@ namespace HOMMS.API.Controllers.V1
 
         }
 
+        [HttpPatch("UpdateOrderStatus")]
+       // [Authorize(Policy = "Permission:orders:edit")]
+        public async Task<ActionResult<ApiResponseBase<OrderDto>>> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Status))
+            {
+                return BadRequest(new ApiResponseBase<OrderDto>(null, "Status is required", "error"));
+            }
+            
+            var or = await _orderService.UpdateOrderStatusAsync(id, dto.Status);
+            if (or == null) return NotFound(new ApiResponseBase<OrderDto>(null, "Order not found", "error"));
+            return Ok(new ApiResponseBase<OrderDto>(or, "Order status updated successfully"));
+        }
+
 
         [HttpDelete("DeleteOrder")]
         [Authorize(Policy = "Permission:orders:delete")]
@@ -187,6 +203,19 @@ namespace HOMMS.API.Controllers.V1
                 Console.WriteLine($"[AddOrderV2] DTO PaymentMethod: {dto?.PaymentMethod}");
                 Console.WriteLine($"[AddOrderV2] DTO Status: {dto?.Status}");
                 Console.WriteLine($"[AddOrderV2] DTO OrderDetails Count: {dto?.OrderDetails?.Count ?? 0}");
+                Console.WriteLine($"[AddOrderV2] DTO OrderDetails Object debug: {dto?.OrderDetails}");
+
+
+
+                // Log detailed order details information
+                if (dto?.OrderDetails != null)
+                {
+                    Console.WriteLine("[AddOrderV2] DTO OrderDetails Details:");
+                    foreach (var detail in dto.OrderDetails)
+                    {
+                        Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                    }
+                }
 
                 // Validate the DTO
                 if (dto == null)
@@ -229,8 +258,17 @@ namespace HOMMS.API.Controllers.V1
 
                 // Call the service
                 var orderResult = await _orderService.AddOrderV2Async(dto);
-
+                
+                // Log the result to see what was returned
                 Console.WriteLine($"[AddOrderV2] Service returned successfully. Order ID: {orderResult?.Id}");
+                if (orderResult?.OrderDetails != null)
+                {
+                    Console.WriteLine("[AddOrderV2] Result OrderDetails Details:");
+                    foreach (var detail in orderResult.OrderDetails)
+                    {
+                        Console.WriteLine($"  - FoodId: {detail.FoodId}, Qty: {detail.Qty}, Note: {detail.Note}, Price: {detail.Price}");
+                    }
+                }
 
                 return Ok(new ApiResponseBase<OrderDto>(orderResult, "Add order v2 successfully"));
             }

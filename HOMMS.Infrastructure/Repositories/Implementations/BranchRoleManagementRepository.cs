@@ -22,6 +22,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             return await _context.BranchRoles
                 .Where(r => r.BranchId == branchId && !r.IsDeleted)
+                .OrderBy(r => r.CreatedAt)
                 .ToListAsync();
         }
 

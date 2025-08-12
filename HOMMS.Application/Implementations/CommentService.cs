@@ -34,9 +34,9 @@ namespace HOMMS.Application.Implementations
         }
 
 
-        public async Task<bool> CheckDuplicateAsync(string UserId, int OrderId, int BranchId)
+        public async Task<bool> CheckDuplicateAsync(string UserId, int? OrderId, int? FoodId, int BranchId)
         {
-            var feed = await _repository.CheckDuplicateAsync(UserId, OrderId, BranchId);
+            var feed = await _repository.CheckDuplicateAsync(UserId, OrderId, FoodId, BranchId);
             if (feed is null) return true;
             return false;
 
@@ -51,7 +51,7 @@ namespace HOMMS.Application.Implementations
         }
 
 
-        public async Task<CommentDto> CreateFeedbackAsync(CommentDto dto)
+        public async Task<CommentDto> CreateFeedbackAsync(CRUDCommentDto dto)
         {
             dto.BranchId = EnsureBranchId(dto.BranchId);
             var feed = _mapper.Map<Comment>(dto);
@@ -72,7 +72,7 @@ namespace HOMMS.Application.Implementations
 
         public async Task<IEnumerable<CommentDto>> GetAllFeedbackAsync()
         {
-            var feed = await _repository.GetAllAsync();
+            var feed = await _repository.GetAllFeedbackAsync();
             return _mapper.Map<IEnumerable<CommentDto>>(feed);
         }
 
@@ -80,12 +80,12 @@ namespace HOMMS.Application.Implementations
 
         public async Task<CommentDto> GetFeedbackByIdAsync(int id)
         {
-            var feed = await _repository.GetByIdAsync(id);
+            var feed = await _repository.GetFeedbackByIdAsync(id);
             return _mapper.Map<CommentDto>(feed);
         }
 
 
-        public async Task<CommentDto> UpdateFeedbackAsync(int id, CommentDto dto)
+        public async Task<CommentDto> UpdateFeedbackAsync(int id, CRUDCommentDto dto)
         {
 
             dto.BranchId = EnsureBranchId(dto.BranchId);

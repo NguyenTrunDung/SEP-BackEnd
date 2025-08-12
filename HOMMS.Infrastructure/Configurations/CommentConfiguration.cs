@@ -30,17 +30,23 @@ namespace HOMMS.Infrastructure.Configurations
             builder.HasOne(r => r.Order)
                    .WithMany(o => o.comment)
                    .HasForeignKey(r => r.OrderId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.HasOne(r => r.Food)
+                  .WithMany(o => o.Comments)
+                  .HasForeignKey(r => r.FoodId)
+                  .OnDelete(DeleteBehavior.ClientNoAction);
+
 
             builder.HasOne(r => r.ApplicationUser)
                    .WithMany(u => u.comment)
                    .HasForeignKey(r => r.UserId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.ClientNoAction);
 
             builder.HasOne(r => r.Branch)
                    .WithMany(b => b.comment)
                    .HasForeignKey(r => r.BranchId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.Cascade);
 
 
 

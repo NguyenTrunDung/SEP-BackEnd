@@ -56,10 +56,12 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
 
         /// <summary>
         /// Checks if a branch with the given code exists (excluding soft deleted branches)
+        /// Note: Code is now optional, so this method may not be needed in the future
         /// </summary>
         /// <param name="code">Branch code to check</param>
         /// <param name="excludeId">Branch ID to exclude from check (for updates)</param>
         /// <returns>True if branch code exists, false otherwise</returns>
+        [Obsolete("Code is now optional and not used for uniqueness validation. Use ExistsByNameAsync instead.")]
         Task<bool> ExistsByCodeAsync(string code, int? excludeId = null);
 
         /// <summary>
@@ -80,8 +82,8 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <summary>
         /// Restores a soft deleted branch
         /// </summary>
-        /// <param name="id">Branch ID to restore</param>
-        /// <param name="restoredBy">User who is restoring the branch</param>
+        /// <param name="id">Branch ID</param>
+        /// <param name="restoredBy">User who restored the branch</param>
         /// <returns>True if successful, false otherwise</returns>
         Task<bool> RestoreAsync(int id, string restoredBy);
     }

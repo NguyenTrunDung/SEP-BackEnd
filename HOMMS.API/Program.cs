@@ -245,7 +245,7 @@ builder.Services.AddScoped<IDiseaseCategoryFoodRestrictionService, DiseaseCatego
 
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 
-
+builder.Services.AddScoped<IPatientDiseaseCategoryService, PatientDiseaseCategoryService>();
  
 builder.Services.AddScoped<ICommentService, CommentService>();
  

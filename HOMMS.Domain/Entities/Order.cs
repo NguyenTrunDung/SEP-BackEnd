@@ -70,7 +70,7 @@ namespace HOMMS.Domain.Entities
         /// <summary>
         /// Gets or sets the payment method used for this order
         /// </summary>
-        public OrderPaymentMethod PaymentMethod { get; set; } = OrderPaymentMethod.Cash;
+        public OrderPaymentMethod PaymentMethod { get; set; } 
         
         /// <summary>
         /// Gets or sets whether payment has been completed

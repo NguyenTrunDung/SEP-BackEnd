@@ -14,6 +14,14 @@ namespace HOMMS.Application.Interfaces
         int GetCurrentBranchId();
         void SetCurrentBranchId(int branchId);
         
+        /// <summary>
+        /// Checks if a branch name is available (not used by another branch)
+        /// </summary>
+        /// <param name="name">Branch name to check</param>
+        /// <param name="excludeId">Branch ID to exclude from check (for updates)</param>
+        /// <returns>True if name is available, false if already taken</returns>
+        Task<bool> IsBranchNameAvailableAsync(string name, int? excludeId = null);
+        
         // New methods for controller support
         Task<List<BranchDto>> GetBranchesForUserAsync(string userId, bool isSystemAdmin);
         Task<BranchDto> GetCurrentBranchAsync();

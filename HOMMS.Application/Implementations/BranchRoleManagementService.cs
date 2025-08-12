@@ -59,6 +59,7 @@ namespace HOMMS.Application.Implementations
             var roles = await _repository.GetByAsync(r =>
                 r.BranchId == branchId &&
                 !r.IsDeleted &&
+                r.Name != "Admin System" &&
                 (string.IsNullOrEmpty(keyword) || r.Name.Contains(keyword)));
 
             return roles.Select(MapToDto);

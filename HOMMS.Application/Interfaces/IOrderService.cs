@@ -38,6 +38,7 @@ namespace HOMMS.Application.Interfaces
         Task<OrderDto> AddAsync(OrderDto entity);
 
         Task<OrderDto> UpdateAsync(int id, UpdateOrderDto entity);
+        Task<OrderDto> UpdateOrderStatusAsync(int id, string newStatus);
         Task<bool> DeleteAsync(int id);
 
         //add order with location
@@ -54,6 +55,7 @@ namespace HOMMS.Application.Interfaces
             DateTime? endReceiveDate = null,
             string? receiveTime = null,
             string? status = null,
+            bool? IsPatientOrder = null,
             string? customerName = null,
             string? customerPhone = null,
             int? minTotal = null,
