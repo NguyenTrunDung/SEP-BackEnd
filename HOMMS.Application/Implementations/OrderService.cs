@@ -147,6 +147,17 @@ namespace HOMMS.Application.Implementations
             return _mapper.Map<OrderDto>(or);
         }
 
+        public async Task<OrderDto> UpdateOrderStatusAsync(int id, string newStatus)
+        {
+            var order = await _orderRepository.GetByIdAsync(id);
+            if (order == null) return null;
+            
+            // Only update the status field
+            order.Status = newStatus;
+            await _orderRepository.UpdateAsync(order);
+            return _mapper.Map<OrderDto>(order);
+        }
+
         public async Task<bool> DeleteAsync(int id)
         {
             var or = await _orderRepository.GetByIdAsync(id);
@@ -191,7 +202,7 @@ namespace HOMMS.Application.Implementations
 
                 // Set order as paid since wallet payment is immediate
                 dto.IsPaid = true;
-                dto.Status = "Confirmed";
+                dto.Status = "Pending";
                 
                 Console.WriteLine($"[OrderService.AddOrderV2Async] Wallet payment validation passed. Order will be marked as paid.");
             }

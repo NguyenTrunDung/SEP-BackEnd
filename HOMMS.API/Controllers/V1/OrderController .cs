@@ -33,7 +33,7 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<List<OrderDto>>(orderList, "Chef order list retrieved successfully", "success", totalCount));
         }
 
-        [HttpPut("chef/status/{orderId}")]
+        [HttpPatch("chef/status/{orderId}")]
         //[Authorize(Policy = "Permission:kitchen:status")]
         public async Task<IActionResult> UpdateOrderStatusByChefAsync(int orderId)
         {
@@ -159,6 +159,20 @@ namespace HOMMS.API.Controllers.V1
             if (or == null)return NotFound(new ApiResponseBase<OrderDto>(null,"Order not found","error"));
             return Ok(new ApiResponseBase<OrderDto>(or, "Order updated successfully"));
 
+        }
+
+        [HttpPatch("UpdateOrderStatus")]
+       // [Authorize(Policy = "Permission:orders:edit")]
+        public async Task<ActionResult<ApiResponseBase<OrderDto>>> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Status))
+            {
+                return BadRequest(new ApiResponseBase<OrderDto>(null, "Status is required", "error"));
+            }
+            
+            var or = await _orderService.UpdateOrderStatusAsync(id, dto.Status);
+            if (or == null) return NotFound(new ApiResponseBase<OrderDto>(null, "Order not found", "error"));
+            return Ok(new ApiResponseBase<OrderDto>(or, "Order status updated successfully"));
         }
 
 

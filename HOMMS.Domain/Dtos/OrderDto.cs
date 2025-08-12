@@ -59,6 +59,16 @@ namespace HOMMS.Domain.Dtos
     }
 
     /// <summary>
+    /// DTO for updating order status only
+    /// </summary>
+    public class UpdateOrderStatusDto
+    {
+        [Required]
+        [StringLength(20)]
+        public string Status { get; set; } = string.Empty;
+    }
+
+    /// <summary>
     /// DTO for update patient orders
     /// </summary>
     public class UpdateOrderDto
@@ -84,7 +94,7 @@ namespace HOMMS.Domain.Dtos
         public int? FoodToolFee { get; set; }
         public OrderPaymentMethod PaymentMethod { get; set; }
         public bool IsPaid { get; set; }
-        public long? WalletAmountUsed { get; set; }
+        //public long? WalletAmountUsed { get; set; }
 
         public string? Code { get; set; }
         public string? Note { get; set; }

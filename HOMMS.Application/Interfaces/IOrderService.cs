@@ -38,6 +38,7 @@ namespace HOMMS.Application.Interfaces
         Task<OrderDto> AddAsync(OrderDto entity);
 
         Task<OrderDto> UpdateAsync(int id, UpdateOrderDto entity);
+        Task<OrderDto> UpdateOrderStatusAsync(int id, string newStatus);
         Task<bool> DeleteAsync(int id);
 
         //add order with location

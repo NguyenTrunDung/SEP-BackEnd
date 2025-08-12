@@ -214,9 +214,9 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
 
             // Apply date filters
             if (startOrderDate.HasValue)
-                query = query.Where(o => o.OrderDate >= startOrderDate.Value);
+                query = query.Where(o => o.OrderDate.Date >= startOrderDate.Value.Date);
             if (endOrderDate.HasValue)
-                query = query.Where(o => o.OrderDate <= endOrderDate.Value);
+                query = query.Where(o => o.OrderDate.Date <= endOrderDate.Value.Date);
 
             // Apply receive date filters
             if (startReceiveDate.HasValue)
