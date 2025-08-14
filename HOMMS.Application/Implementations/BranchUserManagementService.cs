@@ -2,7 +2,9 @@
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Repositories.Interfaces;
+using HOMMS.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,41 +18,93 @@ namespace HOMMS.Application.Implementations
         private readonly IBranchUserManagementRepository _repository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWalletRepository _walletRepository;
+        private readonly IBranchRoleManagementRepository _branchRoleRepository;
+        private readonly ApplicationDbContext _context;
+        
         public BranchUserManagementService(IBranchUserManagementRepository repository
-            ,UserManager<ApplicationUser> userManager, IWalletRepository walletRepository)
+            ,UserManager<ApplicationUser> userManager, IWalletRepository walletRepository,
+            IBranchRoleManagementRepository branchRoleRepository, ApplicationDbContext context)
         {
             _repository = repository;
             _userManager = userManager;
             _walletRepository = walletRepository;
+            _branchRoleRepository = branchRoleRepository;
+            _context = context;
         }
 
         public async Task<IdentityResult> CreateUserAsync(CreateBranchUserRequest request)
         {
-            var user = new ApplicationUser
-            {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                UserName = request.UserName,
-                Email = request.Email,
-                PhoneNumber = request.PhoneNumber
-            };
-            user.EmailConfirmed = true;
             var existingUser = await _repository.GetByEmailAsync(request.Email);
+            ApplicationUser user;
+
             if (existingUser != null)
             {
-                return IdentityResult.Failed(new IdentityError { Description = "Email already exists." });
-            }
+                // Kiểm tra xem user có đang active trong branch hiện tại không
+                var existingUserInCurrentBranch = await _context.BranchUsers
+                    .FirstOrDefaultAsync(bu => bu.UserId == existingUser.Id && bu.BranchId == request.BranchId && !bu.IsDeleted);
 
-            var result = await _repository.CreateUserWithPasswordAsync(user, request.Password);
-            if (!result.Succeeded)
-                return result;
+                if (existingUserInCurrentBranch != null)
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "User already exists in this branch." });
+                }
+
+                // Kiểm tra xem user có đang active trong bất kỳ branch nào khác không
+                var hasActiveBranchElsewhere = await _context.BranchUsers
+                    .AnyAsync(bu => bu.UserId == existingUser.Id && bu.BranchId != request.BranchId && !bu.IsDeleted);
+
+                if (hasActiveBranchElsewhere)
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "Email already exists in another branch." });
+                }
+
+                // Tái sử dụng user đã bị soft delete ở tất cả branch
+                user = existingUser;
+                user.FirstName = request.FirstName;
+                user.LastName = request.LastName;
+                user.UserName = request.UserName;
+                user.PhoneNumber = request.PhoneNumber;
+                user.IsActive = true;
+                user.EmailConfirmed = true;
+
+                // Cập nhật password mới
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var passwordResult = await _userManager.ResetPasswordAsync(user, token, request.Password);
+                if (!passwordResult.Succeeded)
+                {
+                    return passwordResult;
+                }
+
+                await _repository.UpdateUserAsync(user);
+            }
+            else
+            {
+                // Tạo user mới
+                user = new ApplicationUser
+                {
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    UserName = request.UserName,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    EmailConfirmed = true
+                };
+
+                var result = await _repository.CreateUserWithPasswordAsync(user, request.Password);
+                if (!result.Succeeded)
+                    return result;
+            }
 
             await _repository.AddUserToBranchAsync(user.Id, request.BranchId);
             await _repository.AddUserToBranchRoleAsync(user.Id, request.BranchId, request.BranchRoleId);
             await _userManager.AddToRoleAsync(user, "Staff");
+
+            // Chỉ tạo ví cho những user có role là "Bác sĩ" hoặc "Y tá"
+            var branchRole = await _branchRoleRepository.GetByIdAsync(request.BranchRoleId);
+            if (branchRole != null && (branchRole.Name == "Bác sĩ" || branchRole.Name == "Y tá"))
+            {
+                await _walletRepository.CreateNewWallet(user.Id, request.CreatedBy);
+            }
             
-            //create wallet
-            await _walletRepository.CreateNewWallet(user.Id, request.CreatedBy);
             return IdentityResult.Success;
         }
 

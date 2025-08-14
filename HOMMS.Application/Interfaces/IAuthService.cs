@@ -106,5 +106,18 @@ namespace HOMMS.Application.Interfaces
             string refreshToken, 
             DateTime tokenExpiryTime, 
             DateTime refreshTokenExpiryTime);
+
+   
+        /// <summary>
+        /// Validates if a user has access to a specific branch
+        /// </summary>
+        Task<bool> ValidateUserBranchAccessAsync(string userId, int? branchId);
+
+        /// <summary>
+        /// Validates if a user has access to any branch (for internal login)
+        /// </summary>
+        Task<bool> ValidateUserHasAnyBranchAccessAsync(string userId);
+
+
     }
 } 

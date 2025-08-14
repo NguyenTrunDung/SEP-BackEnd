@@ -113,6 +113,29 @@ namespace HOMMS.API.Controllers.V1
             if (!result.Succeeded)
                 return BadRequest(ApiResponseBase<LoginResponseDto>.Error("Invalid login attempt."));
 
+
+            // NEW: Validate user has access to the selected branch
+            //var hasBranchAccess = await _authService.ValidateUserBranchAccessAsync(user.Id, model.BranchId);
+            //if (!hasBranchAccess)
+            //    return BadRequest(ApiResponseBase<LoginResponseDto>.Error("User does not have access to the selected branch. Please contact administrator or select a different branch."));
+
+            // NEW: Conditional branch validation based on login type
+            if (model.BranchId.HasValue)
+            {
+                // Public login with branch validation
+                var hasBranchAccess = await _authService.ValidateUserBranchAccessAsync(user.Id, model.BranchId);
+                if (!hasBranchAccess)
+                    return BadRequest(ApiResponseBase<LoginResponseDto>.Error("Người dùng không có quyền truy cập vào nhánh đã chọn. Vui lòng liên hệ với quản trị viên hoặc chọn một nhánh khác."));
+            }
+            else
+            {
+                // Internal login - check if user has any branch access or is system admin
+                var hasAnyAccess = await _authService.ValidateUserHasAnyBranchAccessAsync(user.Id);
+                if (!hasAnyAccess)
+                    return BadRequest(ApiResponseBase<LoginResponseDto>.Error("Người dùng không có quyền truy cập vào bất kỳ nhánh nào. Vui lòng liên hệ với quản trị viên."));
+            }
+
+
             // Generate tokens (without embedded permissions)
             var accessToken = await _authService.GenerateAccessTokenAsync(user);
             var refreshToken = _authService.GenerateRefreshToken();

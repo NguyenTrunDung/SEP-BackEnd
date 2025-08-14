@@ -165,6 +165,9 @@ namespace HOMMS.Domain.Dtos
     {
         public string Email { get; set; }
         public string Password { get; set; }
+
+        public int? BranchId { get; set; }
+
     }
 
     public class ConfirmEmailModel
@@ -208,5 +211,26 @@ namespace HOMMS.Domain.Dtos
     public class SelectBranchModel
     {
         public int BranchId { get; set; }
+    }
+
+    /// <summary>
+    /// Result of branch access validation
+    /// </summary>
+    public class BranchAccessValidationResult
+    {
+        /// <summary>
+        /// Whether the user has valid branch access
+        /// </summary>
+        public bool IsValid { get; set; }
+
+        /// <summary>
+        /// Error message if validation fails
+        /// </summary>
+        public string? ErrorMessage { get; set; }
+
+        /// <summary>
+        /// List of branches the user can access
+        /// </summary>
+        public List<BranchDto> AvailableBranches { get; set; } = new List<BranchDto>();
     }
 } 

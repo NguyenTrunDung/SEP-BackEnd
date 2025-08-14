@@ -440,5 +440,106 @@ namespace HOMMS.Application.Implementations
 
             return response;
         }
+
+        /// <summary>
+        /// Validates if a user has access to a specific branch
+        /// </summary>
+        public async Task<bool> ValidateUserBranchAccessAsync(string userId, int? branchId)
+        {
+            try
+            {
+                if (!branchId.HasValue)
+                    return false;
+
+                // Check if user is system admin (can access all branches)
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user != null)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Contains("SystemAdmin"))
+                    {
+                        return true; // System admin can access any branch
+                    }
+                }
+
+                // Check if user has access to the specific branch
+                var userBranchRole = await _context.BranchUserRoles
+                    .Include(bur => bur.Branch)
+                    .Include(bur => bur.BranchRole)
+                    .Where(bur => bur.UserId == userId &&
+                                 bur.BranchId == branchId &&
+                                 !bur.IsDeleted &&
+                                 bur.Branch != null && bur.Branch.IsActive &&
+                                 bur.BranchRole != null && !bur.BranchRole.IsDeleted)
+                    .FirstOrDefaultAsync();
+
+                return userBranchRole != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Validates if a user has access to any branch (for internal login)
+        /// </summary>
+        public async Task<bool> ValidateUserHasAnyBranchAccessAsync(string userId)
+        {
+            try
+            {
+                // Check if user is system admin (can access all branches)
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user != null)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Contains("SystemAdmin"))
+                    {
+                        return true; // System admin can access any branch
+                    }
+                }
+
+                // Check if user has access to any branch
+                var hasAnyBranchAccess = await _context.BranchUserRoles
+                    .Include(bur => bur.Branch)
+                    .Include(bur => bur.BranchRole)
+                    .Where(bur => bur.UserId == userId &&
+                                 !bur.IsDeleted &&
+                                 bur.Branch != null && bur.Branch.IsActive &&
+                                 bur.BranchRole != null && !bur.BranchRole.IsDeleted)
+                    .AnyAsync();
+
+                return hasAnyBranchAccess;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets all active branches (for system admin)
+        /// </summary>
+        private async Task<List<BranchDto>> GetAllActiveBranchesAsync()
+        {
+            var branches = await _context.Branches
+                .Where(b => b.IsActive && !b.IsDeleted)
+                .Select(b => new BranchDto
+                {
+                    Id = b.Id,
+                    Name = b.Name,
+                    Code = b.Code,
+                    Address = b.Address,
+                    Phone = b.Phone,
+                    Email = b.Email,
+                    Description = b.Description,
+                    IsActive = b.IsActive,
+                    CreatedAt = b.CreatedAt
+                })
+                .ToListAsync();
+
+            return branches;
+        }
     }
 } 
