@@ -18,21 +18,29 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             _context = dbContext;
         }
-        public async Task<List<BranchRole>> GetByBranchIdAsync(int branchId)
+        public async Task<List<BranchRole>> GetRolesByBranchIdAsync(int branchId)
         {
+            // Get distinct roles that are associated with the specified branch through BranchUserRole
             return await _context.BranchRoles
-                .Where(r => r.BranchId == branchId && !r.IsDeleted)
+                .Where(r => !r.IsDeleted &&
+                           _context.BranchUserRoles.Any(bur => 
+                               bur.BranchRoleId == r.Id && 
+                               bur.BranchId == branchId && 
+                               !bur.IsDeleted))
                 .OrderBy(r => r.CreatedAt)
                 .ToListAsync();
         }
 
-        public async Task<List<BranchRole>> SearchAsync(int branchId, string keyword)
+        public async Task<List<BranchRole>> SearchRolesByBranchIdAsync(int branchId, string keyword)
         {
+            // Get distinct roles that are associated with the specified branch through BranchUserRole and match keyword
             return await _context.BranchRoles
-                .Where(r =>
-                    r.BranchId == branchId &&
-                    !r.IsDeleted &&
-                    EF.Functions.Like(r.Name, $"%{keyword}%"))
+                .Where(r => !r.IsDeleted &&
+                           EF.Functions.Like(r.Name, $"%{keyword}%") &&
+                           _context.BranchUserRoles.Any(bur => 
+                               bur.BranchRoleId == r.Id && 
+                               bur.BranchId == branchId && 
+                               !bur.IsDeleted))
                 .ToListAsync();
         }
 

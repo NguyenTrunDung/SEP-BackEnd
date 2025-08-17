@@ -18,13 +18,13 @@ namespace HOMMS.Application.Implementations
         {
             _repository = repository;
         }
-        private BranchRoleDto MapToDto(BranchRole entity)
+        private BranchRoleDto MapToDto(BranchRole entity, int? branchId = null)
         {
             return new BranchRoleDto
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                BranchId = entity.BranchId,
+                BranchId = branchId ?? 0, // Will be set from context when needed
                 IsDefault = entity.IsDefault,
                 Permissions = string.IsNullOrEmpty(entity.Permissions)
                     ? new List<string>()
@@ -36,7 +36,6 @@ namespace HOMMS.Application.Implementations
             return new BranchRole
             {
                 Name = dto.Name,
-                BranchId = dto.BranchId,
                 IsDefault = dto.IsDefault,
                 Permissions = dto.Permissions != null
                     ? string.Join(",", dto.Permissions)
@@ -47,7 +46,6 @@ namespace HOMMS.Application.Implementations
         private void UpdateEntityFromDto(BranchRole entity, BranchRoleCreateUpdateDto dto)
         {
             entity.Name = dto.Name;
-            entity.BranchId = dto.BranchId;
             entity.IsDefault = dto.IsDefault;
             entity.Permissions = dto.Permissions != null
                 ? string.Join(",", dto.Permissions)
@@ -56,13 +54,21 @@ namespace HOMMS.Application.Implementations
 
         public async Task<IEnumerable<BranchRoleDto>> GetByBranchAsync(int branchId, string? keyword = null)
         {
-            var roles = await _repository.GetByAsync(r =>
-                r.BranchId == branchId &&
-                !r.IsDeleted &&
-                r.Name != "Admin System" &&
-                (string.IsNullOrEmpty(keyword) || r.Name.Contains(keyword)));
+            List<BranchRole> roles;
+            
+            if (string.IsNullOrEmpty(keyword))
+            {
+                roles = await _repository.GetRolesByBranchIdAsync(branchId);
+            }
+            else
+            {
+                roles = await _repository.SearchRolesByBranchIdAsync(branchId, keyword);
+            }
 
-            return roles.Select(MapToDto);
+            // Filter out Admin System role and apply additional filters
+            var filteredRoles = roles.Where(r => r.Name != "Admin System");
+
+            return filteredRoles.Select(r => MapToDto(r, branchId));
         }
 
         public async Task<BranchRoleDto?> GetByIdAsync(int id)

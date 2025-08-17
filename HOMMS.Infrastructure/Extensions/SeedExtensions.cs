@@ -49,8 +49,10 @@ namespace HOMMS.Infrastructure.Extensions
                     logger.LogInformation("Roles already exist. Skipping identity seeding.");
                 }
 
-                // Only seed branch roles if none exist for this branch
-                if (!await context.BranchRoles.AnyAsync(r => r.BranchId == branchId))
+                // Only seed branch roles if none exist for this branch (check via BranchUserRole associations)
+                var hasExistingRoles = await context.BranchUserRoles.AnyAsync(bur => 
+                    bur.BranchId == branchId && !bur.IsDeleted);
+                if (!hasExistingRoles)
                 {
                     logger.LogInformation("Seeding branch roles and permissions...");
                     await HOMMS.Infrastructure.Seeds.BranchRoleSeedData.SeedBranchRolesAsync(services, branchId);
