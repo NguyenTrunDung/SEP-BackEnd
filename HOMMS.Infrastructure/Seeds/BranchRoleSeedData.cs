@@ -11,7 +11,7 @@ namespace HOMMS.Infrastructure.Seeds
 {
     public static class BranchRoleSeedData
     {
-        public static async Task SeedBranchRolesAsync(IServiceProvider serviceProvider, int branchId)
+        public static async Task SeedBranchRolesAsync(IServiceProvider serviceProvider, int branchId = 0)
         {
             using var scope = serviceProvider.CreateScope();
             var branchRoleRepo = scope.ServiceProvider.GetRequiredService<IRepository<BranchRole, int>>();
@@ -117,14 +117,13 @@ namespace HOMMS.Infrastructure.Seeds
                 "locations:delete"
             };
 
-            // Ensure only one Admin System BranchRole exists
-            var adminSystemRoleExists = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System" && r.BranchId == branchId)).Any();
+            // Ensure only one Admin System BranchRole exists globally
+            var adminSystemRoleExists = (await branchRoleRepo.GetByAsync(r => r.Name == "Admin System")).Any();
             if (!adminSystemRoleExists)
             {
                 var adminSystemRole = new BranchRole
                 {
                     Name = "Admin System",
-                    BranchId = branchId,
                     IsDefault = false,
                     Permissions = string.Join(",", allPermissions),
                     CreatedAt = DateTime.UtcNow
@@ -132,13 +131,12 @@ namespace HOMMS.Infrastructure.Seeds
                 await branchRoleRepo.AddAsync(adminSystemRole);
             }
 
-            // Seed predefined roles with appropriate permissions
+            // Seed predefined global roles with appropriate permissions
             var predefinedRoles = new List<BranchRole>
             {
                 new BranchRole
                 {
                     Name = "Quản lý chi nhánh",
-                    BranchId = branchId,
                     IsDefault = false,
                     Permissions = string.Join(",", new[]
                     {
@@ -161,7 +159,6 @@ namespace HOMMS.Infrastructure.Seeds
                 new BranchRole
                 {
                     Name = "Quản lý",
-                    BranchId = branchId,
                     IsDefault = true,
                     Permissions = string.Join(",", new[]
                     {
@@ -183,7 +180,6 @@ namespace HOMMS.Infrastructure.Seeds
                 new BranchRole
                 {
                     Name = "Thu Ngân",
-                    BranchId = branchId,
                     IsDefault = false,
                     Permissions = string.Join(",", new[]
                     {
@@ -200,7 +196,6 @@ namespace HOMMS.Infrastructure.Seeds
                 new BranchRole
                 {
                     Name = "Nhân viên",
-                    BranchId = branchId,
                     IsDefault = false,
                     Permissions = string.Join(",", new[]
                     {
@@ -216,7 +211,6 @@ namespace HOMMS.Infrastructure.Seeds
                 new BranchRole
                 {
                     Name = "Nhà bếp",
-                    BranchId = branchId,
                     IsDefault = false,
                     Permissions = string.Join(",", new[]
                     {
@@ -231,7 +225,6 @@ namespace HOMMS.Infrastructure.Seeds
                 new BranchRole
                 {
                     Name = "Y tá",
-                    BranchId = branchId,
                     IsDefault = false,
                     Permissions = string.Join(",", new[]
                     {
@@ -247,7 +240,7 @@ namespace HOMMS.Infrastructure.Seeds
             };
             foreach (var role in predefinedRoles)
             {
-                var exists = (await branchRoleRepo.GetByAsync(r => r.Name == role.Name && r.BranchId == branchId)).Any();
+                var exists = (await branchRoleRepo.GetByAsync(r => r.Name == role.Name)).Any();
                 if (!exists)
                     await branchRoleRepo.AddAsync(role);
             }

@@ -99,11 +99,11 @@ namespace HOMMS.Infrastructure.Seeds
                 // Process each branch role for this user
                 foreach (var branchRoleName in branchRoleNames)
                 {
-                    // Find branch role
-                    var branchRole = (await branchRoleRepo.GetByAsync(br => br.Name == branchRoleName && br.BranchId == branchId)).FirstOrDefault();
+                    // Find branch role (roles are now global, not branch-specific)
+                    var branchRole = (await branchRoleRepo.GetByAsync(br => br.Name == branchRoleName)).FirstOrDefault();
                     if (branchRole == null)
                     {
-                        Console.WriteLine($"Warning: Branch role '{branchRoleName}' not found for branch {branchId}. Skipping.");
+                        Console.WriteLine($"Warning: Branch role '{branchRoleName}' not found. Skipping.");
                         continue;
                     }
 

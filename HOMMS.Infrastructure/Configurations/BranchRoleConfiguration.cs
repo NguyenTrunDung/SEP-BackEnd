@@ -8,14 +8,13 @@ namespace HOMMS.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<BranchRole> builder)
         {
-            builder.HasOne(br => br.Branch)
-                .WithMany(b => b.BranchRoles)
-                .HasForeignKey(br => br.BranchId)
-                .OnDelete(DeleteBehavior.Cascade);
-
+            // Configure the relationship with BranchUserRoles
             builder.HasMany(br => br.BranchUserRoles)
                 .WithOne(bur => bur.BranchRole)
                 .HasForeignKey(bur => bur.BranchRoleId);
+
+            // Note: BranchRole no longer has a direct relationship with Branch
+            // The association is now through BranchUserRole junction table
         }
     }
 } 

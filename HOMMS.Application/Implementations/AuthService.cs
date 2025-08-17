@@ -232,10 +232,16 @@ namespace HOMMS.Application.Implementations
                 var roles = await _userManager.GetRolesAsync(user);
                 if (roles.Contains("SystemAdmin"))
                 {
-                    // Get all permissions from the branch's roles
+                    // Get all permissions from roles associated with this branch
                     var branchPermissions = await _context.BranchRoles
-                        .Where(br => br.BranchId == branchId && !br.IsDeleted && !string.IsNullOrEmpty(br.Permissions))
+                        .Where(br => !br.IsDeleted && 
+                                   !string.IsNullOrEmpty(br.Permissions) &&
+                                   _context.BranchUserRoles.Any(bur => 
+                                       bur.BranchRoleId == br.Id && 
+                                       bur.BranchId == branchId && 
+                                       !bur.IsDeleted))
                         .Select(br => br.Permissions)
+                        .Distinct()
                         .ToListAsync();
 
                     var uniquePermissions = new HashSet<string>();
