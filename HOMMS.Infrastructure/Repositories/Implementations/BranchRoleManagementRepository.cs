@@ -18,20 +18,25 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
         {
             _context = dbContext;
         }
-        public async Task<List<BranchRole>> GetRolesByBranchIdAsync(int branchId)
+        public async Task<List<BranchRole>> GetRolesByBranchIdAsync(int? branchId)
         {
             // Get distinct roles that are associated with the specified branch through BranchUserRole
+            //return await _context.BranchRoles
+            //    .Where(r => !r.IsDeleted &&
+            //               _context.BranchUserRoles.Any(bur => 
+            //                   bur.BranchRoleId == r.Id && 
+            //                   bur.BranchId == branchId && 
+            //                   !bur.IsDeleted))
+            //    .OrderBy(r => r.CreatedAt)
+            //    .ToListAsync();
             return await _context.BranchRoles
-                .Where(r => !r.IsDeleted &&
-                           _context.BranchUserRoles.Any(bur => 
-                               bur.BranchRoleId == r.Id && 
-                               bur.BranchId == branchId && 
-                               !bur.IsDeleted))
+                .Where(r => !r.IsDeleted)
                 .OrderBy(r => r.CreatedAt)
                 .ToListAsync();
+
         }
 
-        public async Task<List<BranchRole>> SearchRolesByBranchIdAsync(int branchId, string keyword)
+        public async Task<List<BranchRole>> SearchRolesByBranchIdAsync(int? branchId, string keyword)
         {
             // Get distinct roles that are associated with the specified branch through BranchUserRole and match keyword
             return await _context.BranchRoles

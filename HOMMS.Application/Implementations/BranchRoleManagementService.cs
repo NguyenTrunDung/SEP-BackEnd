@@ -1,7 +1,9 @@
-﻿using HOMMS.Application.Interfaces;
+﻿using HOMMS.Application.BaseServices;
+using HOMMS.Application.Interfaces;
 using HOMMS.Domain.Dtos;
 using HOMMS.Domain.Entities;
 using HOMMS.Infrastructure.Repositories.Interfaces;
+using HOMMS.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,21 +12,22 @@ using System.Threading.Tasks;
 
 namespace HOMMS.Application.Implementations
 {
-    public class BranchRoleManagementService: IBranchRoleManagementService
+    public class BranchRoleManagementService:BaseService, IBranchRoleManagementService
     {
         private readonly IBranchRoleManagementRepository _repository;
 
-        public BranchRoleManagementService(IBranchRoleManagementRepository repository)
+        public BranchRoleManagementService(IBranchRoleManagementRepository repository, IBranchContext branchContext) : base(branchContext)
         {
             _repository = repository;
         }
         private BranchRoleDto MapToDto(BranchRole entity, int? branchId = null)
         {
+            branchId = EnsureBranchId(0);
             return new BranchRoleDto
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                BranchId = branchId ?? 0, // Will be set from context when needed
+                BranchId = (int)branchId,
                 IsDefault = entity.IsDefault,
                 Permissions = string.IsNullOrEmpty(entity.Permissions)
                     ? new List<string>()
@@ -52,7 +55,7 @@ namespace HOMMS.Application.Implementations
                 : string.Empty;
         }
 
-        public async Task<IEnumerable<BranchRoleDto>> GetByBranchAsync(int branchId, string? keyword = null)
+        public async Task<IEnumerable<BranchRoleDto>> GetByBranchAsync(int? branchId, string? keyword = null)
         {
             List<BranchRole> roles;
             

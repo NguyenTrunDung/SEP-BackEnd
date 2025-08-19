@@ -17,16 +17,19 @@ namespace HOMMS.Application.Implementations
     {
         private readonly IBranchUserManagementRepository _repository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+
         private readonly IWalletRepository _walletRepository;
         private readonly IBranchRoleManagementRepository _branchRoleRepository;
         private readonly ApplicationDbContext _context;
         
         public BranchUserManagementService(IBranchUserManagementRepository repository
-            ,UserManager<ApplicationUser> userManager, IWalletRepository walletRepository,
+            ,UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IWalletRepository walletRepository,
             IBranchRoleManagementRepository branchRoleRepository, ApplicationDbContext context)
         {
             _repository = repository;
             _userManager = userManager;
+            _roleManager = roleManager;
             _walletRepository = walletRepository;
             _branchRoleRepository = branchRoleRepository;
             _context = context;
@@ -96,15 +99,68 @@ namespace HOMMS.Application.Implementations
 
             await _repository.AddUserToBranchAsync(user.Id, request.BranchId);
             await _repository.AddUserToBranchRoleAsync(user.Id, request.BranchId, request.BranchRoleId);
-            await _userManager.AddToRoleAsync(user, "Staff");
 
-            // Chỉ tạo ví cho những user có role là "Bác sĩ" hoặc "Y tá"
+            // Lấy thông tin branch role để kiểm tra permissions
             var branchRole = await _branchRoleRepository.GetByIdAsync(request.BranchRoleId);
-            if (branchRole != null && (branchRole.Name == "Bác sĩ" || branchRole.Name == "Y tá"))
+            //var userIdentityRoles = await _roleManager.FindByIdAsync(user.Id);
+            //Console.WriteLine($"User Name: {user.UserName} , User Id: {user.Id} RoleName: {userIdentityRoles.Name}");
+            // Fix for CS8602: Dereference of a possibly null reference.
+            //var userIdentityRoles = await _roleManager.GetRoleNameAsync("Guest");
+            //if (userIdentityRoles != null)
+            //    // Replace the following line:
+            //    var userIdentityRoles = await _roleManager.GetRoleNameAsync("Guest");
+
+            // With this corrected line:
+            var guestRole = await _roleManager.FindByNameAsync("Guest");
+            if (guestRole != null)
+            {
+                var userIdentityRoles = await _roleManager.GetRoleNameAsync(guestRole);
+                Console.WriteLine($"User Name: {user.UserName} , User Id: {user.Id} RoleName: {userIdentityRoles}");
+            }
+            else
+            {
+                Console.WriteLine($"User Name: {user.UserName} , User Id: {user.Id} RoleName: <Role not found>");
+            }
+        
+            // Kiểm tra field permission và assign role tương ứng
+            if (branchRole != null)
+            {
+                if (string.IsNullOrEmpty(branchRole.Permissions) || string.IsNullOrWhiteSpace(branchRole.Permissions))
+                {
+                    // Nếu permission rỗng thì assign role "Guest"
+                    await _userManager.AddToRoleAsync(user, "Guest");
+                }
+                else
+                {
+                    // Nếu có permission thì assign role "Staff"
+                    await _userManager.AddToRoleAsync(user, "Staff");
+                }
+            }
+            else
+            {
+                // Fallback nếu không tìm thấy branchRole
+                await _userManager.AddToRoleAsync(user, "Guest");
+            }
+
+            // Chỉ tạo ví cho những user có role là "Bác sĩ" hoặc "Y tá" và nếu là "Guest"
+            //if (branchRole != null || guestRole != null && (branchRole.Name == "Bác sĩ" || branchRole.Name == "Điều dưỡng trưởng" || guestRole.Name == "Guest"))
+            //{
+            //    // Ensure branchRole and guestRole are not null before accessing their properties
+            //    if ((branchRole != null && (branchRole.Name == "Bác sĩ" || branchRole.Name == "Điều dưỡng trưởng")) ||
+            //        (guestRole != null && guestRole.Name == "Guest"))
+            //    {
+            //        await _walletRepository.CreateNewWallet(user.Id, request.CreatedBy);
+            //    }
+            //    await _walletRepository.CreateNewWallet(user.Id, request.CreatedBy);
+            //}
+
+            // Ensure branchRole and guestRole are not null before accessing their properties
+            if ((branchRole != null && (branchRole.Name == "Bác sĩ" || branchRole.Name == "Điều dưỡng trưởng")) ||
+                (guestRole != null && guestRole.Name == "Guest"))
             {
                 await _walletRepository.CreateNewWallet(user.Id, request.CreatedBy);
             }
-            
+
             return IdentityResult.Success;
         }
 

@@ -10,7 +10,7 @@ namespace HOMMS.Application.Interfaces
 {
     public interface IBranchRoleManagementService
     {
-        Task<IEnumerable<BranchRoleDto>> GetByBranchAsync(int branchId, string? keyword = null);
+        Task<IEnumerable<BranchRoleDto>> GetByBranchAsync(int? branchId, string? keyword = null);
         Task<BranchRoleDto?> GetByIdAsync(int id);
         Task<BranchRoleDto> CreateAsync(BranchRoleCreateUpdateDto role);
         Task<BranchRoleDto?> UpdateAsync(int id, BranchRoleCreateUpdateDto updated);

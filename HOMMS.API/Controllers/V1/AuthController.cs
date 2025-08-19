@@ -279,7 +279,7 @@ namespace HOMMS.API.Controllers.V1
                 if (!createResult.Succeeded)
                     return BadRequest("Failed to create user from Google login.");
 
-                await _userManager.AddToRoleAsync(user, "Customer");
+                await _userManager.AddToRoleAsync(user, "Guest");
             }
 
             if (!user.EmailConfirmed)
