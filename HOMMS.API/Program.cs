@@ -33,7 +33,13 @@ builder.Host.UseSerilog();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Configure timezone handling for API responses
+        options.JsonSerializerOptions.Converters.Add(new HOMMS.API.Converters.VietnamTimeZoneDateTimeConverter());
+        options.JsonSerializerOptions.Converters.Add(new HOMMS.API.Converters.VietnamTimeZoneNullableDateTimeConverter());
+    });
 builder.Services.AddCustomServices();
 
 // Add CORS policy for development and production
@@ -426,6 +432,9 @@ app.UseSerilogRequestLogging();
 
 // Add global exception middleware (should be early in the pipeline)
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
+// Add timezone middleware for consistent datetime handling
+app.UseTimeZoneMiddleware();
 
 // Add branch context middleware (before authentication/authorization)
 app.UseMiddleware<BranchContextMiddleware>();

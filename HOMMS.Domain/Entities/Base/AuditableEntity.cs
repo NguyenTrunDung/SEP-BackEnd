@@ -12,7 +12,7 @@ namespace HOMMS.Domain.Entities
     public abstract class AuditableEntity<TKey> : BaseEntity<TKey>, IAuditableEntity
     {
         /// <summary>
-        /// Gets or sets the date and time when this entity was created
+        /// Gets or sets the date and time when this entity was created (stored in UTC)
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -22,7 +22,7 @@ namespace HOMMS.Domain.Entities
         public string? CreatedBy { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time when this entity was last modified
+        /// Gets or sets the date and time when this entity was last modified (stored in UTC)
         /// </summary>
         public DateTime? LastModifiedAt { get; set; }
 
