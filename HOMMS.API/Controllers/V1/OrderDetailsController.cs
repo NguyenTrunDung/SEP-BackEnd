@@ -30,6 +30,29 @@ namespace HOMMS.API.Controllers.V1
             return Ok(new ApiResponseBase<List<OrderDetailsDto>>(orderDetails, "Order details retrieved successfully", "success", totalCount));
         }
 
+        /// <summary>
+        /// Gets order details with comprehensive patient information for kitchen view
+        /// </summary>
+        /// <param name="orderId">The order ID</param>
+        /// <returns>Order details with patient information</returns>
+        [HttpGet("order/{orderId}/with-patient-info")]
+        public async Task<ActionResult<ApiResponseBase<List<OrderDetailsDto>>>> GetOrderDetailsWithPatientInfo(int orderId)
+        {
+            try
+            {
+                var orderDetails = await _orderService.GetOrderDetailsWithPatientInfoAsync(orderId);
+                if (orderDetails == null || orderDetails.Count == 0)
+                    return NotFound(new ApiResponseBase<List<OrderDetailsDto>>(null, "Order details not found", "error", 0));
+                
+                var totalCount = orderDetails.Count;
+                return Ok(new ApiResponseBase<List<OrderDetailsDto>>(orderDetails, "Order details with patient information retrieved successfully", "success", totalCount));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponseBase<List<OrderDetailsDto>>(null, $"Error retrieving order details: {ex.Message}", "error", 0));
+            }
+        }
+
         //[HttpGet("order-kitchen")]
         //public async Task<ActionResult<ApiResponseBase<List<OrderDto>>>> GetOrderDetailsByStatusPrepare()
         //{

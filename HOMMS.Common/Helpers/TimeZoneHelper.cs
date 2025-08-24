@@ -95,10 +95,22 @@ namespace HOMMS.Common.Helpers
         /// </summary>
         /// <param name="dateString">Date string from API</param>
         /// <returns>UTC DateTime</returns>
+        /// <remarks>
+        /// This method handles different date formats:
+        /// - Date-only strings (YYYY-MM-DD): Treated as UTC dates without timezone conversion
+        /// - DateTime strings with timezone: Properly converted to UTC
+        /// - Unspecified timezone: Assumed to be Vietnam time and converted to UTC
+        /// </remarks>
         public static DateTime ParseApiDate(string dateString)
         {
             if (DateTime.TryParse(dateString, out var parsedDate))
             {
+                // If it's a date-only string (no time component), treat it as UTC date
+                if (IsDateOnlyString(dateString))
+                {
+                    return ParseDateOnlyAsUtc(dateString);
+                }
+                
                 // If no timezone info, assume Vietnam time and convert to UTC
                 if (parsedDate.Kind == DateTimeKind.Unspecified)
                 {
@@ -116,6 +128,76 @@ namespace HOMMS.Common.Helpers
             }
             
             throw new ArgumentException($"Invalid date format: {dateString}");
+        }
+
+        /// <summary>
+        /// Check if a string represents a date-only value (YYYY-MM-DD format)
+        /// </summary>
+        /// <param name="dateString">Date string to check</param>
+        /// <returns>True if it's a date-only string</returns>
+        private static bool IsDateOnlyString(string dateString)
+        {
+            return dateString.Length == 10 && 
+                   dateString.Contains("-") && 
+                   dateString.Count(c => c == '-') == 2 &&
+                   !dateString.Contains("T") && 
+                   !dateString.Contains(":") &&
+                   !dateString.Contains("Z");
+        }
+
+        /// <summary>
+        /// Parse a date-only string (YYYY-MM-DD) and return it as UTC DateTime
+        /// This prevents timezone conversion issues for date-only values
+        /// </summary>
+        /// <param name="dateString">Date string in YYYY-MM-DD format</param>
+        /// <returns>UTC DateTime at 00:00:00</returns>
+        private static DateTime ParseDateOnlyAsUtc(string dateString)
+        {
+            if (!DateTime.TryParse(dateString, out var parsedDate))
+            {
+                throw new ArgumentException($"Invalid date format: {dateString}");
+            }
+            
+            // Create UTC date without timezone conversion
+            // This ensures the date stays exactly as intended
+            return new DateTime(parsedDate.Year, parsedDate.Month, parsedDate.Day, 0, 0, 0, DateTimeKind.Utc);
+        }
+
+        /// <summary>
+        /// Parse a menu date string (YYYY-MM-DD) and return it as UTC DateTime
+        /// This is specifically for menu dates where we want the exact date without timezone shifts
+        /// </summary>
+        /// <param name="dateString">Date string in YYYY-MM-DD format</param>
+        /// <returns>UTC DateTime at 00:00:00</returns>
+        public static DateTime ParseMenuDate(string dateString)
+        {
+            if (IsDateOnlyString(dateString))
+            {
+                return ParseDateOnlyAsUtc(dateString);
+            }
+            
+            // If it's not a date-only string, fall back to the general parser
+            return ParseApiDate(dateString);
+        }
+
+        /// <summary>
+        /// Debug method to log timezone conversion details
+        /// Useful for troubleshooting date/time issues
+        /// </summary>
+        /// <param name="inputString">Input date string</param>
+        /// <param name="outputDateTime">Output UTC DateTime</param>
+        /// <param name="method">Method name that called this</param>
+        public static void LogTimezoneConversion(string inputString, DateTime outputDateTime, string method = "Unknown")
+        {
+            var vietnamTime = ConvertUtcToVietnam(outputDateTime);
+            
+            // This would typically use a proper logging framework
+            // For now, we'll use Console.WriteLine for debugging
+            Console.WriteLine($"[Timezone Debug] {method}:");
+            Console.WriteLine($"  Input: '{inputString}'");
+            Console.WriteLine($"  Output UTC: {outputDateTime:yyyy-MM-dd HH:mm:ss} UTC");
+            Console.WriteLine($"  Output Vietnam: {vietnamTime:yyyy-MM-dd HH:mm:ss} (+7)");
+            Console.WriteLine($"  IsDateOnly: {IsDateOnlyString(inputString)}");
         }
         
         /// <summary>

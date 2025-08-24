@@ -102,9 +102,9 @@ namespace HOMMS.Application.Implementations
             return _mapper.Map<IEnumerable<PatientDto>>(pa);
         }
 
-        public async Task<IEnumerable<PatientDto>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId)
+        public async Task<IEnumerable<PatientDto>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId, int? departmentId)
         {
-            var pa = await _repository.GetPatientsWithDiseaseCategoriesByBranchAsync(branchId);
+            var pa = await _repository.GetPatientsWithDiseaseCategoriesByBranchAsync(branchId, departmentId);
             return _mapper.Map<IEnumerable<PatientDto>>(pa);
         }
 

@@ -434,6 +434,7 @@ namespace HOMMS.Application.Implementations
                     PhoneNumber = user.PhoneNumber,
                     Address = user.Address,
                     ProfilePictureUrl = user.ProfilePictureUrl,
+                    DepartmentId = user.DepartmentId,
                     IsActive = user.IsActive,
                     CreatedAt = user.CreatedAt,
                     Roles = userRoles.ToList()

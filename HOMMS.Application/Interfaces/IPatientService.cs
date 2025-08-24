@@ -76,7 +76,7 @@ namespace HOMMS.Application.Interfaces
         /// </summary>
         /// <param name="branchId">Branch ID</param>
         /// <returns>Patients with disease categories</returns>
-        Task<IEnumerable<PatientDto>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId);
+        Task<IEnumerable<PatientDto>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId, int? departmentId);
 
         /// <summary>
         /// Gets patients by room number

@@ -156,6 +156,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                               UserName = u.UserName,
                               BranchId = bu.BranchId,
                               BranchRoleId = bur.BranchRoleId,
+                              DepartmentId = u.DepartmentId,
                               BranchRoleName = br.Name,
                               IsActive = u.IsActive
                           }).ToListAsync();

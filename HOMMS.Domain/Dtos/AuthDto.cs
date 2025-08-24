@@ -52,6 +52,7 @@ namespace HOMMS.Domain.Dtos
         /// Whether user is a system admin (has access to all permissions)
         /// </summary>
         public bool IsSystemAdmin { get; set; }
+
     }
     
     /// <summary>
@@ -68,6 +69,8 @@ namespace HOMMS.Domain.Dtos
         public string? Address { get; set; }
         public string? ProfilePictureUrl { get; set; }
         public bool IsActive { get; set; }
+        public int? DepartmentId { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public List<string> Roles { get; set; } = new List<string>();
     }

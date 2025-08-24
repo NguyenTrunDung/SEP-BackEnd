@@ -165,10 +165,17 @@ namespace HOMMS.Application.Implementations
         {
             dto.BranchId = EnsureBranchId(dto.BranchId);
 
+            // Log the incoming date for debugging
+            Console.WriteLine($"[MenuDetailService] Creating menu with date: {dto.Date:yyyy-MM-dd HH:mm:ss} (Kind: {dto.Date.Kind})");
+            Console.WriteLine($"[MenuDetailService] Date.Date: {dto.Date.Date:yyyy-MM-dd}");
+            Console.WriteLine($"[MenuDetailService] Date.ToUniversalTime(): {dto.Date.ToUniversalTime():yyyy-MM-dd HH:mm:ss} UTC");
+
             // Check for existing menu for the same branch, date, and time of day
             var existingMenu = await _menuRepository.GetMenuByDateAsync(dto.BranchId, dto.Date, dto.TimeOfDay);
             if (existingMenu != null)
             {
+                Console.WriteLine($"[MenuDetailService] Found existing menu for date {dto.Date:yyyy-MM-dd}, updating instead of creating new");
+                
                 // Update existing menu with new details from template
                 existingMenu.TimeOfDay = dto.TimeOfDay;
                 existingMenu.IsTime = dto.IsTime;
@@ -184,6 +191,7 @@ namespace HOMMS.Application.Implementations
                 {
                     existingMenu.MenuDetails.Add(new MenuDetail
                     {
+                        MenuId = existingMenu.Id,
                         FoodId = d.FoodId,
                         Qty = d.Qty,
                         PriceForGuest = d.PriceForGuest,
@@ -199,6 +207,8 @@ namespace HOMMS.Application.Implementations
                 return await _menuRepository.UpdateMenuWithDetailsAsync(existingMenu);
             }
 
+            Console.WriteLine($"[MenuDetailService] Creating new menu for date {dto.Date:yyyy-MM-dd}");
+            
             // ... existing creation logic ...
             var menu = new Menu
             {
@@ -222,6 +232,8 @@ namespace HOMMS.Application.Implementations
                     IsQty = d.IsQty
                 }).ToList()
             };
+
+            Console.WriteLine($"[MenuDetailService] Final menu.Date: {menu.Date:yyyy-MM-dd HH:mm:ss} (Kind: {menu.Date.Kind})");
 
             return await _menuRepository.AddMenuWithDetailsAsync(menu);
         }

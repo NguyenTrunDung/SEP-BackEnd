@@ -174,16 +174,24 @@ namespace HOMMS.API.Controllers.V1
 
         [HttpGet("with-disease-categories-by-branch")]
         //[Authorize(Policy = "Permission:Patient:view")]
-        public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsWithDiseaseCategoriesByBranch([FromQuery] int branchId)
+        public async Task<ActionResult<ApiResponseBase<List<PatientDto>>>> GetPatientsWithDiseaseCategoriesByBranch(
+            [FromQuery] int branchId, 
+            [FromQuery] int? departmentId)
         {
-            var pa = await _patientService.GetPatientsWithDiseaseCategoriesByBranchAsync(branchId);
-            if (!pa.Any()) return NotFound(new ApiResponseBase<List<PatientDto>>(null, "Patient not found", "error", 0));
-            var ti = _mapper.Map<List<PatientDto>>(pa);
-            var count = ti.Count;
-            return Ok(new ApiResponseBase<List<PatientDto>>(ti, "Patient retrieved successfully", "success", count));
-
-
+            try
+            {
+                var pa = await _patientService.GetPatientsWithDiseaseCategoriesByBranchAsync(branchId, departmentId);
+                if (!pa.Any()) return NotFound(new ApiResponseBase<List<PatientDto>>(null, "Patient not found", "error", 0));
+                var ti = _mapper.Map<List<PatientDto>>(pa);
+                var count = ti.Count;
+                return Ok(new ApiResponseBase<List<PatientDto>>(ti, "Patient retrieved successfully", "success", count));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { status = "error", message = ex.Message });
+            }
         }
+
 
 
 

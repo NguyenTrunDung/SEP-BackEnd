@@ -43,7 +43,7 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// </summary>
         /// <param name="branchId">Branch ID</param>
         /// <returns>Patients with disease categories</returns>
-        Task<IEnumerable<Patient>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId);
+        Task<IEnumerable<Patient>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId, int? departmentId);
         
         /// <summary>
         /// Gets patients by room number

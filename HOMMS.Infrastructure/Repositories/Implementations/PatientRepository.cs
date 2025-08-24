@@ -92,15 +92,49 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                .ToListAsync();
         }
 
-        public async Task<IEnumerable<Patient>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId)
+        // public async Task<IEnumerable<Patient>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId, int? departmentId)
+        // {
+        //     var query = DbSet
+        //         .Include(c => c.PatientDiseaseCategories)
+        //         .ThenInclude(c => c.DiseaseCategory)
+        //         .Where(p => p.BranchId == branchId);
+            
+        //     // If departmentId is specified, filter patients by the nurse's department
+        //     if (departmentId.HasValue)
+        //     {
+        //         // Join with ApplicationUser to filter by nurse's department
+        //         // This assumes that patients are managed by nurses in specific departments
+        //         query = query
+        //             .Join(_context.Users, p => p.Id, u => u.PatientId, (p, u) => new { Patient = p, User = u })
+        //             .Where(x => x.User.DepartmentId == departmentId.Value)
+        //             .Select(x => x.Patient);
+        //     }
+            
+        //     return await query
+        //         .OrderByDescending(p => p.IsActive)
+        //         .ThenByDescending(p => p.AdmissionDate)
+        //         .ToListAsync();
+        // }
+
+        public async Task<IEnumerable<Patient>> GetPatientsWithDiseaseCategoriesByBranchAsync(int branchId, int? departmentId)
         {
-            return await DbSet
-               .Include(c => c.PatientDiseaseCategories)
-               .ThenInclude(c => c.DiseaseCategory)
-               .Where(p => p.BranchId == branchId)
-               .OrderByDescending(p => p.IsActive)
-               .ThenByDescending(p => p.AdmissionDate)
-               .ToListAsync();
+            var query = DbSet
+                .Include(c => c.PatientDiseaseCategories)
+                .ThenInclude(c => c.DiseaseCategory)
+                .Where(p => p.BranchId == branchId);
+            
+            // If departmentId is specified, filter patients by the nurse's department
+            if (departmentId.HasValue)
+            {
+                // Filter patients by their departmentId (not by joining with ApplicationUser)
+                // This assumes patients are assigned to departments directly
+                query = query.Where(p => p.departmentId == departmentId.Value);
+            }
+            
+            return await query
+                .OrderByDescending(p => p.IsActive)
+                .ThenByDescending(p => p.AdmissionDate)
+                .ToListAsync();
         }
 
         public async Task<Patient?> GetPatientWithDiseaseCategoriesAsync(string patientId)

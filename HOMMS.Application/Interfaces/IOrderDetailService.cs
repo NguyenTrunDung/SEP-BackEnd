@@ -12,6 +12,13 @@ namespace HOMMS.Application.Interfaces
         Task<List<OrderDetailsDto>> GetOrderDetailsByOrderIdAsync(int orderId);
 
         /// <summary>
+        /// Gets order details with comprehensive patient information for kitchen view
+        /// </summary>
+        /// <param name="orderId">The order ID</param>
+        /// <returns>Order details with patient information</returns>
+        Task<List<OrderDetailsDto>> GetOrderDetailsWithPatientInfoAsync(int orderId);
+
+        /// <summary>
         /// Gets orders with status "Preparing" for kitchen view
         /// Note: This method is implemented in OrderService instead
         /// </summary>

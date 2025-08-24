@@ -68,6 +68,7 @@ namespace HOMMS.Application.Implementations
                 user.PhoneNumber = request.PhoneNumber;
                 user.IsActive = true;
                 user.EmailConfirmed = true;
+                user.DepartmentId = request.DepartmentId;
 
                 // Cập nhật password mới
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -89,7 +90,8 @@ namespace HOMMS.Application.Implementations
                     UserName = request.UserName,
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    DepartmentId = request.DepartmentId,
                 };
 
                 var result = await _repository.CreateUserWithPasswordAsync(user, request.Password);
@@ -205,6 +207,13 @@ namespace HOMMS.Application.Implementations
             user.LastName = request.LastName;
             user.IsActive = request.IsActive;
             user.PhoneNumber = request.PhoneNumber;
+
+            // Add departmentId update
+            if (request.DepartmentId.HasValue)
+            {
+                user.DepartmentId = request.DepartmentId.Value;
+            }
+
             await _repository.UpdateUserAsync(user);
             await _repository.UpdateUserBranchRoleAsync(request.UserId, request.BranchId, request.BranchRoleId);
             return true;

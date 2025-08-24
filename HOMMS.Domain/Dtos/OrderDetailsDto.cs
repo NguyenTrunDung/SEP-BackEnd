@@ -23,5 +23,23 @@ namespace HOMMS.Domain.Dtos
         
         // For detailed food information in kitchen orders
         public FoodDto? Food { get; set; }
+        
+        // Patient information for patient orders
+        public PatientInfoDto? PatientInfo { get; set; }
+    }
+    
+    // DTO for patient information in order details
+    public class PatientInfoDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string MedicalRecordNumber { get; set; } = string.Empty;
+        public string? RoomNumber { get; set; }
+        public string? BedNumber { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string? Gender { get; set; }
+        public int? DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -55,6 +55,8 @@ namespace HOMMS.Domain.Dtos
         public string UserName { get; set; } = default!;
         public int BranchId { get; set; }
         public int BranchRoleId { get; set; }
+
+        public int? DepartmentId { get; set; }
         public string BranchRoleName { get; set; }
         public bool IsActive { get; set; }
 
