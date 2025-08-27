@@ -22,9 +22,9 @@ namespace HOMMS.Domain.Entities
         
         /// <summary>
         /// Gets or sets the food ID that is restricted
+        /// For nutritional meals, this can be null (0) since they don't reference existing foods
         /// </summary>
-        [Required]
-        public int FoodId { get; set; }
+        public int? FoodId { get; set; }
         
         /// <summary>
         /// Gets or sets the restriction level (1=Advisory, 2=Warning, 3=Prohibited, 4=Dangerous)
@@ -53,6 +53,24 @@ namespace HOMMS.Domain.Entities
         /// Gets or sets whether this restriction requires physician override to allow the food
         /// </summary>
         public bool RequiresPhysicianOverride { get; set; } = false;
+        
+        /// <summary>
+        /// Gets or sets the meal times when this restriction applies
+        /// Comma-separated values: "Sáng,Trưa,Tối" or specific times like "Sáng,Trưa"
+        /// If null or empty, applies to all meal times
+        /// </summary>
+        [StringLength(100)]
+        public string? MealTime { get; set; }
+
+        [StringLength(100)]
+        public string? Name { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the price of the nutritional meal
+        /// Only used when FoodId is null (nutritional meals)
+        /// </summary>
+        [Range(0, double.MaxValue)]
+        public decimal? Price { get; set; }
         
         // Navigation properties
         

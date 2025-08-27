@@ -77,6 +77,6 @@ namespace HOMMS.Infrastructure.Repositories.Interfaces
         /// <param name="branchId">Branch ID</param>
         /// <param name="excludeId">ID to exclude from check (for updates)</param>
         /// <returns>True if restriction exists</returns>
-        Task<bool> RestrictionExistsAsync(int diseaseCategoryId, int foodId, int branchId, int? excludeId = null);
+        Task<bool> RestrictionExistsAsync(int diseaseCategoryId, int? foodId, int branchId, int? excludeId = null);
     }
 } 

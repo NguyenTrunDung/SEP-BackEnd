@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using HOMMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using HOMMS.Domain.Entities;
 
 namespace HOMMS.API.Controllers.V1
 {
@@ -246,6 +247,58 @@ namespace HOMMS.API.Controllers.V1
                     return NotFound(new ApiResponseBase<object>(null, "Food restriction not found", "error"));
 
                 return Ok(new ApiResponseBase<object>(null, "Food restriction deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponseBase<object>(null, ex.Message, "error"));
+            }
+        }
+
+        [HttpPost("create-nutritional-meal")]
+        public async Task<ActionResult<ApiResponseBase<object>>> CreateNutritionalMeal([FromBody] CreateNutritionalMealDto dto)
+        {
+            try
+            {
+                var branchId = _branchContext.GetCurrentBranchId();
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
+
+                // Create a new disease category food restriction directly
+                var restriction = new DiseaseCategoryFoodRestriction
+                {
+                    BranchId = branchId,
+                    DiseaseCategoryId = dto.DiseaseCategoryId,
+                    FoodId = null, // No food entity needed, this is a nutritional meal restriction
+                    RestrictionLevel = 3, // Default to "Prohibited" level
+                    Reason = dto.Reason,
+                    AlternativeRecommendations = dto.AlternativeRecommendations,
+                    IsActive = dto.IsActive,
+                    RequiresPhysicianOverride = dto.RequiresPhysicianOverride,
+                    MealTime = dto.MealTime, // Comma-separated meal times
+                    Name = dto.Name, // Store the nutritional meal name directly
+                    Price = dto.Price, // Store the nutritional meal price directly
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = userId,
+                    LastModifiedAt = DateTime.UtcNow,
+                    LastModifiedBy = userId
+                };
+
+                _context.DiseaseCategoryFoodRestrictions.Add(restriction);
+                await _context.SaveChangesAsync();
+
+                // Return the created restriction with nutritional meal info
+                var result = new
+                {
+                    code = restriction.Id.ToString(), // Use restriction ID as code
+                    id = restriction.Id,
+                    name = dto.Name,
+                    price = dto.Price,
+                    diseaseCategoryId = dto.DiseaseCategoryId,
+                    mealTime = dto.MealTime,
+                    reason = dto.Reason,
+                    message = "Nutritional meal restriction created successfully"
+                };
+
+                return Ok(new ApiResponseBase<object>(result, "Nutritional meal restriction created successfully"));
             }
             catch (Exception ex)
             {

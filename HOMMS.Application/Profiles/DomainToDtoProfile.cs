@@ -216,12 +216,15 @@ namespace HOMMS.Application.Profiles
             // DiseaseCategoryFoodRestriction mappings
             CreateMap<DiseaseCategoryFoodRestriction, DiseaseCategoryFoodRestrictionDto>()
                 .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.Branch != null ? src.Branch.Name : null))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name != null ? src.Name : null))
                 .ForMember(dest => dest.DiseaseCategoryName, opt => opt.MapFrom(src => src.DiseaseCategory != null ? src.DiseaseCategory.Name : null))
                 .ForMember(dest => dest.DiseaseCategoryCode, opt => opt.MapFrom(src => src.DiseaseCategory != null ? src.DiseaseCategory.Code : null))
                 .ForMember(dest => dest.FoodName, opt => opt.MapFrom(src => src.Food != null ? src.Food.Name : null))
                 .ForMember(dest => dest.FoodPrice, opt => opt.MapFrom(src => src.Food != null ? src.Food.PriceForGuest : null))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price)) // Map nutritional meal price
                 .ForMember(dest => dest.RestrictionLevelName, opt => opt.Ignore()) // Computed property
-                .ForMember(dest => dest.RestrictionLevelColor, opt => opt.Ignore()); // Computed property
+                .ForMember(dest => dest.RestrictionLevelColor, opt => opt.Ignore()) // Computed property
+                .ForMember(dest => dest.MealTime, opt => opt.MapFrom(src => src.MealTime)); // Map meal time string
 
             CreateMap<CreateDiseaseCategoryFoodRestrictionDto, DiseaseCategoryFoodRestriction>();
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HOMMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250817172413_RemoveBranchIdFromBranchRoles_ManuallyApplied")]
-    partial class RemoveBranchIdFromBranchRoles_ManuallyApplied
+    [Migration("20250827224808_AddPriceToDiseaseCategoryFoodRestrictions")]
+    partial class AddPriceToDiseaseCategoryFoodRestrictions
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -751,7 +751,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.Property<int>("DiseaseCategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("FoodId")
+                    b.Property<int?>("FoodId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -765,6 +765,18 @@ namespace HOMMS.Infrastructure.Migrations
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MealTime")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("Reason")
                         .IsRequired()
@@ -782,17 +794,18 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasIndex("BranchId")
                         .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_BranchId");
 
+                    b.HasIndex("DiseaseCategoryId");
+
                     b.HasIndex("FoodId");
 
                     b.HasIndex("IsActive")
                         .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_IsActive");
 
+                    b.HasIndex("MealTime")
+                        .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_MealTime");
+
                     b.HasIndex("RestrictionLevel")
                         .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_RestrictionLevel");
-
-                    b.HasIndex("DiseaseCategoryId", "FoodId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_DiseaseCategoryId_FoodId");
 
                     b.ToTable("DiseaseCategoryFoodRestrictions", (string)null);
                 });
@@ -2055,8 +2068,7 @@ namespace HOMMS.Infrastructure.Migrations
                     b.HasOne("HOMMS.Domain.Entities.Food", "Food")
                         .WithMany("FoodRestrictions")
                         .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Branch");
 

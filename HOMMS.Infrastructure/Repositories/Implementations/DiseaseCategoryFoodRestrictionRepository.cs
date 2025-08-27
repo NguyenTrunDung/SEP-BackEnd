@@ -48,7 +48,8 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .Include(dcfr => dcfr.DiseaseCategory)
                 .Include(dcfr => dcfr.Food)
                 .Include(dcfr => dcfr.Branch)
-                .OrderBy(dcfr => dcfr.DiseaseCategory!.Name)
+                .OrderByDescending(dcfr => dcfr.CreatedAt)
+                .ThenBy(dcfr => dcfr.DiseaseCategory!.Name)
                 .ThenBy(dcfr => dcfr.Food!.Name)
                 .ToListAsync();
         }
@@ -197,7 +198,7 @@ namespace HOMMS.Infrastructure.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<bool> RestrictionExistsAsync(int diseaseCategoryId, int foodId, int branchId, int? excludeId = null)
+        public async Task<bool> RestrictionExistsAsync(int diseaseCategoryId, int? foodId, int branchId, int? excludeId = null)
         {
             var query = _context.DiseaseCategoryFoodRestrictions
                 .Where(dcfr => dcfr.DiseaseCategoryId == diseaseCategoryId &&

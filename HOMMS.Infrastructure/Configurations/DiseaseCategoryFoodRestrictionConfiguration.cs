@@ -18,6 +18,18 @@ namespace HOMMS.Infrastructure.Configurations
                 
             builder.Property(x => x.AlternativeRecommendations)
                 .HasMaxLength(500);
+                
+            builder.Property(x => x.MealTime)
+                .HasMaxLength(100)
+                .IsRequired(false);
+
+            builder.Property(x => x.Name)
+                .HasMaxLength(100)
+                .IsRequired(false);
+                
+            builder.Property(x => x.Price)
+                .HasPrecision(10, 2)
+                .IsRequired(false);
             
             // Configure relationships
             builder.HasOne(x => x.Branch)
@@ -33,12 +45,15 @@ namespace HOMMS.Infrastructure.Configurations
             builder.HasOne(x => x.Food)
                 .WithMany(x => x.FoodRestrictions)
                 .HasForeignKey(x => x.FoodId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false); // Make FoodId nullable
             
             // Configure indexes
-            builder.HasIndex(x => new { x.DiseaseCategoryId, x.FoodId })
-                .IsUnique()
-                .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_DiseaseCategoryId_FoodId");
+            // Note: Unique constraint on DiseaseCategoryId + FoodId might not work well with nullable FoodId
+            // Consider removing this unique constraint or modifying it based on business requirements
+            // builder.HasIndex(x => new { x.DiseaseCategoryId, x.FoodId })
+            //     .IsUnique()
+            //     .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_DiseaseCategoryId_FoodId");
                 
             builder.HasIndex(x => x.BranchId)
                 .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_BranchId");
@@ -48,6 +63,9 @@ namespace HOMMS.Infrastructure.Configurations
                 
             builder.HasIndex(x => x.RestrictionLevel)
                 .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_RestrictionLevel");
+                
+            builder.HasIndex(x => x.MealTime)
+                .HasDatabaseName("IX_DiseaseCategoryFoodRestrictions_MealTime");
         }
     }
 } 

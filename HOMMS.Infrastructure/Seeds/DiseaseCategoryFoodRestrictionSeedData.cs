@@ -136,9 +136,10 @@ namespace HOMMS.Infrastructure.Seeds
                         Reason = "Bún riêu có nước dùng chứa đường và tinh bột cao, cần kiểm soát khẩu phần",
                         AlternativeRecommendations = "Bún rau củ, canh rau không đường, cháo tôm nhạt",
                         IsActive = true,
-                        RequiresPhysicianOverride = false,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = "System"
+                                                 RequiresPhysicianOverride = false,
+                         CreatedAt = DateTime.UtcNow,
+                         CreatedBy = "System",
+                         MealTime = "Sáng,Trưa,Tối" // Applies to all meal times
                     });
                 }
 
@@ -152,12 +153,13 @@ namespace HOMMS.Infrastructure.Seeds
                         DiseaseCategoryId = diabetesId,
                         FoodId = fruitId,
                         RestrictionLevel = 1, // Advisory
-                        Reason = "Trái cây chứa đường tự nhiên, cần hạn chế lượng và chọn loại ít đường",
-                        AlternativeRecommendations = "Táo, ổi, dưa leo, trái cây ít ngọt với khẩu phần nhỏ",
+                        Reason = "Trái cây chứa đường tự nhiên, tránh ăn vào buổi sáng khi dạ dày trống",
+                        AlternativeRecommendations = "Táo, ổi, dưa leo, trái cây ít ngọt với khẩu phần nhỏ sau bữa chính",
                         IsActive = true,
-                        RequiresPhysicianOverride = false,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = "System"
+                                                 RequiresPhysicianOverride = false,
+                         CreatedAt = DateTime.UtcNow,
+                         CreatedBy = "System",
+                         MealTime = "Sáng" // Only applies to breakfast
                     });
                 }
             }
@@ -179,9 +181,10 @@ namespace HOMMS.Infrastructure.Seeds
                         Reason = "Nước dùng bún riêu có hàm lượng natrium cao từ nước mắm và gia vị",
                         AlternativeRecommendations = "Bún rau củ nước trong, canh rau không muối, món hấp",
                         IsActive = true,
-                        RequiresPhysicianOverride = false,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = "System"
+                                                 RequiresPhysicianOverride = false,
+                         CreatedAt = DateTime.UtcNow,
+                         CreatedBy = "System",
+                         MealTime = "Trưa,Tối" // Only applies to lunch and dinner
                     });
                 }
             }
@@ -203,9 +206,10 @@ namespace HOMMS.Infrastructure.Seeds
                         Reason = "Thịt nhồi có thể chứa chất béo bão hòa, cần hạn chế cho bệnh nhân tim mạch",
                         AlternativeRecommendations = "Đậu hũ hấp, rau củ luộc, protein thực vật",
                         IsActive = true,
-                        RequiresPhysicianOverride = false,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = "System"
+                                                 RequiresPhysicianOverride = false,
+                         CreatedAt = DateTime.UtcNow,
+                         CreatedBy = "System",
+                         MealTime = "Sáng,Trưa,Tối" // Applies to all meal times
                     });
                 }
             }
@@ -227,9 +231,10 @@ namespace HOMMS.Infrastructure.Seeds
                         Reason = "Thịt bằm chứa protein cao, cần hạn chế lượng protein cho bệnh nhân thận",
                         AlternativeRecommendations = "Canh bí đỏ không thịt, rau củ luộc, khẩu phần protein được kiểm soát",
                         IsActive = true,
-                        RequiresPhysicianOverride = false,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = "System"
+                                                 RequiresPhysicianOverride = false,
+                         CreatedAt = DateTime.UtcNow,
+                         CreatedBy = "System",
+                         MealTime = "Sáng,Trưa,Tối" // Applies to all meal times
                     });
                 }
             }
@@ -251,9 +256,10 @@ namespace HOMMS.Infrastructure.Seeds
                         Reason = "Sốt cà chua có tính axit cao gây kích ứng niêm mạc dạ dày",
                         AlternativeRecommendations = "Đậu hũ hấp nhạt, cháo, rau củ luộc",
                         IsActive = true,
-                        RequiresPhysicianOverride = false,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = "System"
+                                                 RequiresPhysicianOverride = false,
+                         CreatedAt = DateTime.UtcNow,
+                         CreatedBy = "System",
+                         MealTime = "Sáng,Trưa,Tối" // Applies to all meal times
                     });
                 }
             }
