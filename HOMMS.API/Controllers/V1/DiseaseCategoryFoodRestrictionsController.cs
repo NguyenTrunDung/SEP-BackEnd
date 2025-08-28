@@ -267,7 +267,7 @@ namespace HOMMS.API.Controllers.V1
                 {
                     BranchId = branchId,
                     DiseaseCategoryId = dto.DiseaseCategoryId,
-                    FoodId = null, // No food entity needed, this is a nutritional meal restriction
+                    FoodId = dto.FoodId, // No food entity needed, this is a nutritional meal restriction
                     RestrictionLevel = 3, // Default to "Prohibited" level
                     Reason = dto.Reason,
                     AlternativeRecommendations = dto.AlternativeRecommendations,
