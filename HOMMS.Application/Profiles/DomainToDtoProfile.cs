@@ -231,6 +231,7 @@ namespace HOMMS.Application.Profiles
             CreateMap<UpdateDiseaseCategoryFoodRestrictionDto, DiseaseCategoryFoodRestriction>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.BranchId, opt => opt.Ignore())
+                .ForMember(dest => dest.FoodId, opt => opt.Ignore())
                 .ForMember(dest => dest.DiseaseCategoryId, opt => opt.Ignore())
                 .ForMember(dest => dest.Name, opt => opt.Ignore())
                 .ForMember(dest => dest.Price, opt => opt.Ignore())

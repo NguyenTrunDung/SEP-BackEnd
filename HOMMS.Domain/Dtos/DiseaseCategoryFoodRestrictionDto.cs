@@ -124,11 +124,14 @@ namespace HOMMS.Domain.Dtos
         /// </summary>
         [Range(0, double.MaxValue)]
         public decimal? Price { get; set; }
-        
+
+        public int? FoodId { get; set; }
+
+
         //[Required]
         //[Range(1, 4)]
         //public int RestrictionLevel { get; set; }
-        
+
         [Required]
         [StringLength(500)]
         public string Reason { get; set; } = string.Empty;
@@ -197,7 +200,7 @@ namespace HOMMS.Domain.Dtos
         [Required]
         public int DiseaseCategoryId { get; set; }
         
-        [Required]
+        [/*Required]*/
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
