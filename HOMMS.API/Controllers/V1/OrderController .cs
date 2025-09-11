@@ -50,15 +50,15 @@ namespace HOMMS.API.Controllers.V1
             [FromQuery] DateTime? startReceiveDate,
             [FromQuery] DateTime? endReceiveDate,
             [FromQuery] string? receiveTime,
-            [FromQuery] string? status,
+            
             [FromQuery] bool? IsPatientOrder,
             [FromQuery] string? customerName,
             [FromQuery] string? customerPhone,
             [FromQuery] int? minTotal,
             [FromQuery] int? maxTotal,
             [FromQuery] string? code,
-            [FromQuery] string? keyword,
-            [FromQuery] bool? isPaid)
+            [FromQuery] string? keyword
+            )
         {
             var orders = await _orderService.GetOrdersByBranchWithFiltersAsync(
                 branchId,
@@ -67,15 +67,14 @@ namespace HOMMS.API.Controllers.V1
                 startReceiveDate,
                 endReceiveDate,
                 receiveTime,
-                status,
+               
                 IsPatientOrder,
                 customerName,
                 customerPhone,
                 minTotal,
                 maxTotal,
                 code,
-                keyword,
-                isPaid
+                keyword
             );
             var totalCount = orders?.Count ?? 0;
             return Ok(new ApiResponseBase<List<OrderDto>>(orders, "Orders retrieved successfully", "success", totalCount));

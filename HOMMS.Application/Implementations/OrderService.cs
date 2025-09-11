@@ -272,15 +272,15 @@ namespace HOMMS.Application.Implementations
             DateTime? startReceiveDate = null,
             DateTime? endReceiveDate = null,
             string? receiveTime = null,
-            string? status = null,
+            
             bool? IsPatientOrder = null,
             string? customerName = null,
             string? customerPhone = null,
             int? minTotal = null,
             int? maxTotal = null,
             string? code = null,
-            string? keyword = null,
-            bool? isPaid = null)
+            string? keyword = null
+             )
         {
             var orders = await _orderRepository.GetOrdersByBranchWithFiltersAsync(
                 branchId,
@@ -289,15 +289,14 @@ namespace HOMMS.Application.Implementations
                 startReceiveDate,
                 endReceiveDate,
                 receiveTime,
-                status,
+                
                 IsPatientOrder,
                 customerName,
                 customerPhone,
                 minTotal,
                 maxTotal,
                 code,
-                keyword,
-                isPaid
+                keyword 
             );
 
             return orders.Select(o => new OrderDto
